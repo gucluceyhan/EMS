@@ -1,0 +1,22 @@
+[Unit]
+Description=GES Solar EMS Edge Agent
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=ems
+Group=ems
+WorkingDirectory=/opt/ems-edge
+EnvironmentFile=-/etc/ems/.env
+ExecStart=/opt/ems-edge/.venv/bin/python -m ems --config /etc/ems/config.yaml
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+WatchdogSec=60
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

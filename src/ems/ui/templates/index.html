@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GES Solar EMS/BMS</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <!-- Tailwind (Play CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f7ff', 100: '#dceeff', 200: '#bfe0ff', 300: '#91caff',
+              400: '#5ea9ff', 500: '#3b8cff', 600: '#1f6df2', 700: '#1856c2',
+              800: '#14489c', 900: '#133f84'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Leaflet -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+</head>
+<body class="h-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+  <div class="min-h-screen flex">
+    <!-- Sidebar -->
+    <aside class="w-64 hidden lg:flex flex-col border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
+      <div class="px-4 py-4 border-b border-gray-200 dark:border-gray-800">
+        <div class="text-lg font-semibold">GES Solar</div>
+        <div class="text-xs text-gray-500">EMS • BMS • Automation</div>
+      </div>
+      <nav class="flex-1 p-2 space-y-1">
+        <button data-nav="fleet" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2 nav-item">
+          <span>🌍</span><span>Dashboard</span>
+        </button>
+        <button data-nav="site" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2 nav-item">
+          <span>☀️</span><span>Sites</span>
+        </button>
+        <button data-nav="analytics" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2 nav-item">
+          <span>📊</span><span>Analytics</span>
+        </button>
+        <button data-nav="control" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2 nav-item">
+          <span>🛡</span><span>Control</span>
+        </button>
+        <a href="/ui/automation/breakers" class="block mt-2 text-xs px-3 py-2 rounded-md border border-dashed border-gray-300 dark:border-gray-700">Breakers (TMŞ) →</a>
+        <button data-nav="reports" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2 nav-item">
+          <span>📑</span><span>Reports</span>
+        </button>
+        <button data-nav="settings" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2 nav-item">
+          <span>⚙️</span><span>Settings</span>
+        </button>
+        <a href="/ui/sites/add" class="block ml-6 mt-1 text-xs px-3 py-2 rounded-md border border-dashed border-gray-300 dark:border-gray-700">Add Site →</a>
+      </nav>
+      <div class="p-3 text-xs text-gray-500">v0.1.0</div>
+    </aside>
+
+    <!-- Main -->
+    <div class="flex-1 flex flex-col">
+      <!-- Topbar -->
+      <header class="sticky top-0 z-10 bg-white/75 dark:bg-gray-950/75 backdrop-blur border-b border-gray-200 dark:border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <button id="sidebarToggle" class="lg:hidden inline-flex items-center px-2 py-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Toggle sidebar">☰</button>
+            <div>
+              <div class="font-semibold">{{ plant.name }}</div>
+              <div class="text-xs text-gray-500">Plant ID: {{ plant.id }}</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="themeToggle" class="px-3 py-1.5 rounded-md bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm">Dark/Light</button>
+            <span class="text-sm text-gray-500">Role:</span>
+            <select id="roleSelect" class="text-sm bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1">
+              <option>Viewer</option>
+              <option>Operator</option>
+              <option>Manager</option>
+              <option>Admin</option>
+            </select>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <main class="flex-1">
+        <div class="max-w-7xl mx-auto px-4 py-6 space-y-8">
+          <!-- 1. Global Fleet Overview -->
+          <section id="view-fleet" class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div class="col-span-2 bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <h2 class="font-semibold">Fleet Map</h2>
+                  <span class="text-xs text-gray-500">Status by color</span>
+                </div>
+                <div id="fleetMap" class="rounded-lg overflow-hidden" style="height: 320px;"></div>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                  <div class="text-sm text-gray-500">Sites Online</div>
+                  <div id="kpiSitesOnline" class="text-2xl font-semibold">-</div>
+                </div>
+                <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                  <div class="text-sm text-gray-500">Sites Offline</div>
+                  <div id="kpiSitesOffline" class="text-2xl font-semibold">-</div>
+                </div>
+                <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                  <div class="text-sm text-gray-500">Total Capacity</div>
+                  <div id="kpiCapacity" class="text-2xl font-semibold">-</div>
+                </div>
+                <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                  <div class="text-sm text-gray-500">Current Generation</div>
+                  <div id="kpiGeneration" class="text-2xl font-semibold">-</div>
+                </div>
+                <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                  <div class="text-sm text-gray-500">Fleet SoC</div>
+                  <div id="kpiFleetSoc" class="text-2xl font-semibold">-</div>
+                </div>
+                <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                  <div class="text-sm text-gray-500">Active Alarms</div>
+                  <div id="kpiAlarms" class="text-2xl font-semibold">-</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div class="lg:col-span-2 bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <h3 class="font-semibold">Production vs Capacity</h3>
+                </div>
+                <canvas id="fleetProductionChart" height="120"></canvas>
+              </div>
+              <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <h3 class="font-semibold">Energy Mix</h3>
+                </div>
+                <canvas id="energyMixDonut" height="120"></canvas>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <h3 class="font-semibold">Regional Breakdown</h3>
+                </div>
+                <canvas id="regionalBarChart" height="120"></canvas>
+              </div>
+              <div class="lg:col-span-2 bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <h3 class="font-semibold">CO₂ Savings</h3>
+                </div>
+                <canvas id="co2Chart" height="120"></canvas>
+              </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl">
+              <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <h3 class="font-semibold">Sites</h3>
+                <input id="siteSearch" placeholder="Search site…" class="text-sm bg-white/60 dark:bg-white/10 border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-600" />
+              </div>
+              <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                  <thead class="bg-gray-900 text-white uppercase tracking-wide text-xs">
+                    <tr>
+                      <th class="px-3 py-2 text-left">Site</th>
+                      <th class="px-3 py-2 text-left">Capacity</th>
+                      <th class="px-3 py-2 text-left">Generation</th>
+                      <th class="px-3 py-2 text-left">PR%</th>
+                      <th class="px-3 py-2 text-left">SoC</th>
+                      <th class="px-3 py-2 text-left">Alarms</th>
+                    </tr>
+                  </thead>
+                  <tbody id="fleetSiteTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- 2. Site-Level Dashboard -->
+          <section id="view-site" class="space-y-6 hidden">
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+              <div class="xl:col-span-2 bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                <h3 class="font-semibold mb-2">Energy Flow</h3>
+                <div class="grid grid-cols-5 gap-3 items-center text-center">
+                  <div class="p-3 rounded-lg border border-gray-200 dark:border-gray-800">☀️ PV</div>
+                  <div class="col-span-1">➡️</div>
+                  <div class="p-3 rounded-lg border border-gray-200 dark:border-gray-800">Inverters</div>
+                  <div class="col-span-1">➡️</div>
+                  <div class="p-3 rounded-lg border border-gray-200 dark:border-gray-800">Busbar</div>
+                  <div class="col-span-2"></div>
+                  <div class="p-3 rounded-lg border border-gray-200 dark:border-gray-800">🔋 Battery</div>
+                  <div class="col-span-1">↕️</div>
+                  <div class="p-3 rounded-lg border border-gray-200 dark:border-gray-800">⚡ Grid</div>
+                </div>
+                <div class="mt-3 text-xs text-gray-500">Interactive controls are shown in Control tab.</div>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                  <div class="text-sm text-gray-500">Site Production</div>
+                  <div id="siteProd" class="text-2xl font-semibold">-</div>
+                </div>
+                <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                  <div class="text-sm text-gray-500">Daily Energy</div>
+                  <div id="siteDaily" class="text-2xl font-semibold">-</div>
+                </div>
+                <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                  <div class="text-sm text-gray-500">SoC / SoH</div>
+                  <div id="siteSocSoh" class="text-2xl font-semibold">-</div>
+                </div>
+                <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                  <div class="text-sm text-gray-500">Transformer Load</div>
+                  <div id="siteTxLoad" class="text-2xl font-semibold">-</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Monitoring Tabs -->
+            <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl">
+              <div class="px-4 pt-3">
+                <div class="flex gap-2 text-sm">
+                  <button data-tab="inv" class="tab-btn px-3 py-2 rounded-md bg-gray-100 dark:bg-gray-800">Inverters</button>
+                  <button data-tab="grid" class="tab-btn px-3 py-2 rounded-md">Transformer & Grid</button>
+                  <button data-tab="bms" class="tab-btn px-3 py-2 rounded-md">BMS</button>
+                  <button data-tab="breakers" class="tab-btn px-3 py-2 rounded-md">Breakers (TMŞ)</button>
+                  <button data-tab="analyzers" class="tab-btn px-3 py-2 rounded-md">Analyzers</button>
+                  <button data-tab="facility" class="tab-btn px-3 py-2 rounded-md">Facility</button>
+                  <button data-tab="security" class="tab-btn px-3 py-2 rounded-md">Security</button>
+                </div>
+              </div>
+              <div class="p-4">
+                <div id="tab-inv" class="tab-view">
+                  <div class="flex items-center justify-between mb-2">
+                    <h3 class="font-semibold">Inverters</h3>
+                    <button id="btnAddInverter" class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm">Add new device</button>
+                  </div>
+                  <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                      <thead class="bg-gray-50 dark:bg-gray-900/50">
+                        <tr>
+                          <th class="px-3 py-2 text-left">Inverter</th>
+                          <th class="px-3 py-2 text-left">Status</th>
+                          <th class="px-3 py-2 text-left">Power</th>
+                          <th class="px-3 py-2 text-left">Eff.%</th>
+                          <th class="px-3 py-2 text-left">Temp</th>
+                          <th class="px-3 py-2 text-left">Alarms</th>
+                        </tr>
+                      </thead>
+                      <tbody id="invTableBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+                <div id="tab-grid" class="tab-view hidden">
+                  <div class="flex items-center justify-between mb-2">
+                    <h3 class="font-semibold">Transformer & Grid</h3>
+                    <button id="btnAddGrid" class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm">Add new device</button>
+                  </div>
+                  <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                      <thead class="bg-gray-700 text-gray-100 uppercase tracking-wide text-xs">
+                        <tr>
+                          <th class="px-3 py-2 text-left">Device</th>
+                          <th class="px-3 py-2 text-left">Type</th>
+                          <th class="px-3 py-2 text-left">Endpoint</th>
+                          <th class="px-3 py-2 text-left">V</th>
+                          <th class="px-3 py-2 text-left">A</th>
+                          <th class="px-3 py-2 text-left">PF</th>
+                        </tr>
+                      </thead>
+                      <tbody id="gridDeviceTableBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+                <div id="tab-bms" class="tab-view hidden">
+                  <div class="flex items-center justify-between mb-2">
+                    <h3 class="font-semibold">BMS</h3>
+                    <button id="btnAddBms" class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm">Add new device</button>
+                  </div>
+                  <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="bmsKpi"></div>
+                  <canvas id="cellHeatmap" height="120" class="mt-4 hidden"></canvas>
+                  <div class="overflow-x-auto mt-4">
+                    <table class="min-w-full text-sm">
+                      <thead class="bg-gray-700 text-gray-100 uppercase tracking-wide text-xs">
+                        <tr>
+                          <th class="px-3 py-2 text-left">Device</th>
+                          <th class="px-3 py-2 text-left">Type</th>
+                          <th class="px-3 py-2 text-left">Endpoint</th>
+                          <th class="px-3 py-2 text-left">SoC</th>
+                          <th class="px-3 py-2 text-left">SoH</th>
+                          <th class="px-3 py-2 text-left">P (kW)</th>
+                        </tr>
+                      </thead>
+                      <tbody id="bmsTableBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+                <div id="tab-breakers" class="tab-view hidden">
+                  <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-semibold">Breakers (TMŞ)</h4>
+                    <button id="btnAddBreaker" class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm">Add new device</button>
+                  </div>
+                  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2">
+                      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 mb-4">
+                        <h5 class="font-semibold mb-2">Breakers Overview</h5>
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" id="siteBreakerGrid"></div>
+                      </div>
+                    </div>
+                    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                      <h5 class="font-semibold mb-2">Busbar Load Distribution</h5>
+                      <div id="siteBusbarBars" class="flex items-end gap-2 h-40"></div>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+                    <div class="lg:col-span-2 bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                      <h5 class="font-semibold mb-2">Selected Breaker — Live Measurements</h5>
+                      <div id="siteMeasureGrid" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
+                      <div class="mt-4">
+                        <svg id="siteTrendSvg" viewBox="0 0 400 100" class="w-full h-24"></svg>
+                      </div>
+                    </div>
+                    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                      <details>
+                        <summary class="font-semibold cursor-pointer">Settings (Mapping)</summary>
+                        <div class="mt-3 grid grid-cols-2 gap-3 text-sm">
+                          <label>Open Coil<input id="siteMapOpen" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" /></label>
+                          <label>Close Coil<input id="siteMapClose" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" /></label>
+                          <label>Pulse ms<input id="siteMapPulse" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" /></label>
+                          <label>Open FB<input id="siteMapOpenFb" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" /></label>
+                          <label>Close FB<input id="siteMapCloseFb" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" /></label>
+                          <label>Trip FB<input id="siteMapTripFb" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" /></label>
+                          <button id="btnSiteSaveMap" class="col-span-2 mt-2 px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Save</button>
+                        </div>
+                      </details>
+                    </div>
+                  </div>
+                </div>
+                <div id="tab-analyzers" class="tab-view hidden">
+                  <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-semibold">Analyzers</h4>
+                    <button id="btnAddAnalyzer" class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm">Add new device</button>
+                  </div>
+                  <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                      <thead class="bg-gray-700 text-gray-100 uppercase tracking-wide text-xs">
+                        <tr>
+                          <th class="px-3 py-2 text-left">Device</th>
+                          <th class="px-3 py-2 text-left">Model</th>
+                          <th class="px-3 py-2 text-left">Endpoint</th>
+                          <th class="px-3 py-2 text-left">V</th>
+                          <th class="px-3 py-2 text-left">A</th>
+                          <th class="px-3 py-2 text-left">P (kW)</th>
+                          <th class="px-3 py-2 text-left">PF</th>
+                        </tr>
+                      </thead>
+                      <tbody id="analyzerTableBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+                <div id="tab-facility" class="tab-view hidden">
+                  <div class="flex items-center justify-between mb-2">
+                    <h3 class="font-semibold">Facility</h3>
+                    <button id="btnAddFacility" class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm">Add new device</button>
+                  </div>
+                  <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                      <thead class="bg-gray-700 text-gray-100 uppercase tracking-wide text-xs">
+                        <tr>
+                          <th class="px-3 py-2 text-left">Device</th>
+                          <th class="px-3 py-2 text-left">Type</th>
+                          <th class="px-3 py-2 text-left">Endpoint</th>
+                          <th class="px-3 py-2 text-left">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody id="facilityTableBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+                <div id="tab-security" class="tab-view hidden">
+                  <div class="flex items-center justify-between mb-2">
+                    <h3 class="font-semibold">Security</h3>
+                    <button id="btnAddSecurity" class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm">Add new device</button>
+                  </div>
+                  <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                      <thead class="bg-gray-700 text-gray-100 uppercase tracking-wide text-xs">
+                        <tr>
+                          <th class="px-3 py-2 text-left">Device</th>
+                          <th class="px-3 py-2 text-left">Type</th>
+                          <th class="px-3 py-2 text-left">Endpoint</th>
+                          <th class="px-3 py-2 text-left">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody id="securityTableBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3. Energy Automation (TMŞ Control & Monitoring) -->
+          <section id="view-control" class="space-y-6 hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="breakerGrid"></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                <h3 class="font-semibold mb-2">Busbar Monitoring</h3>
+                <canvas id="busbarChart" height="120"></canvas>
+              </div>
+              <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                <h3 class="font-semibold mb-2">Electrical Measurements</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="tmcKpi"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 4. Analytics & Reports -->
+          <section id="view-analytics" class="space-y-6 hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                <h3 class="font-semibold mb-2">Fleet Production vs Capacity</h3>
+                <canvas id="analyticsFleetChart" height="140"></canvas>
+              </div>
+              <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                <h3 class="font-semibold mb-2">Regional Performance</h3>
+                <canvas id="analyticsRegionBar" height="140"></canvas>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                <h3 class="font-semibold mb-2">Energy Mix</h3>
+                <canvas id="analyticsMixDonut" height="140"></canvas>
+              </div>
+              <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                <h3 class="font-semibold mb-2">CO₂ Savings Trend</h3>
+                <canvas id="analyticsCo2Trend" height="140"></canvas>
+              </div>
+            </div>
+          </section>
+
+          <!-- 4b. Reports -->
+          <section id="view-reports" class="space-y-6 hidden">
+            <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+              <h3 class="font-semibold mb-3">Custom Report Generator</h3>
+              <form id="reportForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                  <label class="text-sm">Metrics</label>
+                  <select id="reportMetrics" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" multiple>
+                    <option value="kwh">kWh</option>
+                    <option value="pr">PR</option>
+                    <option value="soc">SoC</option>
+                    <option value="costs">Costs</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-sm">Sites</label>
+                  <select id="reportSites" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" multiple>
+                    <option value="{{ plant.id }}">{{ plant.name }}</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-sm">Format</label>
+                  <select id="reportFormat" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1">
+                    <option>PDF</option>
+                    <option>Excel</option>
+                    <option>CSV</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-sm">Schedule</label>
+                  <select id="reportSchedule" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1">
+                    <option>One-time</option>
+                    <option>Daily</option>
+                    <option>Weekly</option>
+                    <option>Monthly</option>
+                  </select>
+                </div>
+                <div class="md:col-span-2 lg:col-span-3 flex gap-2">
+                  <button type="button" id="btnGenerateReport" class="px-3 py-2 rounded-md bg-brand-600 text-white">Generate</button>
+                  <a href="/export/snapshot" target="_blank" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Live Snapshot (JSON)</a>
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <!-- 5. Settings (placeholder) -->
+          <section id="view-settings" class="space-y-6 hidden">
+            <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+              <h3 class="font-semibold mb-2">Settings</h3>
+              <div class="text-sm text-gray-500">Role-based access is UI-side only for now.</div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- App JS -->
+  <script src="/static/ui.js"></script>
+  <!-- Add Device Modal -->
+  <div id="addDeviceModal" class="fixed inset-0 hidden flex items-center justify-center bg-black/50 z-50" role="dialog" aria-modal="true">
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+        <h4 id="addDeviceTitle" class="font-semibold">Add Device</h4>
+        <button id="addDeviceClose" class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm">Close</button>
+      </div>
+      <div class="flex-1 overflow-y-auto p-4 space-y-4">
+        <!-- Stepper -->
+        <div class="flex gap-2 text-xs" id="addSteps"></div>
+        <!-- Step Bodies -->
+        <div id="addStepBody" class="space-y-4"></div>
+      </div>
+      <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
+        <button id="addBack" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Back</button>
+        <div class="flex gap-2">
+          <button id="addTest" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Test Connection</button>
+          <button id="addNext" class="px-3 py-2 rounded-md bg-brand-600 text-white">Next</button>
+          <button id="addSave" class="px-3 py-2 rounded-md bg-brand-600 text-white hidden">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

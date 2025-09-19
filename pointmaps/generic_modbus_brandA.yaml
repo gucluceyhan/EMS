@@ -1,0 +1,41 @@
+metadata:
+  name: "BrandA ControllerX"
+  version: "2.1.0"
+  device_type: "generic_modbus"
+  vendor: "BrandA"
+points:
+  - name: "STATE_OF_CHARGE"
+    fc: 3
+    address: 200
+    type: "uint16"
+    count: 1
+    scale: 0.1
+    unit: "%"
+    quality_rules:
+      min: 0
+      max: 100
+  - name: "OUTPUT_POWER"
+    fc: 3
+    address: 210
+    type: "int32"
+    count: 2
+    scale: 0.01
+    unit: "kW"
+    signed: true
+    endianness: "little"
+    word_order: "little"
+  - name: "ALARM_BITS"
+    fc: 1
+    address: 10
+    type: "bitfield16"
+    count: 1
+    decode:
+      0: "COMM_LOSS"
+      1: "OVERVOLT"
+      2: "OVERCUR"
+  - name: "HEATSINK_TEMP"
+    fc: 4
+    address: 55
+    type: "float"
+    count: 2
+    unit: "C"

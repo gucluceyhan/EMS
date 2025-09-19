@@ -1,0 +1,33 @@
+metadata:
+  name: "Tracker Controller"
+  version: "1.0.0"
+  device_type: "tracker"
+points:
+  - name: "AZIMUTH"
+    fc: 3
+    address: 10
+    type: "int16"
+    count: 1
+    scale: 0.1
+    unit: "deg"
+  - name: "ELEVATION"
+    fc: 3
+    address: 11
+    type: "int16"
+    count: 1
+    scale: 0.1
+    unit: "deg"
+  - name: "MODE"
+    fc: 3
+    address: 20
+    type: "bitfield16"
+    count: 1
+    decode:
+      0: "AUTO"
+      1: "MANUAL"
+      2: "STORM"
+  - name: "ALARM"
+    fc: 1
+    address: 1
+    type: "bool"
+    count: 1

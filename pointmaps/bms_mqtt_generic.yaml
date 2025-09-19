@@ -1,0 +1,23 @@
+metadata:
+  name: "MQTT BMS"
+  version: "1.0.0"
+  device_type: "bms"
+  topics:
+    soc: "${topic_prefix}/soc"
+    voltage: "${topic_prefix}/voltage"
+    current: "${topic_prefix}/current"
+    temperature: "${topic_prefix}/temps"
+    alarms: "${topic_prefix}/alarms"
+points:
+  - name: "SOC"
+    metric: "SOC"
+    unit: "%"
+  - name: "V"
+    metric: "PACK_V"
+    unit: "V"
+  - name: "I"
+    metric: "PACK_I"
+    unit: "A"
+  - name: "ALARM_COUNT"
+    metric: "ALARM_COUNT"
+    unit: "count"

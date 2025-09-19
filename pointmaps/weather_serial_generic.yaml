@@ -1,0 +1,23 @@
+metadata:
+  name: "Weather Station Serial"
+  version: "1.0.0"
+  device_type: "weather"
+points:
+  - name: "IRRADIANCE"
+    fc: null
+    parser: "csv"
+    index: 0
+    type: "float"
+    unit: "W/m2"
+  - name: "AMBIENT_TEMP"
+    fc: null
+    parser: "csv"
+    index: 1
+    type: "float"
+    unit: "C"
+  - name: "WIND_SPEED"
+    fc: null
+    parser: "csv"
+    index: 2
+    type: "float"
+    unit: "m/s"

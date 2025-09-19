@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Add New Site – GES Solar</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 600: '#1f6df2' }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="h-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+  <div class="min-h-screen flex flex-col">
+    <header class="sticky top-0 z-10 bg-white/75 dark:bg-gray-950/75 backdrop-blur border-b border-gray-200 dark:border-gray-800">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div>
+          <div class="font-semibold">Sites</div>
+          <div class="text-xs text-gray-500">Add New Site Wizard</div>
+        </div>
+        <div class="flex items-center gap-2 text-sm">
+          <a href="/ui" class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700">Back to Dashboard</a>
+          <button id="themeToggle" class="px-3 py-1.5 rounded-md bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">Dark/Light</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1">
+      <div class="max-w-5xl mx-auto px-4 py-6 space-y-6">
+        <!-- Stepper -->
+        <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 sticky top-[64px] z-10">
+          <div class="flex items-center justify-between overflow-x-auto text-xs">
+            <div class="flex items-center gap-2" id="wizardSteps"></div>
+            <div class="flex items-center gap-2">
+              <button id="btnSaveDraft" class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700">Save Draft</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wizard Card -->
+        <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-6">
+          <form id="wizardForm" class="space-y-6">
+            <!-- Steps containers -->
+            <div id="step-1" class="space-y-4">
+              <h2 class="font-semibold text-lg">1. Basics</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="text-sm">Site Name</label>
+                  <input id="siteName" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" placeholder="Unique name" />
+                  <p id="siteNameErr" class="text-xs text-red-600 mt-1 hidden">Name must be unique</p>
+                </div>
+                <div>
+                  <label class="text-sm">Site Code (optional)</label>
+                  <input id="siteCode" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+                </div>
+                <div>
+                  <label class="text-sm">Site Type</label>
+                  <select id="siteType" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+                    <option>PV</option>
+                    <option>PV+BESS</option>
+                    <option>BESS</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-sm">Operator Company</label>
+                  <input id="operator" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+                </div>
+                <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label class="text-sm">Contact Name</label>
+                    <input id="contactName" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+                  </div>
+                  <div>
+                    <label class="text-sm">Contact Email</label>
+                    <input id="contactEmail" type="email" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+                    <p id="emailErr" class="text-xs text-red-600 mt-1 hidden">Invalid email format</p>
+                  </div>
+                  <div>
+                    <label class="text-sm">Contact Phone</label>
+                    <input id="contactPhone" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" placeholder="+90..." />
+                    <p id="phoneErr" class="text-xs text-red-600 mt-1 hidden">Invalid phone format</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="step-2" class="space-y-4 hidden">
+              <h2 class="font-semibold text-lg">2. Location & Timezone</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
+                  <div id="wizardMap" class="rounded-lg border border-gray-200 dark:border-gray-800 h-56"></div>
+                </div>
+                <div>
+                  <label class="text-sm">Latitude</label>
+                  <input id="lat" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+                </div>
+                <div>
+                  <label class="text-sm">Longitude</label>
+                  <input id="lng" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+                </div>
+                <div>
+                  <label class="text-sm">Country</label>
+                  <input id="country" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+                </div>
+                <div>
+                  <label class="text-sm">City</label>
+                  <input id="city" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+                </div>
+                <div class="md:col-span-2">
+                  <label class="text-sm">Address</label>
+                  <input id="address" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+                </div>
+                <div class="md:col-span-2">
+                  <label class="text-sm">Timezone</label>
+                  <input id="timezone" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" placeholder="Auto-detected" />
+                </div>
+              </div>
+            </div>
+
+            <div id="step-3" class="space-y-4 hidden">
+              <h2 class="font-semibold text-lg">3. Capacity & Topology</h2>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label class="text-sm">DC MWp</label>
+                  <input id="dcMWp" type="number" step="0.01" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+                </div>
+                <div>
+                  <label class="text-sm">AC MVA</label>
+                  <input id="acMVA" type="number" step="0.01" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+                </div>
+                <div>
+                  <label class="text-sm">Topology</label>
+                  <select id="topology" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+                    <option value="PV_INV_BUS_TX_GRID">PV → INV → BUS → TX → GRID</option>
+                    <option value="PV_INV_BUS_TX_GRID_BESS">PV → INV → BUS → TX → GRID + BESS</option>
+                  </select>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                  <label class="text-sm">Inverter Count</label>
+                  <input id="inverterCount" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+                </div>
+                <div>
+                  <label class="text-sm">BESS</label>
+                  <select id="hasBESS" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+                    <option value="no">No</option>
+                    <option value="yes">Yes</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-sm">BESS Total kWh</label>
+                  <input id="bessKWh" type="number" step="0.1" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+                </div>
+                <div>
+                  <label class="text-sm">BESS Total kW</label>
+                  <input id="bessKW" type="number" step="0.1" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+                </div>
+              </div>
+            </div>
+
+            <div id="step-4" class="space-y-4 hidden">
+              <h2 class="font-semibold text-lg">4. Device Discovery & Connections</h2>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-3 flex items-end gap-2">
+                  <div class="flex-1">
+                    <label class="text-sm">CIDR</label>
+                    <input id="cidr" placeholder="192.168.1.0/24" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+                  </div>
+                  <div>
+                    <label class="text-sm">Protocol</label>
+                    <select id="protocol" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+                      <option>SunSpec</option>
+                      <option>Modbus</option>
+                    </select>
+                  </div>
+                  <button type="button" id="btnDiscover" class="px-3 py-2 rounded-md bg-brand-600 text-white">Discover</button>
+                </div>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                  <thead class="bg-gray-50 dark:bg-gray-900/50">
+                    <tr class="uppercase tracking-wide text-gray-500">
+                      <th class="px-3 py-2 text-left">Device</th>
+                      <th class="px-3 py-2 text-left">Type</th>
+                      <th class="px-3 py-2 text-left">Vendor/Model</th>
+                      <th class="px-3 py-2 text-left">Endpoint</th>
+                      <th class="px-3 py-2 text-left">Protocol</th>
+                      <th class="px-3 py-2 text-left">Status</th>
+                      <th class="px-3 py-2 text-left">Sample</th>
+                      <th class="px-3 py-2 text-left">Params</th>
+                    </tr>
+                  </thead>
+                  <tbody id="discoverTBody"></tbody>
+                </table>
+              </div>
+              <p id="discoverErr" class="text-xs text-red-600 hidden">At least one device per declared type must be online with sample read.</p>
+            </div>
+
+            <div id="step-5" class="space-y-4 hidden">
+              <h2 class="font-semibold text-lg">5. Energy Automation (Breakers/TMŞ)</h2>
+              <div id="breakerList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+
+            <div id="step-6" class="space-y-4 hidden">
+              <h2 class="font-semibold text-lg">6. Grid & Tariff / EMS Policies</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="text-sm">Grid Export Limit (kW)</label>
+                  <input id="gridExportLimit" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+                </div>
+                <div>
+                  <label class="text-sm">SoC Reserve (%)</label>
+                  <input id="socReserve" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+                </div>
+                <div class="md:col-span-2">
+                  <label class="text-sm">Tariff CSV (placeholder)</label>
+                  <input type="file" id="tariffCsv" class="w-full text-sm" />
+                </div>
+              </div>
+            </div>
+
+            <div id="step-7" class="space-y-4 hidden">
+              <h2 class="font-semibold text-lg">7. Alerts, Reports, Roles & Summary</h2>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label class="text-sm">Reporting</label>
+                  <select id="reporting" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+                    <option>Daily</option>
+                    <option>Weekly</option>
+                    <option>Monthly</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-sm">Format</label>
+                  <select id="reportFormat" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+                    <option>PDF</option>
+                    <option>XLSX</option>
+                    <option>CSV</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-sm">Role</label>
+                  <select id="role" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+                    <option>Viewer</option>
+                    <option>Operator</option>
+                    <option>Manager</option>
+                    <option>Admin</option>
+                  </select>
+                </div>
+              </div>
+              <div id="summary" class="text-sm text-gray-500">Summary will appear here.</div>
+            </div>
+
+            <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-800">
+              <button id="btnBack" type="button" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Back</button>
+              <div class="flex gap-2">
+                <button id="btnNext" type="button" class="px-3 py-2 rounded-md bg-brand-600 text-white">Next</button>
+                <button id="btnCreate" type="button" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 hidden">Create Site</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/static/assets/js/site-wizard.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,39 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0 2rem;
+  background: #f4f6f8;
+}
+header {
+  background: #1b3a4b;
+  color: #fff;
+  padding: 1rem 2rem;
+  margin: 0 -2rem 2rem;
+}
+#device-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+.device-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.device-card.healthy {
+  border-left: 4px solid #2e7d32;
+}
+.device-card.unhealthy {
+  border-left: 4px solid #c62828;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+th, td {
+  padding: 0.5rem;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}

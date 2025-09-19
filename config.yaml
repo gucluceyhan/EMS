@@ -1,0 +1,198 @@
+---
+version: 1
+plant:
+  id: "plant-alpha"
+  name: "Sample Solar Plant"
+  timezone: "UTC"
+
+global:
+  enable_control: false
+  dry_run: true
+  storage:
+    sqlite_path: "data/ems.sqlite"
+    retention_days: 30
+    export_parquet_dir: "data/exports"
+    export_interval_s: 3600
+  uplink:
+    url: "https://uplink.example.com/api/v1/batch"
+    api_key: "CHANGE_ME"
+    batch_period_s: 300
+    max_batch_kb: 256
+    tls_verify: true
+  export:
+    enable: true
+    snapshot_url: "https://uplink.example.com/api/v1/snapshot"
+    registermap_url: "https://uplink.example.com/api/v1/registermaps"
+    auth_token: "CHANGE_ME"
+    include_raw_registers: false
+  api:
+    bind_host: "0.0.0.0"
+    port: 8080
+    auth_token: "LOCAL_API_TOKEN"
+  ui:
+    enabled: true
+    bind_host: "0.0.0.0"
+    port: 8080
+    basic_auth_user: "ems"
+    basic_auth_password: "ems"
+  logging:
+    level: "INFO"
+    json: true
+  security:
+    auth_token: "LOCAL_API_TOKEN"
+  scheduler:
+    jitter_seconds: 5
+    watchdog_interval_s: 30
+
+mqtt:
+  host: "localhost"
+  port: 1883
+  username: null
+  password: null
+  tls: false
+
+can:
+  interface: "can0"
+  channel: "can0"
+  bitrate: 250000
+
+
+devices:
+  - id: "inv-1"
+    plant_id: "plant-alpha"
+    type: "inverter"
+    make: "Generic"
+    model: "SunSpec-103"
+    protocol: "modbus_tcp"
+    connection:
+      host: "127.0.0.1"
+      port: 5020
+      unit_id: 1
+    poll_interval_s: 60
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: false
+      open_breaker: false
+      close_breaker: false
+  - id: "inv-2"
+    plant_id: "plant-alpha"
+    type: "inverter"
+    make: "Generic"
+    model: "SunSpec-113"
+    protocol: "modbus_tcp"
+    connection:
+      host: "127.0.0.1"
+      port: 5021
+      unit_id: 2
+    poll_interval_s: 60
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: false
+      open_breaker: false
+      close_breaker: false
+  - id: "meter-1"
+    plant_id: "plant-alpha"
+    type: "meter"
+    make: "IEC"
+    model: "62053"
+    protocol: "modbus_rtu"
+    connection:
+      port: "/dev/ttyUSB-meter"
+      baudrate: 9600
+      parity: "E"
+      stopbits: 1
+      unit_id: 3
+    poll_interval_s: 60
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/meter_iec62053_generic.yaml"
+  - id: "weather-1"
+    plant_id: "plant-alpha"
+    type: "weather"
+    make: "Generic"
+    model: "SerialMet"
+    protocol: "serial"
+    connection:
+      port: "/dev/ttyUSB-weather"
+      baudrate: 19200
+      bytesize: 8
+      parity: "N"
+      stopbits: 1
+    poll_interval_s: 60
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/weather_serial_generic.yaml"
+  - id: "tracker-1"
+    plant_id: "plant-alpha"
+    type: "tracker"
+    make: "Generic"
+    model: "DualAxis"
+    protocol: "modbus_rtu"
+    connection:
+      port: "/dev/ttyUSB-tracker"
+      baudrate: 19200
+      parity: "N"
+      stopbits: 1
+      unit_id: 4
+    poll_interval_s: 60
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/tracker_generic.yaml"
+  - id: "bms-1"
+    plant_id: "plant-alpha"
+    type: "bms"
+    make: "Generic"
+    model: "MQTT"
+    protocol: "mqtt"
+    connection:
+      topic_prefix: "plants/plant-alpha/bms"
+    poll_interval_s: 60
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/bms_mqtt_generic.yaml"
+  - id: "dio-1"
+    plant_id: "plant-alpha"
+    type: "dio"
+    make: "MCP"
+    model: "23017"
+    protocol: "i2c"
+    connection:
+      bus: 1
+      address: 0x20
+    poll_interval_s: 60
+    timeout_ms: 2000
+    retries: 3
+  - id: "modbus-a"
+    plant_id: "plant-alpha"
+    type: "generic_modbus"
+    make: "BrandA"
+    model: "ControllerX"
+    protocol: "modbus_tcp"
+    connection:
+      host: "127.0.0.1"
+      port: 1502
+      unit_id: 5
+    poll_interval_s: 90
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/generic_modbus_brandA.yaml"
+  - id: "modbus-b"
+    plant_id: "plant-alpha"
+    type: "generic_modbus"
+    make: "BrandB"
+    model: "EnviroSense"
+    protocol: "modbus_rtu"
+    connection:
+      port: "/dev/ttyUSB-brandb"
+      baudrate: 9600
+      parity: "N"
+      stopbits: 1
+      unit_id: 6
+    poll_interval_s: 75
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/generic_modbus_brandB.yaml"

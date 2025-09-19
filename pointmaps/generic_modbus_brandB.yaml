@@ -1,0 +1,39 @@
+metadata:
+  name: "BrandB EnviroSense"
+  version: "1.4.3"
+  device_type: "generic_modbus"
+  vendor: "BrandB"
+points:
+  - name: "HUMIDITY"
+    fc: 4
+    address: 20
+    type: "float"
+    count: 2
+    unit: "%RH"
+  - name: "TEMPERATURE"
+    fc: 4
+    address: 30
+    type: "float"
+    count: 2
+    unit: "C"
+  - name: "PM2_5"
+    fc: 4
+    address: 100
+    type: "uint16"
+    count: 1
+    scale: 1
+    unit: "ug/m3"
+  - name: "FAN_STATUS"
+    fc: 1
+    address: 2
+    type: "bool"
+    count: 1
+  - name: "DEVICE_STATUS"
+    fc: 3
+    address: 400
+    type: "bitfield16"
+    count: 1
+    decode:
+      0: "OK"
+      1: "MAINTENANCE"
+      2: "FAULT"

@@ -1,0 +1,17 @@
+# Python / env
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+
+# OS / tooling
+.DS_Store
+*.swp
+
+# Local data/logs
+data/
+ems.out
+
+# Node-like
+node_modules/
+

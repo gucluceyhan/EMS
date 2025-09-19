@@ -1,0 +1,35 @@
+metadata:
+  name: "IEC 62053 Energy Meter"
+  version: "1.0.0"
+  device_type: "meter"
+points:
+  - name: "V_LN_A"
+    fc: 4
+    address: 0
+    type: "float"
+    count: 2
+    unit: "V"
+  - name: "I_A"
+    fc: 4
+    address: 6
+    type: "float"
+    count: 2
+    unit: "A"
+  - name: "P_TOTAL"
+    fc: 4
+    address: 12
+    type: "float"
+    count: 2
+    unit: "kW"
+  - name: "Q_TOTAL"
+    fc: 4
+    address: 18
+    type: "float"
+    count: 2
+    unit: "kVar"
+  - name: "FREQ"
+    fc: 4
+    address: 70
+    type: "float"
+    count: 2
+    unit: "Hz"

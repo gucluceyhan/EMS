@@ -1,0 +1,70 @@
+metadata:
+  name: "SunSpec Common Inverter"
+  version: "1.0.0"
+  model_ids: [1, 103, 113]
+  device_type: "inverter"
+points:
+  - name: "AC_P"
+    fc: 3
+    address: 107
+    type: "float"
+    count: 2
+    scale: 0.001
+    unit: "kW"
+    signed: true
+    endianness: "big"
+    word_order: "big"
+  - name: "AC_Q"
+    fc: 3
+    address: 109
+    type: "float"
+    count: 2
+    scale: 0.001
+    unit: "kVar"
+    signed: true
+    endianness: "big"
+    word_order: "big"
+  - name: "DC_P"
+    fc: 3
+    address: 149
+    type: "float"
+    count: 2
+    scale: 0.001
+    unit: "kW"
+    signed: true
+    endianness: "big"
+    word_order: "big"
+  - name: "DC_V"
+    fc: 3
+    address: 135
+    type: "uint16"
+    count: 1
+    scale: 0.1
+    unit: "V"
+    signed: false
+  - name: "DC_I"
+    fc: 3
+    address: 137
+    type: "uint16"
+    count: 1
+    scale: 0.1
+    unit: "A"
+    signed: false
+  - name: "Cabinet_Temp"
+    fc: 3
+    address: 143
+    type: "int16"
+    count: 1
+    scale: 0.1
+    unit: "C"
+    signed: true
+  - name: "Status"
+    fc: 3
+    address: 402
+    type: "bitfield16"
+    count: 1
+    decode:
+      0: "OFF"
+      1: "STANDBY"
+      2: "ON"
+      3: "FAULT"

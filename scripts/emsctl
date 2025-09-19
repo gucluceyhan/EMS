@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+"""Operational CLI for the EMS edge agent."""
+from __future__ import annotations
+
+import asyncio
+import json
+import os
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Optional
+
+import httpx
+import typer
+
+DEFAULT_API = os.environ.get("EMS_API_URL", "http://127.0.0.1:8080")
+AUTH_TOKEN = os.environ.get("EMS_API_TOKEN", "LOCAL_API_TOKEN")
+
+app = typer.Typer(help="EMS operations utility")
+
+
+def _headers() -> dict[str, str]:
+    return {"Authorization": f"Bearer {AUTH_TOKEN}"}
+
+
+@app.command()
+def health(api: str = DEFAULT_API) -> None:
+    """Fetch the /health endpoint and print JSON."""
+    resp = httpx.get(f"{api}/health", headers=_headers(), timeout=10.0)
+    resp.raise_for_status()
+    typer.echo(json.dumps(resp.json(), indent=2))
+
+
+@app.command()
+def devices(api: str = DEFAULT_API) -> None:
+    """List known devices."""
+    resp = httpx.get(f"{api}/devices", headers=_headers(), timeout=10.0)
+    resp.raise_for_status()
+    typer.echo(json.dumps(resp.json(), indent=2))
+
+
+@app.command()
+def tail(log_file: Path = Path("/var/log/ems/ems.jsonl")) -> None:
+    """Tail the JSON log file."""
+    if not log_file.exists():
+        raise typer.Exit(f"Log file not found: {log_file}")
+    with log_file.open() as fh:
+        fh.seek(0, os.SEEK_END)
+        try:
+            while True:
+                line = fh.readline()
+                if not line:
+                    asyncio.sleep(0.5)
+                    continue
+                typer.echo(line.strip())
+        except KeyboardInterrupt:
+            typer.echo("Stopped.")
+
+
+@app.command()
+def export_snapshot(window: int = 60, api: str = DEFAULT_API) -> None:
+    """Export a live snapshot JSON payload."""
+    resp = httpx.get(
+        f"{api}/export/snapshot",
+        params={"window_s": window},
+        headers=_headers(),
+        timeout=30.0,
+    )
+    resp.raise_for_status()
+    typer.echo(json.dumps(resp.json(), indent=2))
+
+
+@app.command()
+def export_registermaps(api: str = DEFAULT_API) -> None:
+    """Export register map catalog."""
+    resp = httpx.get(f"{api}/export/registermaps", headers=_headers(), timeout=30.0)
+    resp.raise_for_status()
+    typer.echo(json.dumps(resp.json(), indent=2))
+
+
+@app.command()
+def send_control(
+    device_id: str,
+    command: str,
+    value: Optional[float] = typer.Option(None),
+    api: str = DEFAULT_API,
+) -> None:
+    """Send a control command (respects dry-run & enable switches)."""
+    payload = {"command": command, "value": value, "requested_at": datetime.now(timezone.utc).isoformat()}
+    resp = httpx.post(
+        f"{api}/controls/{device_id}",
+        headers=_headers(),
+        json=payload,
+        timeout=30.0,
+    )
+    if resp.status_code == 403:
+        typer.echo("Control rejected: ensure enable_control=true and dry_run=false")
+        raise typer.Exit(1)
+    resp.raise_for_status()
+    typer.echo(json.dumps(resp.json(), indent=2))
+
+
+if __name__ == "__main__":
+    app()
