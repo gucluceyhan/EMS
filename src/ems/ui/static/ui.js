@@ -1,9 +1,7 @@
 const API_BASE = '';
 
 async function fetchJSON(path) {
-  const resp = await fetch(`${API_BASE}${path}`, {
-    headers: { Authorization: 'Bearer LOCAL_API_TOKEN' },
-  });
+  const resp = await fetch(`${API_BASE}${path}`);
   if (!resp.ok) throw new Error(`Request failed: ${resp.status}`);
   return resp.json();
 }
@@ -132,12 +130,13 @@ function navigateToSite(site) {
 // Demo data adapters from current API
 async function loadFleetFromApi() {
   // Read locally created sites and merge with demo default
-  const devices = await fetchJSON('/devices');
+  await fetchJSON('/ui/api/devices');
   const stored = (()=>{ try{ return JSON.parse(localStorage.getItem('emsSites')||'[]'); }catch(e){ return []; }})();
   const base = {
     id: 'site-1', name: 'Demo Site', lat: 39.9, lng: 32.85, status: 'online', capacity: 5.0, pr: 85, soc: 72, alarms: 0,
   };
   const sites = [base, ...stored];
+  const primarySite = sites[0] ?? base;
   setFleetMarkers(sites.map(s=>({ ...s, generation: Math.max(0, Math.round(Math.random()*s.capacity*1000)/1000) })));
   const online = sites.length; const offline = 0;
   const totalCap = sites.reduce((a,b)=>a+(Number(b.capacity)||0),0);
@@ -158,8 +157,8 @@ async function loadFleetFromApi() {
     data: {
       labels: Array.from({ length: 24 }, (_, i) => `${i}:00`),
       datasets: [
-        { label: 'Production (MW)', data: Array.from({ length: 24 }, () => Math.random()*site.capacity), fill: true, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.2)' },
-        { label: 'Capacity (MW)', data: Array(24).fill(site.capacity), borderDash: [4,2], borderColor: '#9ca3af' },
+        { label: 'Production (MW)', data: Array.from({ length: 24 }, () => Math.random() * (Number(primarySite.capacity) || 0)), fill: true, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.2)' },
+        { label: 'Capacity (MW)', data: Array(24).fill(Number(primarySite.capacity) || 0), borderDash: [4,2], borderColor: '#9ca3af' },
       ],
     },
     options: { responsive: true, plugins: { legend: { display: true } }, scales: { x: { grid: { display:false } }, y: { beginAtZero: true } } },
@@ -178,9 +177,9 @@ async function loadFleetFromApi() {
   });
 
   // Site level demos
-  setText('siteProd', `${(Math.random()* (Number(base.capacity)||0) * 1000).toFixed(0)} kW`);
+  setText('siteProd', `${(Math.random()* (Number(primarySite.capacity)||0) * 1000).toFixed(0)} kW`);
   setText('siteDaily', `${(Math.random()*20+5).toFixed(1)} MWh`);
-  setText('siteSocSoh', `${base.soc}% / 98%`);
+  setText('siteSocSoh', `${primarySite.soc ?? '-'}% / 98%`);
   setText('siteTxLoad', `${(Math.random()*60+20).toFixed(0)} %`);
   // Populate device tables with demo data
   const gridBody = document.getElementById('gridDeviceTableBody');

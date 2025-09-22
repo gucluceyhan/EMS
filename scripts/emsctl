@@ -2,9 +2,9 @@
 """Operational CLI for the EMS edge agent."""
 from __future__ import annotations
 
-import asyncio
 import json
 import os
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -49,7 +49,7 @@ def tail(log_file: Path = Path("/var/log/ems/ems.jsonl")) -> None:
             while True:
                 line = fh.readline()
                 if not line:
-                    asyncio.sleep(0.5)
+                    time.sleep(0.5)
                     continue
                 typer.echo(line.strip())
         except KeyboardInterrupt:
