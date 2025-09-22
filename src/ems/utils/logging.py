@@ -5,7 +5,7 @@ import os
 from logging import Logger
 from typing import Any
 
-import orjson
+import json
 import structlog
 
 DEFAULT_LOG_LEVEL = "INFO"
@@ -32,7 +32,7 @@ def setup_logging(level: str = DEFAULT_LOG_LEVEL, json_output: bool = True) -> L
 
 
 def _json_renderer(logger: Any, name: str, event_dict: dict[str, Any]) -> str:
-    return orjson.dumps(event_dict).decode()
+    return json.dumps(event_dict, default=str)
 
 
 __all__ = ["setup_logging"]

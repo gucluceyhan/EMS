@@ -10,7 +10,7 @@ from .core.health import HealthRegistry
 from .core.scheduler import Scheduler
 from .drivers import create_driver
 from .store.database import Database
-from .store.exporter import ParquetExporter
+# from .store.exporter import ParquetExporter  # Temporarily disabled due to pandas dependency
 from .uplink.publisher import UplinkPublisher
 from .export.service import ExportService
 from .utils.config import AppConfig
@@ -28,9 +28,12 @@ class EMSApp:
         self.db = Database(config.global_.storage.sqlite_path)
         self.devices = [create_driver(device) for device in config.devices]
         self.device_status: Dict[str, Dict[str, Any]] = {
-            device.device_config.id: {
-                "device_id": device.device_config.id,
-                "type": device.device_config.type,
+            device.device_id: {
+                "device_id": device.device_id,
+                "plant_id": device.plant_id,
+                "type": device.type,
+                "make": device.device_config.make,
+                "model": device.device_config.model,
                 "healthy": True,
                 "message": None,
                 "last_poll_utc": None,
@@ -43,7 +46,7 @@ class EMSApp:
             [device.model_dump() for device in config.devices],
         )
         self.uplink = UplinkPublisher(self.db, config.global_.uplink)
-        self.parquet_exporter = ParquetExporter(self.db, config.global_.storage.export_parquet_dir)
+        # self.parquet_exporter = ParquetExporter(self.db, config.global_.storage.export_parquet_dir)  # Temporarily disabled
         self._server: uvicorn.Server | None = None
 
     async def start(self) -> None:
@@ -70,11 +73,11 @@ class EMSApp:
                 self.config.global_.storage.retention_days
             ),
         )
-        self.scheduler.schedule_periodic(
-            name="parquet_export",
-            interval=self.config.global_.storage.export_interval_s,
-            coro_factory=self.parquet_exporter.export_last_hour,
-        )
+        # self.scheduler.schedule_periodic(
+        #     name="parquet_export",
+        #     interval=self.config.global_.storage.export_interval_s,
+        #     coro_factory=self.parquet_exporter.export_last_hour,
+        # )  # Temporarily disabled due to pandas dependency
         api_context = APIContext(
             config=self.config,
             db=self.db,
