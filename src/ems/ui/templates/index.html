@@ -59,7 +59,6 @@
         <button data-nav="control" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2 nav-item">
           <span>🛡</span><span>Control</span>
         </button>
-        <a href="/ui/automation/breakers" class="block mt-2 text-xs px-3 py-2 rounded-md border border-dashed border-gray-300 dark:border-gray-700">Breakers (TMŞ) →</a>
         <button data-nav="reports" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2 nav-item">
           <span>📑</span><span>Reports</span>
         </button>
@@ -413,6 +412,28 @@
 
           <!-- 3. Energy Automation (TMŞ Control & Monitoring) -->
           <section id="view-control" class="space-y-6 hidden">
+            <!-- Control Navigation -->
+            <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+              <h3 class="font-semibold mb-4">Control & Automation</h3>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="/ui/automation/breakers" class="block rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4 hover:bg-gray-50 dark:hover:bg-gray-900 text-center">
+                  <div class="text-2xl mb-2">⚡</div>
+                  <div class="font-semibold">Breakers (TMŞ)</div>
+                  <div class="text-xs text-gray-500 mt-1">Circuit breaker control & monitoring</div>
+                </a>
+                <div class="block rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4 text-center opacity-60">
+                  <div class="text-2xl mb-2">🔋</div>
+                  <div class="font-semibold">Battery Control</div>
+                  <div class="text-xs text-gray-500 mt-1">Coming soon</div>
+                </div>
+                <div class="block rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4 text-center opacity-60">
+                  <div class="text-2xl mb-2">🌐</div>
+                  <div class="font-semibold">Grid Control</div>
+                  <div class="text-xs text-gray-500 mt-1">Coming soon</div>
+                </div>
+              </div>
+            </div>
+            
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="breakerGrid"></div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">

@@ -95,6 +95,60 @@ function makeBadge(text, kind) {
   return `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${color}">${text}</span>`;
 }
 
+// Helper functions for site generation
+function getRandomLatLng(plantId) {
+  const locations = {
+    'ankara-sincan-ges': { lat: 39.9334, lng: 32.8597 },
+    'odtu-teknokent-ges': { lat: 39.8904, lng: 32.7834 },
+    'ankara-polatli-ges': { lat: 39.5826, lng: 32.1495 },
+    'antalya-manavgat-ges': { lat: 36.7877, lng: 31.4419 },
+    'mersin-erdemli-ges': { lat: 36.6033, lng: 34.3086 },
+    'adana-kozan-ges': { lat: 37.4510, lng: 35.8178 },
+    'hatay-iskenderun-ges': { lat: 36.5853, lng: 36.1736 },
+    'gaziantep-nizip-ges': { lat: 37.0079, lng: 37.7936 },
+    'sanliurfa-viransehir-ges': { lat: 37.2351, lng: 39.7633 },
+    'mardin-midyat-ges': { lat: 37.4171, lng: 41.3408 },
+    'batman-besiri-ges': { lat: 37.8919, lng: 41.8081 },
+    'diyarbakir-silvan-ges': { lat: 38.1448, lng: 41.0136 },
+    'konya-eregli-ges': { lat: 37.5136, lng: 34.0469 },
+    'karaman-ermenek-ges': { lat: 36.6403, lng: 32.8906 },
+    'aksaray-ortakoy-ges': { lat: 38.7225, lng: 34.0219 },
+    'nevsehir-avanos-ges': { lat: 38.7192, lng: 34.8478 },
+    'kayseri-yahyali-ges': { lat: 38.0969, lng: 35.3642 },
+    'malatya-dogansehir-ges': { lat: 38.0936, lng: 37.8789 },
+    'izmir-cesme-ges': { lat: 38.3225, lng: 26.3061 },
+    'mugla-bodrum-ges': { lat: 37.0344, lng: 27.4305 }
+  };
+  return locations[plantId] || { lat: 39.0 + Math.random(), lng: 35.0 + Math.random() * 5 };
+}
+
+function getInverterCapacity(make, model) {
+  // Estimate capacity based on inverter make and model
+  const capacityMap = {
+    'Huawei': { 'SUN2000-100KTL-M1': 0.1, 'SUN2000-215KTL-H0': 0.215 },
+    'ABB': { 'PVS980-58-2000kVA-A': 2.0 },
+    'SMA': { 'SUNNY TRIPOWER CORE1-50': 0.05, 'SUNNY CENTRAL 2000-EV': 2.0 },
+    'Fronius': { 'SYMO-20.0-3-M': 0.02 },
+    'FIMER': { 'PVS-980-58-2000kVA-A': 2.0 },
+    'Power Electronics': { 'FS2800K-TL': 2.8 },
+    'TBEA': { 'TB2500KTL-HV': 2.5 },
+    'Sineng Electric': { 'SN3125K-30': 3.125 },
+    'Growatt': { 'MAX 100KTL3-X LV': 0.1 },
+    'Delta Electronics': { 'M88H-12': 0.088 },
+    'GoodWe': { 'GW100K-MT': 0.1 },
+    'Kstar': { 'KSG-50K-TM': 0.05 },
+    'Sungrow': { 'SG125HV': 0.125 },
+    'Ingeteam': { 'INGECON SUN PowerMax 185TL U M': 0.185 },
+    'Solaredge': { 'SE100K': 0.1 },
+    'Chint': { 'CPS SC100KTL-HV-DO/US': 0.1 },
+    'TMEIC': { 'SOLAR WARE SAMURAI 2156Nh-US-480': 2.156 },
+    'Omron': { 'KP100L-DD-EU': 0.1 },
+    'Schneider Electric': { 'CONEXT CL-25000E': 0.025 }
+  };
+  
+  return capacityMap[make]?.[model] || 0.1; // Default 100kW
+}
+
 function renderFleetSitesTable(rows) {
   const tbody = document.getElementById('fleetSiteTableBody');
   if (!tbody) return;
@@ -127,16 +181,50 @@ function navigateToSite(site) {
   // No site selector/search in breakers (site context already selected)
 }
 
-// Demo data adapters from current API
+// Real data adapters from current API
 async function loadFleetFromApi() {
-  // Read locally created sites and merge with demo default
-  await fetchJSON('/ui/api/devices');
+  // Fetch real device data from API
+  const devices = await fetchJSON('/ui/api/devices');
+  
+  // Group devices by plant_id to create sites
+  const siteMap = {};
+  devices.forEach(device => {
+    const plantId = device.plant_id;
+    if (!plantId || plantId === 'ges-fleet') return; // Skip fleet-level devices
+    
+    if (!siteMap[plantId]) {
+      siteMap[plantId] = {
+        id: plantId,
+        name: plantId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+        devices: [],
+        capacity: 0,
+        status: 'online',
+        pr: 85,
+        soc: '-',
+        alarms: 0,
+        lat: getRandomLatLng(plantId).lat,
+        lng: getRandomLatLng(plantId).lng
+      };
+    }
+    
+    siteMap[plantId].devices.push(device);
+    
+    // Estimate capacity based on inverter count and type
+    if (device.type === 'inverter') {
+      const baseCapacity = getInverterCapacity(device.make, device.model);
+      siteMap[plantId].capacity += baseCapacity;
+    }
+  });
+  
+  const sites = Object.values(siteMap);
+  
+  // Add localStorage sites for backward compatibility
   const stored = (()=>{ try{ return JSON.parse(localStorage.getItem('emsSites')||'[]'); }catch(e){ return []; }})();
-  const base = {
-    id: 'site-1', name: 'Demo Site', lat: 39.9, lng: 32.85, status: 'online', capacity: 5.0, pr: 85, soc: 72, alarms: 0,
-  };
-  const sites = [base, ...stored];
-  const primarySite = sites[0] ?? base;
+  sites.push(...stored);
+  
+  // Default site for fallback
+  const defaultSite = { id: 'default', name: 'Default Site', capacity: 5.0, status: 'online', pr: 85, soc: 72 };
+  const primarySite = sites[0] ?? defaultSite;
   setFleetMarkers(sites.map(s=>({ ...s, generation: Math.max(0, Math.round(Math.random()*s.capacity*1000)/1000) })));
   const online = sites.length; const offline = 0;
   const totalCap = sites.reduce((a,b)=>a+(Number(b.capacity)||0),0);
