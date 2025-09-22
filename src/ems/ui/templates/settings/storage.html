@@ -9,7 +9,13 @@
       <label class="text-sm">Retention (gün)<input placeholder="30" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
       <label class="text-sm">S3/Archive Lifecycle JSON<textarea rows="3" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"></textarea></label>
     </div>
+    <div class="mt-4">
+      <button id="btnSaveStorage" class="px-3 py-2 rounded-md bg-brand-600 text-white">Kaydet</button>
+      <button id="btnTestRetention" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 ml-2">Test Retention</button>
+      <div id="saveResult" class="mt-2 text-sm hidden"></div>
+    </div>
   </div>
+  <script src="/static/assets/js/settings.js"></script>
 </body></html>
 
 
