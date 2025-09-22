@@ -1,34 +1,154 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="utf-8" />
-  <title>Settings – Uyumluluk & Gizlilik</title>
-  <link rel="stylesheet" href="/static/style.css" />
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-  <div class="max-w-7xl mx-auto p-4 space-y-6">
-    <h1 class="text-xl font-semibold">Uyumluluk & Gizlilik</h1>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-        <h2 class="font-semibold mb-2">Log Retention</h2>
-        <label class="text-sm block">Retention (days)<input type="number" value="90" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
-        <label class="text-sm block mt-2">Archive to S3<select class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>Disabled</option><option>After 30 days</option></select></label>
-      </div>
-      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-        <h2 class="font-semibold mb-2">PII Masking</h2>
-        <label class="flex items-center gap-2 text-sm"><input type="checkbox" checked /> IP addresses</label>
-        <label class="flex items-center gap-2 text-sm"><input type="checkbox" /> User emails</label>
-        <label class="flex items-center gap-2 text-sm"><input type="checkbox" /> Device serials</label>
-        <button id="btnSaveMasking" class="mt-3 px-3 py-2 rounded-md bg-blue-600 text-white">Kaydet</button>
-      </div>
+{% extends "base.html" %}
+
+{% block title %}Compliance - GES Solar EMS{% endblock %}
+
+{% block page_subtitle %}Regulatory Compliance{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+  <h1 class="text-xl font-semibold">Settings – Regulatory Compliance</h1>
+  
+  <!-- Compliance Overview -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
+      <div class="text-2xl mb-2 text-green-500">✅</div>
+      <div class="text-sm text-gray-500">EPDK Compliance</div>
+      <div class="text-lg font-semibold text-green-600">Compliant</div>
     </div>
-    <div class="mt-4">
-      <button id="btnSaveCompliance" class="px-3 py-2 rounded-md bg-brand-600 text-white">Tüm Uyumluluk Ayarlarını Kaydet</button>
-      <div id="saveResult" class="mt-2 text-sm hidden"></div>
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
+      <div class="text-2xl mb-2 text-green-500">🔒</div>
+      <div class="text-sm text-gray-500">KVKK/GDPR</div>
+      <div class="text-lg font-semibold text-green-600">Compliant</div>
+    </div>
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
+      <div class="text-2xl mb-2 text-yellow-500">📋</div>
+      <div class="text-sm text-gray-500">ISO 27001</div>
+      <div class="text-lg font-semibold text-yellow-600">In Progress</div>
+    </div>
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
+      <div class="text-2xl mb-2 text-blue-500">🏭</div>
+      <div class="text-sm text-gray-500">IEC 61850</div>
+      <div class="text-lg font-semibold text-blue-600">Certified</div>
     </div>
   </div>
-  <script src="/static/assets/js/settings.js"></script>
-  <script src="/static/assets/js/nav-helper.js"></script>
-</body>
-</html>
+
+  <!-- EPDK Requirements -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <h2 class="font-semibold mb-3">EPDK Requirements</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <h3 class="font-medium mb-2">Data Reporting</h3>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span>Real-time Data (SCADA)</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">✓ Active</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Hourly Production Reports</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">✓ Active</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Monthly Settlement</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">✓ Active</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Grid Code Compliance</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">✓ Active</span>
+          </div>
+        </div>
+      </div>
+      
+      <div>
+        <h3 class="font-medium mb-2">Technical Requirements</h3>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span>Frequency Response (50±0.5Hz)</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">✓ Met</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Voltage Range (0.9-1.1 pu)</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">✓ Met</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Power Factor (>0.95)</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">✓ Met</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Ramp Rate Compliance</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">✓ Met</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Privacy -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <h2 class="font-semibold mb-3">Data Privacy & Protection (KVKK/GDPR)</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <h3 class="font-medium mb-2">Data Processing</h3>
+        <div class="space-y-2 text-sm">
+          <label class="flex items-center gap-2"><input type="checkbox" checked />Data Minimization</label>
+          <label class="flex items-center gap-2"><input type="checkbox" checked />Purpose Limitation</label>
+          <label class="flex items-center gap-2"><input type="checkbox" checked />Encryption at Rest</label>
+          <label class="flex items-center gap-2"><input type="checkbox" checked />Encryption in Transit</label>
+          <label class="flex items-center gap-2"><input type="checkbox" checked />Access Logging</label>
+        </div>
+      </div>
+      
+      <div>
+        <h3 class="font-medium mb-2">User Rights</h3>
+        <div class="space-y-2 text-sm">
+          <label class="flex items-center gap-2"><input type="checkbox" checked />Right to Access</label>
+          <label class="flex items-center gap-2"><input type="checkbox" checked />Right to Rectification</label>
+          <label class="flex items-center gap-2"><input type="checkbox" checked />Right to Erasure</label>
+          <label class="flex items-center gap-2"><input type="checkbox" checked />Data Portability</label>
+          <label class="text-sm">Data Retention (months)<input value="36" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" /></label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audit & Compliance Reports -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <h2 class="font-semibold mb-3">Compliance Reports</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="border border-gray-200 dark:border-gray-800 rounded-md p-4 text-center">
+        <div class="text-xl mb-2">📊</div>
+        <div class="font-medium">EPDK Monthly</div>
+        <div class="text-xs text-gray-500 mt-1">Production & Grid Code</div>
+        <button class="mt-2 px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm w-full">Generate</button>
+      </div>
+      
+      <div class="border border-gray-200 dark:border-gray-800 rounded-md p-4 text-center">
+        <div class="text-xl mb-2">🔒</div>
+        <div class="font-medium">KVKK Audit</div>
+        <div class="text-xs text-gray-500 mt-1">Data Protection Report</div>
+        <button class="mt-2 px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm w-full">Generate</button>
+      </div>
+      
+      <div class="border border-gray-200 dark:border-gray-800 rounded-md p-4 text-center">
+        <div class="text-xl mb-2">📋</div>
+        <div class="font-medium">ISO 27001</div>
+        <div class="text-xs text-gray-500 mt-1">Security Assessment</div>
+        <button class="mt-2 px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm w-full">Generate</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <button id="btnSaveCompliance" class="px-3 py-2 rounded-md bg-brand-600 text-white">Save Compliance Settings</button>
+    <button id="btnResetCompliance" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Reset</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Compliance specific JavaScript
+  document.addEventListener('DOMContentLoaded', () => {
+    // Initialize compliance UI
+  });
+</script>
+{% endblock %}

@@ -1,35 +1,111 @@
-<!DOCTYPE html>
-<html lang="tr"><head><meta charset="utf-8" /><title>Settings – Enerji Otomasyonu Politikaları</title><link rel="stylesheet" href="/static/style.css" /><script src="https://cdn.tailwindcss.com"></script></head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-  <div class="max-w-7xl mx-auto p-4 space-y-6">
-    <h1 class="text-xl font-semibold">TMŞ Güvenlik & Yazma Politikaları</h1>
+{% extends "base.html" %}
+
+{% block title %}Automation Policies - GES Solar EMS{% endblock %}
+
+{% block page_subtitle %}Automation Policies{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+  <h1 class="text-xl font-semibold">Settings – Automation Policies</h1>
+  
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold">Safety & Control Policies</h2>
+      <div class="space-x-2">
+        <button id="btnNewPolicy" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">New Policy</button>
+        <button id="btnImportPolicy" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Import</button>
+      </div>
+    </div>
     
-    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="font-semibold">Safety Policies</h2>
-        <div class="space-x-2">
-          <button id="btnNewPolicy" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">New Policy</button>
-          <button id="btnImportPolicy" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Import</button>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <h3 class="font-medium mb-2">Global Safety Settings</h3>
+        <div class="space-y-3">
+          <label class="flex items-center gap-2 text-sm">
+            <input id="enableGlobalControl" type="checkbox" />
+            Enable Control (Global)
+          </label>
+          <label class="flex items-center gap-2 text-sm">
+            <input id="globalDryRun" type="checkbox" checked />
+            Dry Run Mode (Global)
+          </label>
+          <label class="text-sm">Emergency Stop Timeout (s)<input id="emergencyTimeout" value="5" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="text-sm">Control PIN Requirement<select id="controlPinPolicy" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>Always</option><option>Critical Only</option><option>Never</option></select></label>
         </div>
       </div>
       
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <label class="text-sm flex items-center gap-2"><input id="dualConfirm" type="checkbox" checked /> Dual-confirm</label>
-        <label class="text-sm flex items-center gap-2"><input id="offHours" type="checkbox" /> Off-hours lock</label>
-        <label class="text-sm">Ack register<input id="ackRegister" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
-        <label class="text-sm">Timeout (ms)<input id="timeout" value="3000" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
-      </div>
-      
-      <div class="mt-4">
-        <button id="btnSavePolicies" class="px-3 py-2 rounded-md bg-brand-600 text-white">Update</button>
-        <button id="btnResetPolicies" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 ml-2">Reset</button>
-        <button id="btnTestPolicies" class="px-3 py-2 rounded-md bg-blue-600 text-white ml-2">Test</button>
-        <div id="saveResult" class="mt-2 text-sm hidden"></div>
+      <div>
+        <h3 class="font-medium mb-2">Automation Rules</h3>
+        <div class="space-y-3">
+          <label class="flex items-center gap-2 text-sm">
+            <input id="enableAutoRestart" type="checkbox" checked />
+            Auto-restart Failed Devices
+          </label>
+          <label class="flex items-center gap-2 text-sm">
+            <input id="enableLoadShedding" type="checkbox" />
+            Automatic Load Shedding
+          </label>
+          <label class="text-sm">Max Retry Attempts<input id="maxRetries" value="3" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="text-sm">Circuit Breaker Threshold<input id="circuitBreakerThreshold" value="5" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+        </div>
       </div>
     </div>
   </div>
-  <script src="/static/assets/js/settings.js"></script>
-  <script src="/static/assets/js/nav-helper.js"></script>
-</body></html>
 
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <h2 class="font-semibold mb-3">Active Automation Rules</h2>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-800 text-white uppercase tracking-wide text-xs">
+          <tr>
+            <th class="px-3 py-2 text-left">Rule Name</th>
+            <th class="px-3 py-2 text-left">Trigger</th>
+            <th class="px-3 py-2 text-left">Action</th>
+            <th class="px-3 py-2 text-left">Status</th>
+            <th class="px-3 py-2 text-left">Last Triggered</th>
+            <th class="px-3 py-2 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="automationRulesBody">
+          <tr class="border-b border-gray-200 dark:border-gray-800">
+            <td class="px-3 py-2 font-medium">Grid Overvoltage</td>
+            <td class="px-3 py-2">V > 420V</td>
+            <td class="px-3 py-2">Reduce inverter output</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Active</span></td>
+            <td class="px-3 py-2">Never</td>
+            <td class="px-3 py-2">
+              <button class="px-2 py-1 text-xs rounded-md border border-gray-200 dark:border-gray-700">Edit</button>
+              <button class="px-2 py-1 text-xs rounded-md ml-1 bg-red-600 text-white">Disable</button>
+            </td>
+          </tr>
+          <tr class="border-b border-gray-200 dark:border-gray-800">
+            <td class="px-3 py-2 font-medium">BMS Low SOC</td>
+            <td class="px-3 py-2">SOC < 20%</td>
+            <td class="px-3 py-2">Stop discharge</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Active</span></td>
+            <td class="px-3 py-2">2025-09-20 14:23</td>
+            <td class="px-3 py-2">
+              <button class="px-2 py-1 text-xs rounded-md border border-gray-200 dark:border-gray-700">Edit</button>
+              <button class="px-2 py-1 text-xs rounded-md ml-1 bg-red-600 text-white">Disable</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
+  <div class="flex items-center gap-2">
+    <button id="btnSaveAutomation" class="px-3 py-2 rounded-md bg-brand-600 text-white">Save Policies</button>
+    <button id="btnResetAutomation" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Reset</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Automation policies specific JavaScript
+  document.addEventListener('DOMContentLoaded', () => {
+    // Initialize automation policies UI
+  });
+</script>
+{% endblock %}

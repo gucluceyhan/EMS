@@ -1,148 +1,157 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="utf-8" />
-  <title>Health & SLA Dashboard</title>
-  <link rel="stylesheet" href="/static/style.css" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-  <div class="max-w-7xl mx-auto p-4 space-y-6">
-    <h1 class="text-xl font-semibold">Health & SLA Dashboard</h1>
-    
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-        <div class="text-sm text-gray-500">Fleet Uptime</div>
-        <div class="text-2xl font-semibold text-green-600">99.94%</div>
-        <div class="text-xs text-gray-500 mt-1">Last 30 days</div>
-      </div>
-      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-        <div class="text-sm text-gray-500">Avg Latency</div>
-        <div class="text-2xl font-semibold">23ms</div>
-        <div class="text-xs text-gray-500 mt-1">P95: 45ms</div>
-      </div>
-      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-        <div class="text-sm text-gray-500">Packet Loss</div>
-        <div class="text-2xl font-semibold text-amber-600">0.12%</div>
-        <div class="text-xs text-gray-500 mt-1">Within SLA</div>
-      </div>
-      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-        <div class="text-sm text-gray-500">Stale Devices</div>
-        <div class="text-2xl font-semibold text-red-600">2</div>
-        <div class="text-xs text-gray-500 mt-1">Needs attention</div>
+{% extends "base.html" %}
+
+{% block title %}Health & SLA - GES Solar EMS{% endblock %}
+
+{% block page_subtitle %}Health Monitoring & SLA Tracking{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+  <h1 class="text-xl font-semibold">Health & SLA Monitoring</h1>
+  
+  <!-- SLA Overview -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
+      <div class="text-2xl mb-2 text-green-500">💚</div>
+      <div class="text-sm text-gray-500">System Uptime</div>
+      <div class="text-2xl font-semibold text-green-600">99.87%</div>
+    </div>
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
+      <div class="text-2xl mb-2 text-blue-500">🕐</div>
+      <div class="text-sm text-gray-500">Avg Response Time</div>
+      <div class="text-2xl font-semibold text-blue-600">1.2s</div>
+    </div>
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
+      <div class="text-2xl mb-2 text-yellow-500">📡</div>
+      <div class="text-sm text-gray-500">Data Availability</div>
+      <div class="text-2xl font-semibold text-yellow-600">98.5%</div>
+    </div>
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
+      <div class="text-2xl mb-2 text-red-500">🔥</div>
+      <div class="text-sm text-gray-500">Failed Requests</div>
+      <div class="text-2xl font-semibold text-red-600">0.03%</div>
+    </div>
+  </div>
+
+  <!-- Site Health Matrix -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl">
+    <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+      <h3 class="font-semibold">Site Health Matrix</h3>
+      <div class="space-x-2">
+        <button id="btnRefreshHealth" class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm">Refresh</button>
+        <button id="btnExportHealth" class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm">Export</button>
       </div>
     </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-        <h2 class="font-semibold mb-2">Uptime Trends</h2>
-        <canvas id="uptimeChart" height="120"></canvas>
-      </div>
-      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-        <h2 class="font-semibold mb-2">Latency Distribution</h2>
-        <canvas id="latencyChart" height="120"></canvas>
-      </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-800 text-white uppercase tracking-wide text-xs">
+          <tr>
+            <th class="px-3 py-2 text-left">Site</th>
+            <th class="px-3 py-2 text-left">Overall Health</th>
+            <th class="px-3 py-2 text-left">Inverters</th>
+            <th class="px-3 py-2 text-left">Weather</th>
+            <th class="px-3 py-2 text-left">Comms</th>
+            <th class="px-3 py-2 text-left">Last Poll</th>
+            <th class="px-3 py-2 text-left">Uptime</th>
+          </tr>
+        </thead>
+        <tbody id="healthMatrixBody">
+          <tr class="border-b border-gray-200 dark:border-gray-800">
+            <td class="px-3 py-2 font-medium">Ankara Sincan GES</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Healthy</span></td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">2/2</span></td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">OK</span></td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">OK</span></td>
+            <td class="px-3 py-2">22.09.2025 20:59</td>
+            <td class="px-3 py-2">99.9%</td>
+          </tr>
+          <tr class="border-b border-gray-200 dark:border-gray-800">
+            <td class="px-3 py-2 font-medium">ODTÜ Teknokent GES</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-800">Degraded</span></td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">2/2</span></td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-800">Timeout</span></td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">OK</span></td>
+            <td class="px-3 py-2">22.09.2025 20:57</td>
+            <td class="px-3 py-2">98.2%</td>
+          </tr>
+          <tr class="border-b border-gray-200 dark:border-gray-800">
+            <td class="px-3 py-2 font-medium">Antalya Manavgat GES</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Healthy</span></td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">1/1</span></td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">OK</span></td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">OK</span></td>
+            <td class="px-3 py-2">22.09.2025 20:59</td>
+            <td class="px-3 py-2">99.95%</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+  </div>
 
+  <!-- Performance Metrics -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-      <h2 class="font-semibold mb-2">Device Health Status</h2>
-      <div class="overflow-x-auto">
-        <table class="min-w-full text-sm">
-          <thead class="bg-gray-800 text-white uppercase tracking-wide text-xs">
-            <tr>
-              <th class="px-3 py-2 text-left">Device</th>
-              <th class="px-3 py-2 text-left">Type</th>
-              <th class="px-3 py-2 text-left">Status</th>
-              <th class="px-3 py-2 text-left">Last Seen</th>
-              <th class="px-3 py-2 text-left">Latency</th>
-              <th class="px-3 py-2 text-left">Uptime</th>
-            </tr>
-          </thead>
-          <tbody id="healthTBody"></tbody>
-        </table>
+      <h3 class="font-semibold mb-2">Communication Performance</h3>
+      <div class="space-y-3">
+        <div class="flex justify-between text-sm">
+          <span>Modbus TCP Success Rate</span>
+          <span class="font-medium text-green-600">99.2%</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span>Modbus RTU Success Rate</span>
+          <span class="font-medium text-yellow-600">97.8%</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span>MQTT Message Delivery</span>
+          <span class="font-medium text-green-600">99.9%</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span>Average Latency</span>
+          <span class="font-medium text-blue-600">850ms</span>
+        </div>
       </div>
-      <div class="mt-4">
-        <button id="btnRefreshHealth" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Refresh Data</button>
-        <button id="btnExportHealth" class="px-3 py-2 rounded-md bg-blue-600 text-white ml-2">Export Report</button>
-        <button id="btnConfigThresholds" class="px-3 py-2 rounded-md bg-brand-600 text-white ml-2">Configure Thresholds</button>
-        <div id="healthResult" class="mt-2 text-sm hidden"></div>
+    </div>
+    
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+      <h3 class="font-semibold mb-2">System Resources</h3>
+      <div class="space-y-3">
+        <div class="flex justify-between text-sm">
+          <span>CPU Usage</span>
+          <span class="font-medium text-green-600">15%</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span>Memory Usage</span>
+          <span class="font-medium text-yellow-600">68%</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span>Disk I/O</span>
+          <span class="font-medium text-green-600">Low</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span>Temperature</span>
+          <span class="font-medium text-green-600">42°C</span>
+        </div>
       </div>
     </div>
   </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Health & SLA specific JavaScript
+  document.addEventListener('DOMContentLoaded', () => {
+    // Initialize health monitoring UI
+    setInterval(updateHealthMetrics, 30000); // Update every 30 seconds
+  });
   
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Health table
-      const tbody = document.getElementById('healthTBody');
-      if (tbody) {
-        const devices = [
-          { id: 'INV-1', type: 'Inverter', status: 'online', lastSeen: '2s ago', latency: '23ms', uptime: '99.9%' },
-          { id: 'BMS-1', type: 'BMS', status: 'online', lastSeen: '1s ago', latency: '18ms', uptime: '99.8%' },
-          { id: 'TMŞ-1', type: 'Breaker', status: 'stale', lastSeen: '5m ago', latency: '125ms', uptime: '98.2%' },
-          { id: 'METER-1', type: 'Meter', status: 'offline', lastSeen: '1h ago', latency: '-', uptime: '95.1%' }
-        ];
-        
-        const statusBadge = (s) => {
-          const colors = {
-            online: 'bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-300',
-            stale: 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300',
-            offline: 'bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-300'
-          };
-          return `<span class="inline-flex px-2 py-0.5 rounded-full text-xs ${colors[s]}">${s}</span>`;
-        };
-        
-        tbody.innerHTML = devices.map(d => 
-          `<tr class="border-b border-gray-200 dark:border-gray-800">
-            <td class="px-3 py-2 font-medium">${d.id}</td>
-            <td class="px-3 py-2">${d.type}</td>
-            <td class="px-3 py-2">${statusBadge(d.status)}</td>
-            <td class="px-3 py-2">${d.lastSeen}</td>
-            <td class="px-3 py-2">${d.latency}</td>
-            <td class="px-3 py-2">${d.uptime}</td>
-          </tr>`
-        ).join('');
-      }
-      
-      // Charts
-      const uptimeCtx = document.getElementById('uptimeChart');
-      if (uptimeCtx) {
-        new Chart(uptimeCtx, {
-          type: 'line',
-          data: {
-            labels: Array.from({length: 30}, (_, i) => `Day ${i+1}`),
-            datasets: [{
-              label: 'Uptime %',
-              data: Array.from({length: 30}, () => 99 + Math.random()),
-              borderColor: '#10b981',
-              backgroundColor: 'rgba(16, 185, 129, 0.1)',
-              fill: true
-            }]
-          },
-          options: {
-            responsive: true,
-            scales: { y: { min: 98, max: 100 } }
-          }
-        });
-      }
-      
-      const latencyCtx = document.getElementById('latencyChart');
-      if (latencyCtx) {
-        new Chart(latencyCtx, {
-          type: 'bar',
-          data: {
-            labels: ['0-10ms', '10-25ms', '25-50ms', '50-100ms', '100ms+'],
-            datasets: [{
-              label: 'Device Count',
-              data: [12, 45, 23, 8, 2],
-              backgroundColor: '#3b82f6'
-            }]
-          },
-          options: { responsive: true }
-        });
-      }
-    });
-  </script>
-  <script src="/static/assets/js/nav-helper.js"></script>
-</body>
-</html>
+  function updateHealthMetrics() {
+    fetch('/health')
+      .then(response => response.json())
+      .then(data => {
+        console.log('Health update:', data);
+        // Update health matrix table
+      })
+      .catch(error => console.error('Health update failed:', error));
+  }
+</script>
+{% endblock %}

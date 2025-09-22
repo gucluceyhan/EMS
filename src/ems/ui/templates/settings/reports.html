@@ -1,21 +1,91 @@
-<!DOCTYPE html>
-<html lang="tr"><head><meta charset="utf-8" /><title>Settings – Raporlama & Planlama</title><link rel="stylesheet" href="/static/style.css" /><script src="https://cdn.tailwindcss.com"></script></head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-  <div class="max-w-7xl mx-auto p-4 space-y-6">
-    <h1 class="text-xl font-semibold">Raporlama & Planlama</h1>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <label class="text-sm">Şablon<select class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>Üretim/PR</option><option>Battery Health</option><option>Automation Events</option><option>CO₂</option></select></label>
-      <label class="text-sm">Periyot<select class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>Günlük</option><option>Haftalık</option><option>Aylık</option></select></label>
-      <label class="text-sm">Alıcılar<textarea class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" rows="3" placeholder="mail1@example.com, mail2@example.com"></textarea></label>
-      <label class="text-sm">Format<select class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>PDF</option><option>XLS</option><option>CSV</option></select></label>
+{% extends "base.html" %}
+
+{% block title %}Reports - GES Solar EMS{% endblock %}
+
+{% block page_subtitle %}Reports Configuration{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+  <h1 class="text-xl font-semibold">Settings – Reports</h1>
+  
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold">Report Templates</h2>
+      <div class="space-x-2">
+        <button id="btnNewReport" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">New Template</button>
+        <button id="btnImportReport" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Import</button>
+      </div>
     </div>
-    <div class="mt-4">
-      <button id="btnSaveReport" class="px-3 py-2 rounded-md bg-brand-600 text-white">Kaydet</button>
-      <button id="btnNewReport" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 ml-2">Yeni Rapor</button>
-      <div id="saveResult" class="mt-2 text-sm hidden"></div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="border border-gray-200 dark:border-gray-800 rounded-md p-4">
+        <h4 class="font-medium mb-2">Daily Production</h4>
+        <div class="space-y-2 text-sm">
+          <div>Format: PDF, Excel</div>
+          <div>Schedule: Daily 07:00</div>
+          <div>Recipients: 3</div>
+          <div class="flex items-center gap-2">
+            <input type="checkbox" checked />
+            <span>Enabled</span>
+          </div>
+          <button class="px-2 py-1 rounded-md border border-gray-200 dark:border-gray-700 w-full">Edit</button>
+        </div>
+      </div>
+      
+      <div class="border border-gray-200 dark:border-gray-800 rounded-md p-4">
+        <h4 class="font-medium mb-2">Monthly Summary</h4>
+        <div class="space-y-2 text-sm">
+          <div>Format: PDF</div>
+          <div>Schedule: 1st of month</div>
+          <div>Recipients: 5</div>
+          <div class="flex items-center gap-2">
+            <input type="checkbox" checked />
+            <span>Enabled</span>
+          </div>
+          <button class="px-2 py-1 rounded-md border border-gray-200 dark:border-gray-700 w-full">Edit</button>
+        </div>
+      </div>
+      
+      <div class="border border-gray-200 dark:border-gray-800 rounded-md p-4">
+        <h4 class="font-medium mb-2">SLA Report</h4>
+        <div class="space-y-2 text-sm">
+          <div>Format: PDF, Excel</div>
+          <div>Schedule: Weekly</div>
+          <div>Recipients: 2</div>
+          <div class="flex items-center gap-2">
+            <input type="checkbox" />
+            <span>Enabled</span>
+          </div>
+          <button class="px-2 py-1 rounded-md border border-gray-200 dark:border-gray-700 w-full">Edit</button>
+        </div>
+      </div>
     </div>
   </div>
-  <script src="/static/assets/js/settings.js"></script>
-  <script src="/static/assets/js/nav-helper.js"></script>
-</body></html>
 
+  <!-- Report Configuration -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <h2 class="font-semibold mb-3">Report Generation Settings</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <label class="text-sm">Default Format<select id="defaultFormat" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>PDF</option><option>Excel</option><option>CSV</option></select></label>
+      <label class="text-sm">Time Zone<select id="reportTimezone" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>Europe/Istanbul</option><option>UTC</option></select></label>
+      <label class="text-sm">Company Logo URL<input id="companyLogo" placeholder="https://example.com/logo.png" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+      <label class="text-sm">Email From<input id="emailFrom" value="ems@example.com" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <button id="btnSaveReports" class="px-3 py-2 rounded-md bg-brand-600 text-white">Save Settings</button>
+    <button id="btnResetReports" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Reset</button>
+    <button id="btnGenerateTest" class="px-3 py-2 rounded-md bg-blue-600 text-white">Generate Test Report</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Reports specific JavaScript
+  document.addEventListener('DOMContentLoaded', () => {
+    // Initialize reports settings UI
+  });
+</script>
+{% endblock %}

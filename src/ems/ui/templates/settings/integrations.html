@@ -1,27 +1,103 @@
-<!DOCTYPE html>
-<html lang="tr"><head><meta charset="utf-8" /><title>Settings – Entegrasyonlar & API</title><link rel="stylesheet" href="/static/style.css" /><script src="https://cdn.tailwindcss.com"></script></head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-  <div class="max-w-7xl mx-auto p-4 space-y-6">
-    <h1 class="text-xl font-semibold">API Keys & Webhooks</h1>
-    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-      <div class="flex items-center justify-between mb-3">
-        <div class="text-sm text-gray-500">API Keys</div>
-        <button class="px-3 py-2 rounded-md bg-brand-600 text-white">Yeni Key</button>
+{% extends "base.html" %}
+
+{% block title %}Integrations - GES Solar EMS{% endblock %}
+
+{% block page_subtitle %}External Integrations{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+  <h1 class="text-xl font-semibold">Settings – External Integrations</h1>
+  
+  <!-- Uplink Configuration -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold">Cloud Uplink</h2>
+      <div class="space-x-2">
+        <button id="btnTestUplink" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Test Connection</button>
+        <button id="btnResetUplink" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Reset</button>
       </div>
-      <table class="min-w-full text-sm"><thead class="bg-gray-800 text-white uppercase tracking-wide text-xs"><tr><th class="px-3 py-2 text-left">Name</th><th class="px-3 py-2 text-left">Key</th><th class="px-3 py-2 text-left">Scope</th><th class="px-3 py-2 text-left">IP</th><th class="px-3 py-2 text-left">Expiry</th><th class="px-3 py-2 text-left">Actions</th></tr></thead><tbody></tbody></table>
     </div>
-    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-      <div class="text-sm text-gray-500 mb-2">Webhooks</div>
-      <label class="text-sm block">URL<input class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
-      <label class="text-sm block mt-2">Secret (signing)<input class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
-      <button id="btnSaveWebhook" class="mt-3 px-3 py-2 rounded-md bg-blue-600 text-white">Webhook Kaydet</button>
-    </div>
-    <div class="mt-4">
-      <div id="saveResult" class="text-sm hidden"></div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <label class="text-sm">Uplink URL<input id="uplinkUrl" value="https://uplink.example.com/api/v1/batch" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+      <label class="text-sm">API Key<input id="uplinkApiKey" type="password" value="CHANGE_ME" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+      <label class="text-sm">Batch Period (s)<input id="batchPeriod" value="300" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+      <label class="text-sm">Max Batch Size (KB)<input id="maxBatchKb" value="256" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+      <label class="flex items-center gap-2 text-sm">
+        <input id="tlsVerify" type="checkbox" checked />
+        TLS Verification
+      </label>
     </div>
   </div>
-  <script src="/static/assets/js/integrations-crud.js"></script>
-  <script src="/static/assets/js/nav-helper.js"></script>
-</body></html>
 
+  <!-- Export Configuration -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold">Data Export</h2>
+      <div class="space-x-2">
+        <button id="btnTestExport" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Test Export</button>
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <label class="text-sm">Snapshot URL<input id="snapshotUrl" value="https://uplink.example.com/api/v1/snapshot" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+      <label class="text-sm">Register Map URL<input id="registermapUrl" value="https://uplink.example.com/api/v1/registermaps" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+      <label class="text-sm">Export Auth Token<input id="exportToken" type="password" value="CHANGE_ME" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+      <label class="flex items-center gap-2 text-sm">
+        <input id="enableExport" type="checkbox" checked />
+        Enable Export
+      </label>
+      <label class="flex items-center gap-2 text-sm">
+        <input id="includeRawRegisters" type="checkbox" />
+        Include Raw Registers
+      </label>
+    </div>
+  </div>
 
+  <!-- Third-Party Integrations -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <h2 class="font-semibold mb-3">Third-Party Integrations</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="border border-gray-200 dark:border-gray-800 rounded-md p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xl">📊</span>
+          <div class="font-semibold">Grafana</div>
+          <span class="ml-auto inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Connected</span>
+        </div>
+        <div class="text-sm text-gray-500 mb-3">Real-time dashboards and alerting</div>
+        <button class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm w-full">Configure</button>
+      </div>
+      
+      <div class="border border-gray-200 dark:border-gray-800 rounded-md p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xl">📈</span>
+          <div class="font-semibold">InfluxDB</div>
+          <span class="ml-auto inline-flex px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-800">Disabled</span>
+        </div>
+        <div class="text-sm text-gray-500 mb-3">Time-series database</div>
+        <button class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm w-full">Setup</button>
+      </div>
+      
+      <div class="border border-gray-200 dark:border-gray-800 rounded-md p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-xl">🔔</span>
+          <div class="font-semibold">Slack/Teams</div>
+          <span class="ml-auto inline-flex px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-800">Disabled</span>
+        </div>
+        <div class="text-sm text-gray-500 mb-3">Alert notifications</div>
+        <button class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm w-full">Setup</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <button id="btnSaveIntegrations" class="px-3 py-2 rounded-md bg-brand-600 text-white">Save Settings</button>
+    <button id="btnResetIntegrations" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Reset</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/assets/js/integrations-crud.js"></script>
+{% endblock %}

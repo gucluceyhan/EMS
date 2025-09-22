@@ -1,22 +1,134 @@
-<!DOCTYPE html>
-<html lang="tr"><head><meta charset="utf-8" /><title>Settings – OTA & Bakım</title><link rel="stylesheet" href="/static/style.css" /><script src="https://cdn.tailwindcss.com"></script></head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-  <div class="max-w-7xl mx-auto p-4 space-y-6">
-    <h1 class="text-xl font-semibold">OTA & Bakım</h1>
-    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-      <div class="text-sm text-gray-500 mb-2">Firmware Yükle</div>
-      <input type="file" class="text-sm" />
-      <div class="mt-3 text-sm text-gray-500">Staged rollout %</div>
-      <input type="number" value="10" class="w-32 bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
-      <div class="mt-4">
-        <button id="btnUploadFW" class="px-3 py-2 rounded-md bg-blue-600 text-white">Upload & Deploy</button>
-        <button id="btnSaveOTA" class="px-3 py-2 rounded-md bg-brand-600 text-white ml-2">Kaydet</button>
-        <div id="saveResult" class="mt-2 text-sm hidden"></div>
+{% extends "base.html" %}
+
+{% block title %}OTA Updates - GES Solar EMS{% endblock %}
+
+{% block page_subtitle %}OTA & Maintenance{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+  <h1 class="text-xl font-semibold">Settings – OTA & Maintenance</h1>
+  
+  <!-- Current Version Info -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <h2 class="font-semibold mb-3">System Version</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div>
+        <div class="text-sm text-gray-500">Current Version</div>
+        <div class="text-lg font-semibold">v0.1.0</div>
+        <div class="text-xs text-gray-500">Released: 2025-09-15</div>
+      </div>
+      <div>
+        <div class="text-sm text-gray-500">Build Info</div>
+        <div class="text-lg font-semibold">build-2025.0922</div>
+        <div class="text-xs text-gray-500">Commit: abc123def</div>
+      </div>
+      <div>
+        <div class="text-sm text-gray-500">Update Status</div>
+        <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Up to date</span>
       </div>
     </div>
   </div>
-  <script src="/static/assets/js/settings.js"></script>
-  <script src="/static/assets/js/nav-helper.js"></script>
-</body></html>
 
+  <!-- OTA Configuration -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold">OTA Update Configuration</h2>
+      <div class="space-x-2">
+        <button id="btnCheckUpdates" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Check for Updates</button>
+        <button id="btnForceUpdate" class="px-3 py-2 rounded-md bg-blue-600 text-white">Force Update</button>
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <label class="text-sm">Update Server URL<input id="updateServerUrl" value="https://updates.example.com" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+      <label class="text-sm">Update Channel<select id="updateChannel" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>stable</option><option>beta</option><option>alpha</option></select></label>
+      <label class="text-sm">Check Interval (hours)<input id="checkInterval" value="24" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+      <label class="text-sm">Maintenance Window<input id="maintenanceWindow" value="02:00-05:00" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+      <label class="flex items-center gap-2 text-sm">
+        <input id="enableAutoUpdate" type="checkbox" />
+        Enable Automatic Updates
+      </label>
+      <label class="flex items-center gap-2 text-sm">
+        <input id="enablePreRelease" type="checkbox" />
+        Include Pre-release
+      </label>
+    </div>
+  </div>
 
+  <!-- Update History -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl">
+    <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800">
+      <h3 class="font-semibold">Update History</h3>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-800 text-white uppercase tracking-wide text-xs">
+          <tr>
+            <th class="px-3 py-2 text-left">Version</th>
+            <th class="px-3 py-2 text-left">Date</th>
+            <th class="px-3 py-2 text-left">Type</th>
+            <th class="px-3 py-2 text-left">Status</th>
+            <th class="px-3 py-2 text-left">Duration</th>
+            <th class="px-3 py-2 text-left">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-gray-200 dark:border-gray-800">
+            <td class="px-3 py-2 font-medium">v0.1.0</td>
+            <td class="px-3 py-2">2025-09-15 03:15</td>
+            <td class="px-3 py-2">Major</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Success</span></td>
+            <td class="px-3 py-2">12m 34s</td>
+            <td class="px-3 py-2">Initial deployment</td>
+          </tr>
+          <tr class="border-b border-gray-200 dark:border-gray-800">
+            <td class="px-3 py-2 font-medium">v0.0.9</td>
+            <td class="px-3 py-2">2025-09-10 02:45</td>
+            <td class="px-3 py-2">Patch</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Success</span></td>
+            <td class="px-3 py-2">3m 21s</td>
+            <td class="px-3 py-2">Security fixes</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Maintenance Actions -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <h2 class="font-semibold mb-3">Maintenance Actions</h2>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <button id="btnRestartService" class="px-4 py-3 rounded-md border border-gray-200 dark:border-gray-700 text-center hover:bg-gray-50 dark:hover:bg-gray-900">
+        <div class="text-lg mb-1">🔄</div>
+        <div class="text-sm font-medium">Restart Service</div>
+      </button>
+      <button id="btnClearCache" class="px-4 py-3 rounded-md border border-gray-200 dark:border-gray-700 text-center hover:bg-gray-50 dark:hover:bg-gray-900">
+        <div class="text-lg mb-1">🗑️</div>
+        <div class="text-sm font-medium">Clear Cache</div>
+      </button>
+      <button id="btnSystemReboot" class="px-4 py-3 rounded-md border border-red-300 dark:border-red-700 text-red-600 text-center hover:bg-red-50 dark:hover:bg-red-900/20">
+        <div class="text-lg mb-1">⚠️</div>
+        <div class="text-sm font-medium">System Reboot</div>
+      </button>
+      <button id="btnSystemShutdown" class="px-4 py-3 rounded-md border border-red-300 dark:border-red-700 text-red-600 text-center hover:bg-red-50 dark:hover:bg-red-900/20">
+        <div class="text-lg mb-1">🔴</div>
+        <div class="text-sm font-medium">Shutdown</div>
+      </button>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <button id="btnSaveOta" class="px-3 py-2 rounded-md bg-brand-600 text-white">Save OTA Settings</button>
+    <button id="btnResetOta" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Reset</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // OTA specific JavaScript
+  document.addEventListener('DOMContentLoaded', () => {
+    // Initialize OTA settings UI
+  });
+</script>
+{% endblock %}

@@ -1,25 +1,112 @@
-<!DOCTYPE html>
-<html lang="tr"><head><meta charset="utf-8" /><title>Settings – Tarifeler & Pazar</title><link rel="stylesheet" href="/static/style.css" /><script src="https://cdn.tailwindcss.com"></script></head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-  <div class="max-w-7xl mx-auto p-4 space-y-6">
-    <h1 class="text-xl font-semibold">Tarifeler & Pazar</h1>
-    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-      <div class="flex items-center justify-between mb-3">
-        <div class="text-sm text-gray-500">TOU Tablosu</div>
-        <button class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">CSV Yükle</button>
+{% extends "base.html" %}
+
+{% block title %}Tariffs & Market - GES Solar EMS{% endblock %}
+
+{% block page_subtitle %}Tariffs & Market Settings{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+  <h1 class="text-xl font-semibold">Settings – Tariffs & Market</h1>
+  
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold">Energy Tariffs</h2>
+      <div class="space-x-2">
+        <button id="btnNewTariff" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">New Tariff</button>
+        <button id="btnImportTariff" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Import from EPIAS</button>
       </div>
-      <table class="min-w-full text-sm">
-        <thead class="bg-gray-800 text-white uppercase tracking-wide text-xs"><tr>
-          <th class="px-3 py-2 text-left">Sezon</th>
-          <th class="px-3 py-2 text-left">Saat Aralığı</th>
-          <th class="px-3 py-2 text-left">Fiyat</th>
-          <th class="px-3 py-2 text-left">İşlemler</th>
-        </tr></thead>
-        <tbody></tbody>
-      </table>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <h3 class="font-medium mb-2">Electricity Buying Tariff</h3>
+        <div class="space-y-3">
+          <label class="text-sm">Tariff Name<input id="buyTariffName" value="TEDAŞ Standard" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="text-sm">Peak Rate (₺/kWh)<input id="buyPeakRate" value="1.45" step="0.01" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="text-sm">Off-Peak Rate (₺/kWh)<input id="buyOffPeakRate" value="0.87" step="0.01" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="text-sm">Peak Hours<input id="buyPeakHours" value="17:00-22:00" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+        </div>
+      </div>
+      
+      <div>
+        <h3 class="font-medium mb-2">Electricity Selling Tariff</h3>
+        <div class="space-y-3">
+          <label class="text-sm">Tariff Name<input id="sellTariffName" value="Net Metering" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="text-sm">Feed-in Rate (₺/kWh)<input id="feedInRate" value="0.78" step="0.01" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="text-sm">Export Limit (MW)<input id="exportLimit" value="50" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="flex items-center gap-2 text-sm">
+            <input id="enableNetMetering" type="checkbox" checked />
+            Enable Net Metering
+          </label>
+        </div>
+      </div>
     </div>
   </div>
-  <script src="/static/assets/js/tariffs-crud.js"></script>
-  <script src="/static/assets/js/nav-helper.js"></script>
-</body></html>
 
+  <!-- Market Participation -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <h2 class="font-semibold mb-3">Market Participation (EPIAS)</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="border border-gray-200 dark:border-gray-800 rounded-md p-4">
+        <h4 class="font-medium mb-2">Day-Ahead Market</h4>
+        <div class="space-y-2 text-sm">
+          <label class="flex items-center gap-2"><input type="checkbox" />Participate in DAM</label>
+          <label>Bid Strategy<select class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1"><option>Conservative</option><option>Aggressive</option><option>Manual</option></select></label>
+          <label>Min Price (₺/MWh)<input value="200" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" /></label>
+        </div>
+      </div>
+      
+      <div class="border border-gray-200 dark:border-gray-800 rounded-md p-4">
+        <h4 class="font-medium mb-2">Balancing Market</h4>
+        <div class="space-y-2 text-sm">
+          <label class="flex items-center gap-2"><input type="checkbox" />Provide Balancing</label>
+          <label>Service Type<select class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1"><option>Primary</option><option>Secondary</option><option>Tertiary</option></select></label>
+          <label>Response Time (s)<input value="30" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" /></label>
+        </div>
+      </div>
+      
+      <div class="border border-gray-200 dark:border-gray-800 rounded-md p-4">
+        <h4 class="font-medium mb-2">Ancillary Services</h4>
+        <div class="space-y-2 text-sm">
+          <label class="flex items-center gap-2"><input type="checkbox" />Frequency Response</label>
+          <label class="flex items-center gap-2"><input type="checkbox" />Voltage Support</label>
+          <label class="flex items-center gap-2"><input type="checkbox" />Reactive Power</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Current Market Data -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <h2 class="font-semibold mb-3">Current Market Data (EPIAS)</h2>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="text-center p-3 border border-gray-200 dark:border-gray-800 rounded-md">
+        <div class="text-xs text-gray-500">Current MCP</div>
+        <div class="text-lg font-semibold">₺342.50/MWh</div>
+      </div>
+      <div class="text-center p-3 border border-gray-200 dark:border-gray-800 rounded-md">
+        <div class="text-xs text-gray-500">Next Hour</div>
+        <div class="text-lg font-semibold">₺289.75/MWh</div>
+      </div>
+      <div class="text-center p-3 border border-gray-200 dark:border-gray-800 rounded-md">
+        <div class="text-xs text-gray-500">Daily Average</div>
+        <div class="text-lg font-semibold">₺315.20/MWh</div>
+      </div>
+      <div class="text-center p-3 border border-gray-200 dark:border-gray-800 rounded-md">
+        <div class="text-xs text-gray-500">System Load</div>
+        <div class="text-lg font-semibold">28,450 MW</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <button id="btnSaveTariffs" class="px-3 py-2 rounded-md bg-brand-600 text-white">Save Tariff Settings</button>
+    <button id="btnResetTariffs" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Reset</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/assets/js/tariffs-crud.js"></script>
+{% endblock %}

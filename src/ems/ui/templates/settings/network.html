@@ -1,29 +1,148 @@
-<!DOCTYPE html>
-<html lang="tr"><head><meta charset="utf-8" /><title>Settings – Ağ & Protokoller</title><link rel="stylesheet" href="/static/style.css" /><script src="https://cdn.tailwindcss.com"></script></head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-  <div class="max-w-7xl mx-auto p-4 space-y-6">
-    <h1 class="text-xl font-semibold">Ağ & Protokoller</h1>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-        <h2 class="font-semibold mb-2">Modbus</h2>
-        <label class="text-sm block">Timeout (ms)<input value="2000" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
-        <label class="text-sm block mt-2">Retry<select class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>1</option><option>2</option><option selected>3</option></select></label>
-        <label class="text-sm block mt-2">QoS max req/s<input value="50" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
-      </div>
-      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-        <h2 class="font-semibold mb-2">IEC 60870-5-104</h2>
-        <label class="text-sm block">ASDU<input class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
-        <label class="text-sm block mt-2">IOA base<input class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
-        <button id="btnSaveIEC" class="mt-3 px-3 py-2 rounded-md bg-blue-600 text-white">Kaydet</button>
+{% extends "base.html" %}
+
+{% block title %}Network Settings - GES Solar EMS{% endblock %}
+
+{% block page_subtitle %}Network & Protocols{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+  <h1 class="text-xl font-semibold">Settings – Network & Protocols</h1>
+  
+  <!-- Ethernet Configuration -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold">Ethernet Configuration</h2>
+      <div class="space-x-2">
+        <button id="btnTestNetwork" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Test Connection</button>
+        <button id="btnRestartNetwork" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Restart</button>
       </div>
     </div>
-    <div class="mt-4">
-      <button id="btnSaveNetwork" class="px-3 py-2 rounded-md bg-brand-600 text-white">Tüm Ağ Ayarlarını Kaydet</button>
-      <div id="saveResult" class="mt-2 text-sm hidden"></div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <label class="text-sm">Interface<select id="ethInterface" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>eth0</option><option>eth1</option></select></label>
+      <label class="text-sm">Configuration<select id="ethConfig" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>DHCP</option><option>Static</option></select></label>
+      <label class="text-sm">IP Address<input id="ethIp" value="192.168.1.100" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+      <label class="text-sm">Subnet Mask<input id="ethMask" value="255.255.255.0" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+      <label class="text-sm">Gateway<input id="ethGateway" value="192.168.1.1" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+      <label class="text-sm">DNS Servers<input id="ethDns" value="8.8.8.8,8.8.4.4" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
     </div>
   </div>
-  <script src="/static/assets/js/settings.js"></script>
-  <script src="/static/assets/js/nav-helper.js"></script>
-</body></html>
 
+  <!-- WiFi Configuration -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <h2 class="font-semibold mb-3">WiFi Configuration</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <label class="text-sm">SSID<input id="wifiSsid" placeholder="GES-Network" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+      <label class="text-sm">Password<input id="wifiPassword" type="password" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+      <label class="text-sm">Security<select id="wifiSecurity" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>WPA3</option><option>WPA2</option><option>WEP</option><option>Open</option></select></label>
+      <label class="flex items-center gap-2 text-sm">
+        <input id="enableWifi" type="checkbox" />
+        Enable WiFi
+      </label>
+    </div>
+  </div>
 
+  <!-- Protocol Configuration -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <h2 class="font-semibold mb-3">Protocol Configuration</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div>
+        <h3 class="font-medium mb-2">Modbus</h3>
+        <div class="space-y-2">
+          <label class="text-sm">TCP Port<input id="modbusTcpPort" value="502" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" /></label>
+          <label class="text-sm">RTU Timeout (ms)<input id="modbusRtuTimeout" value="1000" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" /></label>
+          <label class="flex items-center gap-2 text-sm">
+            <input id="enableModbus" type="checkbox" checked />
+            Enable Modbus
+          </label>
+        </div>
+      </div>
+      
+      <div>
+        <h3 class="font-medium mb-2">MQTT</h3>
+        <div class="space-y-2">
+          <label class="text-sm">Broker Host<input id="mqttHost" value="localhost" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" /></label>
+          <label class="text-sm">Port<input id="mqttPort" value="1883" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" /></label>
+          <label class="flex items-center gap-2 text-sm">
+            <input id="mqttTls" type="checkbox" />
+            Use TLS
+          </label>
+        </div>
+      </div>
+      
+      <div>
+        <h3 class="font-medium mb-2">CAN Bus</h3>
+        <div class="space-y-2">
+          <label class="text-sm">Interface<input id="canInterface" value="can0" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" /></label>
+          <label class="text-sm">Bitrate<input id="canBitrate" value="250000" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" /></label>
+          <label class="flex items-center gap-2 text-sm">
+            <input id="enableCan" type="checkbox" />
+            Enable CAN
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firewall & Security -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <h2 class="font-semibold mb-3">Firewall & Network Security</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <h3 class="font-medium mb-2">Allowed Ports</h3>
+        <div class="space-y-2 text-sm">
+          <div class="flex items-center justify-between p-2 border border-gray-200 dark:border-gray-800 rounded">
+            <span>SSH (22)</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Active</span>
+          </div>
+          <div class="flex items-center justify-between p-2 border border-gray-200 dark:border-gray-800 rounded">
+            <span>EMS API (8083)</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Active</span>
+          </div>
+          <div class="flex items-center justify-between p-2 border border-gray-200 dark:border-gray-800 rounded">
+            <span>Modbus (502)</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Active</span>
+          </div>
+          <div class="flex items-center justify-between p-2 border border-gray-200 dark:border-gray-800 rounded">
+            <span>MQTT (1883)</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-800">Disabled</span>
+          </div>
+        </div>
+      </div>
+      
+      <div>
+        <h3 class="font-medium mb-2">Access Control</h3>
+        <div class="space-y-3">
+          <label class="text-sm">Allowed IP Ranges<textarea id="allowedIps" rows="3" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">192.168.0.0/16
+10.0.0.0/8
+172.16.0.0/12</textarea></label>
+          <label class="flex items-center gap-2 text-sm">
+            <input id="enableIpFilter" type="checkbox" />
+            Enable IP Filtering
+          </label>
+          <label class="flex items-center gap-2 text-sm">
+            <input id="enableRateLimit" type="checkbox" checked />
+            Enable Rate Limiting
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <button id="btnSaveNetwork" class="px-3 py-2 rounded-md bg-brand-600 text-white">Save Network Settings</button>
+    <button id="btnResetNetwork" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Reset</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Network settings specific JavaScript
+  document.addEventListener('DOMContentLoaded', () => {
+    // Initialize network configuration UI
+  });
+</script>
+{% endblock %}

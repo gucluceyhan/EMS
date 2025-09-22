@@ -1,28 +1,134 @@
-<!DOCTYPE html>
-<html lang="tr"><head><meta charset="utf-8" /><title>Alarm & Event Center</title><link rel="stylesheet" href="/static/style.css" /><script src="https://cdn.tailwindcss.com"></script></head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-  <div class="max-w-7xl mx-auto p-4 space-y-6">
-    <h1 class="text-xl font-semibold">Alarm & Event Center</h1>
-    <div class="flex items-center gap-2">
-      <input id="alertSearch" placeholder="Ara..." class="text-sm bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
-      <select id="sev" class="text-sm bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>All</option><option>High</option><option>Medium</option><option>Low</option></select>
+{% extends "base.html" %}
+
+{% block title %}Alerts Center - GES Solar EMS{% endblock %}
+
+{% block page_subtitle %}Alerts & Event Management{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+  <h1 class="text-xl font-semibold">Alerts Center</h1>
+  
+  <!-- Alert Summary -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
+      <div class="text-2xl mb-2 text-red-500">🚨</div>
+      <div class="text-sm text-gray-500">Critical Alerts</div>
+      <div class="text-2xl font-semibold text-red-600">3</div>
     </div>
-    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
+      <div class="text-2xl mb-2 text-yellow-500">⚠️</div>
+      <div class="text-sm text-gray-500">Warning Alerts</div>
+      <div class="text-2xl font-semibold text-yellow-600">12</div>
+    </div>
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
+      <div class="text-2xl mb-2 text-blue-500">ℹ️</div>
+      <div class="text-sm text-gray-500">Info Events</div>
+      <div class="text-2xl font-semibold text-blue-600">45</div>
+    </div>
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
+      <div class="text-2xl mb-2 text-green-500">✅</div>
+      <div class="text-sm text-gray-500">Acknowledged</div>
+      <div class="text-2xl font-semibold text-green-600">156</div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <div class="flex flex-wrap gap-3 items-end">
+      <div>
+        <label class="text-sm">Severity</label>
+        <select id="severityFilter" class="bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+          <option>All</option>
+          <option>Critical</option>
+          <option>Warning</option>
+          <option>Info</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-sm">Site</label>
+        <select id="siteFilter" class="bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+          <option>All Sites</option>
+          <option>Ankara Sincan GES</option>
+          <option>ODTÜ Teknokent GES</option>
+          <option>Antalya Manavgat GES</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-sm">Status</label>
+        <select id="statusFilter" class="bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+          <option>All</option>
+          <option>Active</option>
+          <option>Acknowledged</option>
+          <option>Resolved</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-sm">Time Range</label>
+        <select id="timeFilter" class="bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+          <option>Last 24 hours</option>
+          <option>Last Week</option>
+          <option>Last Month</option>
+          <option>Custom</option>
+        </select>
+      </div>
+      <button id="btnClearFilters" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Clear</button>
+    </div>
+  </div>
+
+  <!-- Alerts Table -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl">
+    <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+      <h3 class="font-semibold">Active Alerts</h3>
+      <div class="space-x-2">
+        <button id="btnAckAll" class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm">Acknowledge All</button>
+        <button id="btnExportAlerts" class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm">Export</button>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
       <table class="min-w-full text-sm">
-        <thead class="bg-gray-800 text-white uppercase tracking-wide text-xs"><tr>
-          <th class="px-3 py-2 text-left">Zaman</th>
-          <th class="px-3 py-2 text-left">Cihaz</th>
-          <th class="px-3 py-2 text-left">Tip</th>
-          <th class="px-3 py-2 text-left">Severity</th>
-          <th class="px-3 py-2 text-left">Mesaj</th>
-          <th class="px-3 py-2 text-left">İşlem</th>
-        </tr></thead>
-        <tbody id="alertsTBody"></tbody>
+        <thead class="bg-gray-800 text-white uppercase tracking-wide text-xs">
+          <tr>
+            <th class="px-3 py-2 text-left">Timestamp</th>
+            <th class="px-3 py-2 text-left">Severity</th>
+            <th class="px-3 py-2 text-left">Site</th>
+            <th class="px-3 py-2 text-left">Device</th>
+            <th class="px-3 py-2 text-left">Message</th>
+            <th class="px-3 py-2 text-left">Status</th>
+            <th class="px-3 py-2 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="alertsTableBody">
+          <tr class="border-b border-gray-200 dark:border-gray-800">
+            <td class="px-3 py-2">22.09.2025 20:45:12</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-red-100 text-red-800">Critical</span></td>
+            <td class="px-3 py-2">Ankara Sincan GES</td>
+            <td class="px-3 py-2">sincan-inv-01</td>
+            <td class="px-3 py-2">Inverter overtemperature (85°C)</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-800">Active</span></td>
+            <td class="px-3 py-2">
+              <button class="px-2 py-1 text-xs rounded-md border border-gray-200 dark:border-gray-700">Ack</button>
+              <button class="px-2 py-1 text-xs rounded-md ml-1 bg-blue-600 text-white">Details</button>
+            </td>
+          </tr>
+          <tr class="border-b border-gray-200 dark:border-gray-800">
+            <td class="px-3 py-2">22.09.2025 20:42:35</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-800">Warning</span></td>
+            <td class="px-3 py-2">ODTÜ Teknokent GES</td>
+            <td class="px-3 py-2">teknokent-weather</td>
+            <td class="px-3 py-2">Communication timeout</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-800">Active</span></td>
+            <td class="px-3 py-2">
+              <button class="px-2 py-1 text-xs rounded-md border border-gray-200 dark:border-gray-700">Ack</button>
+              <button class="px-2 py-1 text-xs rounded-md ml-1 bg-blue-600 text-white">Details</button>
+            </td>
+          </tr>
+        </tbody>
       </table>
     </div>
   </div>
-  <script src="/static/assets/js/alerts-center.js"></script>
-  <script src="/static/assets/js/nav-helper.js"></script>
-</body></html>
+</div>
+{% endblock %}
 
-
+{% block scripts %}
+<script src="/static/assets/js/alerts-center.js"></script>
+{% endblock %}

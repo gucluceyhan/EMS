@@ -1,49 +1,107 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="utf-8" />
-  <title>Settings – Alarm & Bildirim Şablonları</title>
-  <link rel="stylesheet" href="/static/style.css" />
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-  <div class="max-w-7xl mx-auto p-4 space-y-6">
-    <h1 class="text-xl font-semibold">Alarm & Bildirim Şablonları</h1>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-        <h2 class="font-semibold mb-2">Severity Levels</h2>
-        <div class="space-y-2">
-          <label class="flex items-center gap-2 text-sm">
-            <span class="w-16">High:</span>
-            <input placeholder="Overcurrent, Trip, Fire" class="flex-1 bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
-          </label>
-          <label class="flex items-center gap-2 text-sm">
-            <span class="w-16">Medium:</span>
-            <input placeholder="Undervoltage, Overtemp" class="flex-1 bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
-          </label>
-          <label class="flex items-center gap-2 text-sm">
-            <span class="w-16">Low:</span>
-            <input placeholder="Efficiency drop, Minor deviation" class="flex-1 bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
-          </label>
-        </div>
-      </div>
-      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-        <h2 class="font-semibold mb-2">Notification Channels</h2>
-        <div class="space-y-2 text-sm">
-          <label class="flex items-center gap-2"><input type="checkbox" checked /> Email</label>
-          <label class="flex items-center gap-2"><input type="checkbox" /> SMS</label>
-          <label class="flex items-center gap-2"><input type="checkbox" /> Webhook</label>
-          <label class="block mt-3">Template ({{device}}, {{value}}, {{threshold}})<textarea rows="3" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" placeholder="ALARM: {{device}} {{metric}} = {{value}} {{unit}} (threshold: {{threshold}})"></textarea></label>
-        </div>
-        <button id="btnSaveChannels" class="mt-3 px-3 py-2 rounded-md bg-blue-600 text-white">Kaydet</button>
+{% extends "base.html" %}
+
+{% block title %}Alert Templates - GES Solar EMS{% endblock %}
+
+{% block page_subtitle %}Alert Templates Configuration{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+  <h1 class="text-xl font-semibold">Settings – Alert Templates</h1>
+  
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold">Alert Rules</h2>
+      <div class="space-x-2">
+        <button id="btnNewAlert" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">New Alert Rule</button>
+        <button id="btnImportAlert" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Import</button>
       </div>
     </div>
-    <div class="mt-4">
-      <button id="btnSaveTemplates" class="px-3 py-2 rounded-md bg-brand-600 text-white">Tüm Şablonları Kaydet</button>
-      <div id="saveResult" class="mt-2 text-sm hidden"></div>
+    
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-800 text-white uppercase tracking-wide text-xs">
+          <tr>
+            <th class="px-3 py-2 text-left">Rule Name</th>
+            <th class="px-3 py-2 text-left">Condition</th>
+            <th class="px-3 py-2 text-left">Severity</th>
+            <th class="px-3 py-2 text-left">Recipients</th>
+            <th class="px-3 py-2 text-left">Status</th>
+            <th class="px-3 py-2 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-gray-200 dark:border-gray-800">
+            <td class="px-3 py-2 font-medium">Inverter Overtemp</td>
+            <td class="px-3 py-2">Cabinet_Temp > 80°C</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-red-100 text-red-800">Critical</span></td>
+            <td class="px-3 py-2">ops@example.com</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Active</span></td>
+            <td class="px-3 py-2">
+              <button class="px-2 py-1 text-xs rounded-md border border-gray-200 dark:border-gray-700">Edit</button>
+              <button class="px-2 py-1 text-xs rounded-md ml-1 bg-red-600 text-white">Disable</button>
+            </td>
+          </tr>
+          <tr class="border-b border-gray-200 dark:border-gray-800">
+            <td class="px-3 py-2 font-medium">Communication Timeout</td>
+            <td class="px-3 py-2">No response > 5min</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-800">Warning</span></td>
+            <td class="px-3 py-2">team@example.com</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Active</span></td>
+            <td class="px-3 py-2">
+              <button class="px-2 py-1 text-xs rounded-md border border-gray-200 dark:border-gray-700">Edit</button>
+              <button class="px-2 py-1 text-xs rounded-md ml-1 bg-red-600 text-white">Disable</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
-  <script src="/static/assets/js/settings.js"></script>
-  <script src="/static/assets/js/nav-helper.js"></script>
-</body>
-</html>
+
+  <!-- Notification Settings -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <h2 class="font-semibold mb-3">Notification Settings</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <h3 class="font-medium mb-2">Email Configuration</h3>
+        <div class="space-y-3">
+          <label class="text-sm">SMTP Server<input id="smtpServer" value="smtp.example.com" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="text-sm">Port<input id="smtpPort" value="587" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="text-sm">Username<input id="smtpUser" value="ems@example.com" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="flex items-center gap-2 text-sm">
+            <input id="enableEmail" type="checkbox" checked />
+            Enable Email Notifications
+          </label>
+        </div>
+      </div>
+      
+      <div>
+        <h3 class="font-medium mb-2">Webhook Configuration</h3>
+        <div class="space-y-3">
+          <label class="text-sm">Webhook URL<input id="webhookUrl" placeholder="https://hooks.slack.com/..." class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="text-sm">Timeout (s)<input id="webhookTimeout" value="10" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="text-sm">Retry Count<input id="webhookRetries" value="3" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="flex items-center gap-2 text-sm">
+            <input id="enableWebhook" type="checkbox" />
+            Enable Webhook Notifications
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <button id="btnSaveAlerts" class="px-3 py-2 rounded-md bg-brand-600 text-white">Save Alert Settings</button>
+    <button id="btnResetAlerts" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Reset</button>
+    <button id="btnTestAlert" class="px-3 py-2 rounded-md bg-yellow-600 text-white">Test Alert</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Alert templates specific JavaScript
+  document.addEventListener('DOMContentLoaded', () => {
+    // Initialize alert templates UI
+  });
+</script>
+{% endblock %}

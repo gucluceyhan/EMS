@@ -1,34 +1,90 @@
-<!DOCTYPE html>
-<html lang="tr"><head><meta charset="utf-8" /><title>Settings – EMS Optimizasyon Politikaları</title><link rel="stylesheet" href="/static/style.css" /><script src="https://cdn.tailwindcss.com"></script></head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-  <div class="max-w-7xl mx-auto p-4 space-y-6">
-    <h1 class="text-xl font-semibold">EMS Optimizasyon Politikaları</h1>
+{% extends "base.html" %}
+
+{% block title %}EMS Policies - GES Solar EMS{% endblock %}
+
+{% block page_subtitle %}EMS Control Policies{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+  <h1 class="text-xl font-semibold">Settings – EMS Control Policies</h1>
+  
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <h2 class="font-semibold mb-3">Energy Management Policies</h2>
     
-    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="font-semibold">EMS Policies</h2>
-        <div class="space-x-2">
-          <button id="btnNewEMSPolicy" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">New Policy</button>
-          <button id="btnImportEMS" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Import</button>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <h3 class="font-medium mb-2">Power Optimization</h3>
+        <div class="space-y-3">
+          <label class="flex items-center gap-2 text-sm">
+            <input id="enablePowerOpt" type="checkbox" checked />
+            Enable Power Optimization
+          </label>
+          <label class="text-sm">Target Power Factor<input id="targetPf" value="0.95" step="0.01" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="text-sm">Max Export Limit (MW)<input id="maxExport" value="50" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="text-sm">Grid Frequency Limits<input id="freqLimits" value="49.5-50.5 Hz" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
         </div>
       </div>
       
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <label class="text-sm">SoC Min/Reserve/Max<div class="grid grid-cols-3 gap-2"><input id="socMin" placeholder="20%" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /><input id="socReserve" placeholder="30%" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /><input id="socMax" placeholder="95%" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></div></label>
-        <label class="text-sm">C-rate Limit<input id="crateLimit" placeholder="0.5C" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
-        <label class="text-sm">Grid Export Limit (kW)<input id="gridExport" placeholder="1000" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
-        <label class="text-sm">DR Hedefi (% kısıntı)<input id="drTarget" placeholder="10%" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
-      </div>
-      
-      <div class="mt-4">
-        <button id="btnSaveEMS" class="px-3 py-2 rounded-md bg-brand-600 text-white">Update</button>
-        <button id="btnResetEMS" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 ml-2">Reset</button>
-        <button id="btnValidateEMS" class="px-3 py-2 rounded-md bg-blue-600 text-white ml-2">Validate</button>
-        <div id="saveResult" class="mt-2 text-sm hidden"></div>
+      <div>
+        <h3 class="font-medium mb-2">Battery Management</h3>
+        <div class="space-y-3">
+          <label class="flex items-center gap-2 text-sm">
+            <input id="enableBatteryMgmt" type="checkbox" checked />
+            Enable Battery Management
+          </label>
+          <label class="text-sm">Min SOC (%)<input id="minSoc" value="20" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="text-sm">Max SOC (%)<input id="maxSoc" value="95" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="text-sm">Charge Rate Limit (C)<input id="chargeRate" value="0.5" step="0.1" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+        </div>
       </div>
     </div>
   </div>
-  <script src="/static/assets/js/settings.js"></script>
-  <script src="/static/assets/js/nav-helper.js"></script>
-</body></html>
 
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <h2 class="font-semibold mb-3">Load Management Strategies</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="border border-gray-200 dark:border-gray-800 rounded-md p-4">
+        <h4 class="font-medium mb-2">Peak Shaving</h4>
+        <div class="space-y-2 text-sm">
+          <label class="flex items-center gap-2"><input type="checkbox" checked />Enable Peak Shaving</label>
+          <label>Peak Threshold (MW)<input value="40" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" /></label>
+          <label>Response Time (s)<input value="30" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" /></label>
+        </div>
+      </div>
+      
+      <div class="border border-gray-200 dark:border-gray-800 rounded-md p-4">
+        <h4 class="font-medium mb-2">Load Following</h4>
+        <div class="space-y-2 text-sm">
+          <label class="flex items-center gap-2"><input type="checkbox" />Enable Load Following</label>
+          <label>Ramp Rate (%/min)<input value="5" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" /></label>
+          <label>Deadband (MW)<input value="1" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" /></label>
+        </div>
+      </div>
+      
+      <div class="border border-gray-200 dark:border-gray-800 rounded-md p-4">
+        <h4 class="font-medium mb-2">Grid Support</h4>
+        <div class="space-y-2 text-sm">
+          <label class="flex items-center gap-2"><input type="checkbox" checked />Frequency Support</label>
+          <label class="flex items-center gap-2"><input type="checkbox" checked />Voltage Support</label>
+          <label>Support Droop (%)<input value="4" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" /></label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <button id="btnSaveEmsPolicy" class="px-3 py-2 rounded-md bg-brand-600 text-white">Save EMS Policies</button>
+    <button id="btnResetEmsPolicy" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Reset</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // EMS policies specific JavaScript
+  document.addEventListener('DOMContentLoaded', () => {
+    // Initialize EMS policies UI
+  });
+</script>
+{% endblock %}

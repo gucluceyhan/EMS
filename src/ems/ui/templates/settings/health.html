@@ -1,42 +1,126 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="utf-8" />
-  <title>Settings – Health & SLA</title>
-  <link rel="stylesheet" href="/static/style.css" />
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-  <div class="max-w-7xl mx-auto p-4 space-y-6">
-    <h1 class="text-xl font-semibold">Sağlık & SLA</h1>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-        <div class="text-sm text-gray-500">Uptime</div>
-        <div class="text-2xl font-semibold">99.9%</div>
-      </div>
-      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-        <div class="text-sm text-gray-500">Latency (ms)</div>
-        <div class="text-2xl font-semibold">23</div>
-      </div>
-      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-        <div class="text-sm text-gray-500">Packet Loss (%)</div>
-        <div class="text-2xl font-semibold">0.2</div>
+{% extends "base.html" %}
+
+{% block title %}Health Settings - GES Solar EMS{% endblock %}
+
+{% block page_subtitle %}Health & Monitoring Settings{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+  <h1 class="text-xl font-semibold">Settings – Health & Monitoring</h1>
+  
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold">Health Check Configuration</h2>
+      <div class="space-x-2">
+        <button id="btnTestHealth" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Test All</button>
+        <button id="btnExportHealth" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Export Config</button>
       </div>
     </div>
-    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 mt-6">
-      <h2 class="font-semibold mb-2">SLA Thresholds</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <label class="text-sm">Uptime Min (%)<input type="number" value="99.5" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
-        <label class="text-sm">Latency Max (ms)<input type="number" value="100" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
-        <label class="text-sm">Packet Loss Max (%)<input type="number" value="1.0" step="0.1" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <h3 class="font-semibold mb-2">Watchdog Settings</h3>
+        <div class="space-y-3">
+          <label class="text-sm">Watchdog Interval (s)<input id="watchdogInterval" value="30" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="text-sm">Max Error Streak<input id="maxErrorStreak" value="5" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="text-sm">Health Check Timeout (s)<input id="healthTimeout" value="10" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="flex items-center gap-2 text-sm">
+            <input id="enableWatchdog" type="checkbox" checked />
+            Enable Watchdog
+          </label>
+        </div>
       </div>
-      <button id="btnSaveHealth" class="mt-3 px-3 py-2 rounded-md bg-brand-600 text-white">Kaydet</button>
-      <div id="saveResult" class="mt-2 text-sm hidden"></div>
+      
+      <div>
+        <h3 class="font-semibold mb-2">Alert Thresholds</h3>
+        <div class="space-y-3">
+          <label class="text-sm">Device Offline Threshold (min)<input id="offlineThreshold" value="5" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="text-sm">Response Time Warning (ms)<input id="responseTimeWarning" value="2000" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="text-sm">Memory Usage Warning (%)<input id="memoryWarning" value="80" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="text-sm">Disk Usage Warning (%)<input id="diskWarning" value="85" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+        </div>
+      </div>
     </div>
   </div>
-  <script src="/static/assets/js/settings.js"></script>
-  <script src="/static/assets/js/nav-helper.js"></script>
-</body>
-</html>
 
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <h2 class="font-semibold mb-3">Current System Health</h2>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="healthKpis">
+      <div class="text-center p-3 border border-gray-200 dark:border-gray-800 rounded-md">
+        <div class="text-xs text-gray-500">System Uptime</div>
+        <div class="text-lg font-semibold text-green-600">99.8%</div>
+      </div>
+      <div class="text-center p-3 border border-gray-200 dark:border-gray-800 rounded-md">
+        <div class="text-xs text-gray-500">Devices Online</div>
+        <div class="text-lg font-semibold text-green-600">47/49</div>
+      </div>
+      <div class="text-center p-3 border border-gray-200 dark:border-gray-800 rounded-md">
+        <div class="text-xs text-gray-500">Memory Usage</div>
+        <div class="text-lg font-semibold text-yellow-600">68%</div>
+      </div>
+      <div class="text-center p-3 border border-gray-200 dark:border-gray-800 rounded-md">
+        <div class="text-xs text-gray-500">Disk Usage</div>
+        <div class="text-lg font-semibold text-green-600">42%</div>
+      </div>
+    </div>
+  </div>
 
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <h2 class="font-semibold mb-3">Health Check History</h2>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-800 text-white uppercase tracking-wide text-xs">
+          <tr>
+            <th class="px-3 py-2 text-left">Timestamp</th>
+            <th class="px-3 py-2 text-left">Component</th>
+            <th class="px-3 py-2 text-left">Status</th>
+            <th class="px-3 py-2 text-left">Message</th>
+            <th class="px-3 py-2 text-left">Response Time</th>
+          </tr>
+        </thead>
+        <tbody id="healthHistoryBody">
+          <tr class="border-b border-gray-200 dark:border-gray-800">
+            <td class="px-3 py-2">22.09.2025 20:45:12</td>
+            <td class="px-3 py-2">sincan-inv-01</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Healthy</span></td>
+            <td class="px-3 py-2">Connection OK</td>
+            <td class="px-3 py-2">1.2s</td>
+          </tr>
+          <tr class="border-b border-gray-200 dark:border-gray-800">
+            <td class="px-3 py-2">22.09.2025 20:44:42</td>
+            <td class="px-3 py-2">teknokent-weather</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-800">Warning</span></td>
+            <td class="px-3 py-2">Slow response</td>
+            <td class="px-3 py-2">4.8s</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <button id="btnSaveHealth" class="px-3 py-2 rounded-md bg-brand-600 text-white">Save Settings</button>
+    <button id="btnResetHealth" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Reset</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Health settings specific JavaScript would go here
+  document.addEventListener('DOMContentLoaded', () => {
+    // Initialize health monitoring UI
+    setInterval(updateHealthStatus, 30000); // Update every 30 seconds
+  });
+  
+  function updateHealthStatus() {
+    fetch('/health')
+      .then(response => response.json())
+      .then(data => {
+        // Update health KPIs
+        console.log('Health data:', data);
+      })
+      .catch(error => console.error('Health check failed:', error));
+  }
+</script>
+{% endblock %}
