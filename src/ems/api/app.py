@@ -193,6 +193,23 @@ def create_app(context: APIContext) -> FastAPI:
             {"request": request, "plant": context.config.plant.model_dump()},
         )
 
+    # Generic settings/pages catch-all (non-destructive, template must exist)
+    @app.get("/ui/settings/{page}", response_class=HTMLResponse)
+    async def ui_settings_dynamic(page: str, request: Request, _: None = Depends(require_basic)) -> HTMLResponse:
+        name = f"settings/{page}.html"
+        base = Path(__file__).resolve().parent.parent / "ui" / "templates"
+        if not (base / name).exists():
+            raise HTTPException(status_code=404, detail="Not Found")
+        return templates.TemplateResponse(name, {"request": request, "plant": context.config.plant.model_dump()})
+
+    @app.get("/ui/pages/{page}", response_class=HTMLResponse)
+    async def ui_pages_dynamic(page: str, request: Request, _: None = Depends(require_basic)) -> HTMLResponse:
+        name = f"pages/{page}.html"
+        base = Path(__file__).resolve().parent.parent / "ui" / "templates"
+        if not (base / name).exists():
+            raise HTTPException(status_code=404, detail="Not Found")
+        return templates.TemplateResponse(name, {"request": request, "plant": context.config.plant.model_dump()})
+
     return app
 
 
