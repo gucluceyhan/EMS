@@ -155,36 +155,75 @@
       
       <!-- Device Configuration Form (Shows after type selection) -->
       <div id="deviceConfigForm" class="hidden space-y-4">
+        
+        <!-- Profile Selection -->
+        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <span class="text-red-500">*</span> Select Device Profile
+          </label>
+          <select id="deviceProfile" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+            <option value="">Choose a profile...</option>
+          </select>
+          <div id="profilePreview" class="mt-2 text-xs text-gray-500 hidden">
+            <!-- Profile preview will be shown here -->
+          </div>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Device ID</label>
-            <input type="text" id="deviceId" placeholder="unique-device-id" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+            <input type="text" id="deviceId" placeholder="unique-device-id" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" readonly>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Display Name</label>
             <input type="text" id="deviceName" placeholder="Device Name" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Make</label>
-            <input type="text" id="deviceMake" placeholder="e.g., Huawei, SMA" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Model</label>
-            <input type="text" id="deviceModel" placeholder="e.g., SUN2000-100KTL" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Protocol</label>
-            <select id="deviceProtocol" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
-              <option value="modbus_tcp">Modbus TCP</option>
-              <option value="modbus_rtu">Modbus RTU</option>
-              <option value="mqtt">MQTT</option>
-              <option value="can">CAN Bus</option>
-              <option value="serial">Serial</option>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <span class="text-red-500">*</span> Make
+            </label>
+            <select id="deviceMake" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" disabled>
+              <option value="">Select Profile First...</option>
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Connection</label>
-            <input type="text" id="deviceConnection" placeholder="IP:Port or /dev/ttyUSB0" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <span class="text-red-500">*</span> Model
+            </label>
+            <select id="deviceModel" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" disabled>
+              <option value="">Select Profile First...</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Protocol</label>
+            <select id="deviceProtocol" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" disabled>
+              <option value="">Auto-selected from profile</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <span class="text-red-500">*</span> Connection
+            </label>
+            <input type="text" id="deviceConnection" placeholder="e.g., 192.168.1.100:502" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit ID</label>
+            <input type="number" id="deviceUnitId" placeholder="1" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" value="1" min="1" max="255">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Poll Interval (seconds)</label>
+            <input type="number" id="devicePollInterval" placeholder="60" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" value="60" min="5" disabled>
+          </div>
+        </div>
+
+        <!-- Point Map Preview -->
+        <div id="pointMapPreview" class="hidden mt-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-md border border-gray-200 dark:border-gray-700">
+          <h4 class="font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center">
+            📊 Point Map Preview
+            <span id="pointMapCount" class="ml-2 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded"></span>
+          </h4>
+          <div id="pointMapContent" class="text-xs text-gray-600 dark:text-gray-400 font-mono max-h-32 overflow-y-auto">
+            <!-- Point map preview will be shown here -->
           </div>
         </div>
       </div>
@@ -201,6 +240,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="/static/assets/js/profiles.js"></script>
 <script>
 // Current site data
 let currentSite = {
@@ -211,6 +251,8 @@ let currentSite = {
 
 let selectedDevices = new Set();
 let deviceTypeFilter = 'all';
+let selectedDeviceType = null;
+let selectedProfile = null;
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', () => {
@@ -389,6 +431,8 @@ function closeAddDeviceModal() {
 }
 
 function selectDeviceType(type) {
+  selectedDeviceType = type;
+  
   // Update button styles
   document.querySelectorAll('.device-type-btn').forEach(btn => {
     btn.classList.remove('bg-brand-600', 'text-white');
@@ -398,9 +442,205 @@ function selectDeviceType(type) {
   // Show configuration form
   document.getElementById('deviceConfigForm').classList.remove('hidden');
   
-  // Pre-fill some values based on type
+  // Pre-fill device ID
   document.getElementById('deviceId').value = `${currentSite.id}-${type}-${Date.now()}`;
-  document.getElementById('deviceName').value = `${type.charAt(0).toUpperCase() + type.slice(1)} ${Math.floor(Math.random() * 100)}`;
+  
+  // Load profiles for this device type
+  loadProfilesForDeviceType(type);
+}
+
+function loadProfilesForDeviceType(deviceType) {
+  const profileSelect = document.getElementById('deviceProfile');
+  const makeSelect = document.getElementById('deviceMake');
+  const modelSelect = document.getElementById('deviceModel');
+  
+  // Clear existing options
+  profileSelect.innerHTML = '<option value="">Choose a profile...</option>';
+  
+  // Filter profiles based on device type
+  const availableProfiles = getProfilesForDeviceType(deviceType);
+  
+  if (availableProfiles.length === 0) {
+    profileSelect.innerHTML = '<option value="">No profiles available for this device type</option>';
+    profileSelect.disabled = true;
+    return;
+  }
+  
+  // Add profiles to dropdown
+  availableProfiles.forEach(profile => {
+    const option = document.createElement('option');
+    option.value = profile.id;
+    option.textContent = profile.name;
+    profileSelect.appendChild(option);
+  });
+  
+  profileSelect.disabled = false;
+  
+  // Add profile change handler
+  profileSelect.onchange = function() {
+    handleProfileSelection(this.value);
+  };
+}
+
+function getProfilesForDeviceType(deviceType) {
+  if (!window.driverProfiles) return [];
+  
+  // Map device types to profile matching
+  const typeMapping = {
+    'inverter': ['sunspec', 'inverter'],
+    'meter': ['iec', 'meter', 'energy'],
+    'weather': ['weather'],
+    'tracker': ['tracker', 'solar'],
+    'bms': ['bms', 'battery'],
+    'power_analyzer': ['power', 'analyzer', 'rg20c', 'reactive'],
+    'breaker': ['breaker', 'switch'],
+    'facility': ['gateway', 'facility']
+  };
+  
+  const keywords = typeMapping[deviceType] || [];
+  
+  return window.driverProfiles.filter(profile => {
+    const profileName = profile.name.toLowerCase();
+    const profileDesc = profile.description.toLowerCase();
+    return keywords.some(keyword => 
+      profileName.includes(keyword) || profileDesc.includes(keyword)
+    );
+  });
+}
+
+function handleProfileSelection(profileId) {
+  if (!profileId) {
+    resetProfileFields();
+    return;
+  }
+  
+  const profile = window.driverProfiles.find(p => p.id === profileId);
+  if (!profile) return;
+  
+  selectedProfile = profile;
+  
+  // Update form fields based on profile
+  updateFieldsFromProfile(profile);
+  
+  // Show profile preview
+  showProfilePreview(profile);
+}
+
+function updateFieldsFromProfile(profile) {
+  // Extract make/model from profile name and description
+  const makeModel = extractMakeModelFromProfile(profile);
+  
+  // Update make dropdown
+  const makeSelect = document.getElementById('deviceMake');
+  makeSelect.innerHTML = `<option value="${makeModel.make}">${makeModel.make}</option>`;
+  makeSelect.disabled = false;
+  
+  // Update model dropdown  
+  const modelSelect = document.getElementById('deviceModel');
+  modelSelect.innerHTML = `<option value="${makeModel.model}">${makeModel.model}</option>`;
+  modelSelect.disabled = false;
+  
+  // Update protocol
+  const protocolSelect = document.getElementById('deviceProtocol');
+  protocolSelect.value = profile.protocol || 'modbus_tcp';
+  protocolSelect.disabled = false;
+  
+  // Update poll interval
+  const pollIntervalInput = document.getElementById('devicePollInterval');
+  pollIntervalInput.value = profile.pollInterval || 60;
+  pollIntervalInput.disabled = false;
+  
+  // Update device name with profile name
+  const deviceNameInput = document.getElementById('deviceName');
+  if (!deviceNameInput.value || deviceNameInput.value.includes('Device')) {
+    deviceNameInput.value = `${makeModel.make} ${makeModel.model}`;
+  }
+}
+
+function extractMakeModelFromProfile(profile) {
+  const name = profile.name;
+  const desc = profile.description;
+  
+  // Specific mappings for known profiles
+  const mappings = {
+    'sunspec-inverters': { make: 'Generic', model: 'SunSpec Inverter' },
+    'iec-meters': { make: 'Generic', model: 'IEC Energy Meter' },
+    'weather-stations': { make: 'Generic', model: 'Weather Station' },
+    'solar-trackers': { make: 'Generic', model: 'Solar Tracker' },
+    'bms-mqtt': { make: 'Generic', model: 'BMS MQTT' },
+    'string-monitors': { make: 'Generic', model: 'String Monitor' },
+    'transformers': { make: 'Generic', model: 'Transformer Monitor' },
+    'site-gateways': { make: 'Generic', model: 'Site Gateway' },
+    'security-systems': { make: 'Generic', model: 'Security System' },
+    'rg20c-reactive-power': { make: 'RG20C', model: 'Reactive Power Relay' }
+  };
+  
+  if (mappings[profile.id]) {
+    return mappings[profile.id];
+  }
+  
+  // Try to extract from name or description
+  if (name.includes('RG20C')) {
+    return { make: 'RG20C', model: 'Reactive Power Relay' };
+  }
+  
+  // Default fallback
+  return { make: 'Generic', model: name };
+}
+
+function showProfilePreview(profile) {
+  const previewDiv = document.getElementById('profilePreview');
+  const pointMapPreview = document.getElementById('pointMapPreview');
+  const pointMapContent = document.getElementById('pointMapContent');
+  const pointMapCount = document.getElementById('pointMapCount');
+  
+  // Show basic profile info
+  previewDiv.innerHTML = `
+    <strong>${profile.name}</strong><br>
+    <em>${profile.description}</em><br>
+    Point Map: ${profile.pointMapFile}<br>
+    Poll Interval: ${profile.pollInterval}s | Timeout: ${profile.timeout}ms
+  `;
+  previewDiv.classList.remove('hidden');
+  
+  // Show point map preview if available
+  if (profile.pointMapPreview && profile.pointMapPreview.length > 0) {
+    const previewText = profile.pointMapPreview.slice(0, 15).join('\n');
+    pointMapContent.textContent = previewText;
+    
+    // Count actual registers (lines that don't start with #)
+    const registerCount = profile.pointMapPreview.filter(line => 
+      line && !line.trim().startsWith('#') && line.trim() !== ''
+    ).length;
+    
+    pointMapCount.textContent = `${registerCount} registers`;
+    pointMapPreview.classList.remove('hidden');
+  }
+}
+
+function resetProfileFields() {
+  selectedProfile = null;
+  
+  // Reset form fields
+  const makeSelect = document.getElementById('deviceMake');
+  const modelSelect = document.getElementById('deviceModel');
+  const protocolSelect = document.getElementById('deviceProtocol');
+  const pollIntervalInput = document.getElementById('devicePollInterval');
+  
+  makeSelect.innerHTML = '<option value="">Select Profile First...</option>';
+  makeSelect.disabled = true;
+  
+  modelSelect.innerHTML = '<option value="">Select Profile First...</option>';
+  modelSelect.disabled = true;
+  
+  protocolSelect.innerHTML = '<option value="">Auto-selected from profile</option>';
+  protocolSelect.disabled = true;
+  
+  pollIntervalInput.disabled = true;
+  
+  // Hide previews
+  document.getElementById('profilePreview').classList.add('hidden');
+  document.getElementById('pointMapPreview').classList.add('hidden');
 }
 
 function testDeviceConnection() {
@@ -408,18 +648,101 @@ function testDeviceConnection() {
 }
 
 function saveNewDevice() {
+  // Validate required fields
+  const validationResult = validateDeviceForm();
+  if (!validationResult.isValid) {
+    alert(`❌ Please fix the following errors:\n\n${validationResult.errors.join('\n')}`);
+    return;
+  }
+  
   const deviceData = {
     device_id: document.getElementById('deviceId').value,
     name: document.getElementById('deviceName').value,
     make: document.getElementById('deviceMake').value,
     model: document.getElementById('deviceModel').value,
     protocol: document.getElementById('deviceProtocol').value,
-    connection: document.getElementById('deviceConnection').value
+    connection: document.getElementById('deviceConnection').value,
+    unitId: document.getElementById('deviceUnitId').value,
+    pollInterval: document.getElementById('devicePollInterval').value,
+    plant_id: currentSite.id,
+    type: selectedDeviceType,
+    profile: selectedProfile,
+    point_map: selectedProfile?.pointMapFile
   };
   
   // In production, this would make an API call to save the device
-  alert(`Device "${deviceData.name}" would be added to ${currentSite.name}`);
+  console.log('Device to be saved:', deviceData);
+  
+  alert(`✅ Device "${deviceData.name}" will be added to ${currentSite.name}\n\n` +
+        `📋 Details:\n` +
+        `• Type: ${selectedDeviceType}\n` +
+        `• Make/Model: ${deviceData.make} / ${deviceData.model}\n` +
+        `• Profile: ${selectedProfile.name}\n` +
+        `• Connection: ${deviceData.connection}\n` +
+        `• Point Map: ${deviceData.point_map}\n\n` +
+        `🔄 This will be implemented to update config.yaml and restart EMS.`);
+  
   closeAddDeviceModal();
+}
+
+function validateDeviceForm() {
+  const errors = [];
+  
+  // Check if device type is selected
+  if (!selectedDeviceType) {
+    errors.push('Please select a device type first');
+  }
+  
+  // Check if profile is selected
+  if (!selectedProfile) {
+    errors.push('Please select a device profile');
+  }
+  
+  // Check required fields
+  const deviceId = document.getElementById('deviceId').value.trim();
+  const deviceName = document.getElementById('deviceName').value.trim();
+  const deviceMake = document.getElementById('deviceMake').value.trim();
+  const deviceModel = document.getElementById('deviceModel').value.trim();
+  const deviceConnection = document.getElementById('deviceConnection').value.trim();
+  
+  if (!deviceId) {
+    errors.push('Device ID is required');
+  }
+  
+  if (!deviceName) {
+    errors.push('Device name is required');
+  }
+  
+  if (!deviceMake) {
+    errors.push('Make is required (select a profile first)');
+  }
+  
+  if (!deviceModel) {
+    errors.push('Model is required (select a profile first)');
+  }
+  
+  if (!deviceConnection) {
+    errors.push('Connection is required (e.g., 192.168.1.100:502)');
+  }
+  
+  // Validate connection format for Modbus TCP
+  if (deviceConnection && selectedProfile?.protocol === 'modbus_tcp') {
+    const tcpPattern = /^(\d{1,3}\.){3}\d{1,3}:\d{1,5}$/;
+    if (!tcpPattern.test(deviceConnection)) {
+      errors.push('Connection must be in format IP:Port (e.g., 192.168.1.100:502)');
+    }
+  }
+  
+  // Check if device ID is unique
+  const existingDeviceIds = currentSite.devices.map(d => d.device_id);
+  if (existingDeviceIds.includes(deviceId)) {
+    errors.push('Device ID already exists in this site');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
 }
 
 function editDevice(deviceId) {
