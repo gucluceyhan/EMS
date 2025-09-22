@@ -40,18 +40,18 @@
         <a href="/ui/sites" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2 {% if '/ui/sites' in request.url.path %}bg-gray-100 dark:bg-gray-800{% endif %}">
           <span>☀️</span><span>Sites</span>
         </a>
-        <button data-nav="analytics" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2 nav-item">
+        <a href="/ui#analytics" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2" onclick="navigateToSection('analytics')">
           <span>📊</span><span>Analytics</span>
-        </button>
-        <button data-nav="control" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2 nav-item">
+        </a>
+        <a href="/ui#control" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2" onclick="navigateToSection('control')">
           <span>🛡</span><span>Control</span>
-        </button>
-        <button data-nav="reports" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2 nav-item">
+        </a>
+        <a href="/ui#reports" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2" onclick="navigateToSection('reports')">
           <span>📑</span><span>Reports</span>
-        </button>
-        <button data-nav="settings" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2 nav-item {% if '/ui/settings' in request.url.path %}bg-gray-100 dark:bg-gray-800{% endif %}">
+        </a>
+        <a href="/ui#settings" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2 {% if '/ui/settings' in request.url.path %}bg-gray-100 dark:bg-gray-800{% endif %}" onclick="navigateToSection('settings')">
           <span>⚙️</span><span>Settings</span>
-        </button>
+        </a>
       </nav>
       <div class="p-3 text-xs text-gray-500">v0.1.0</div>
     </aside>
@@ -106,7 +106,19 @@
       });
     }
 
-    // Nav views (for single-page sections)
+    // Global navigation functions
+    function navigateToSection(section) {
+      // If we're on the main dashboard, use section navigation
+      if (window.location.pathname === '/ui') {
+        showView(section);
+        return false; // Prevent link navigation
+      }
+      // Otherwise, navigate to dashboard with section
+      window.location.href = `/ui#${section}`;
+      return false;
+    }
+
+    // Nav views (for single-page sections on dashboard)
     function initNav() {
       const items = document.querySelectorAll('.nav-item');
       items.forEach((el) =>
@@ -124,15 +136,33 @@
         settings: document.getElementById('view-settings'),
       };
       Object.values(sections).forEach((s) => s && s.classList.add('hidden'));
-      if (sections[key]) sections[key].classList.remove('hidden');
+      if (sections[key]) {
+        sections[key].classList.remove('hidden');
+        // Update URL hash without reload
+        window.history.replaceState(null, '', `#${key}`);
+      }
+    }
+
+    // Handle hash navigation on dashboard
+    function handleHashNavigation() {
+      if (window.location.pathname === '/ui') {
+        const hash = window.location.hash.substring(1);
+        if (hash && hash !== 'fleet') {
+          showView(hash);
+        }
+      }
     }
 
     // Initialize base functionality
     document.addEventListener('DOMContentLoaded', () => {
       initTheme();
       initNav();
+      handleHashNavigation();
       {% block init_js %}{% endblock %}
     });
+
+    // Handle hash changes
+    window.addEventListener('hashchange', handleHashNavigation);
   </script>
 
   {% block scripts %}{% endblock %}

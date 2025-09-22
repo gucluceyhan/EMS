@@ -142,16 +142,16 @@ initSiteSearch();
     };
     
     tbody.innerHTML = sites.map((s, idx) => `
-      <tr class="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900">
-        <td class="px-3 py-2 font-medium">${s.name}</td>
+      <tr class="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 text-gray-900 dark:text-gray-100">
+        <td class="px-3 py-2 font-medium text-gray-900 dark:text-gray-100">${s.name}</td>
         <td class="px-3 py-2">${statusBadge(s.status || 'online')}</td>
-        <td class="px-3 py-2">${s.capacity.toFixed(2)} MW</td>
-        <td class="px-3 py-2">${Array.isArray(s.devices) ? s.devices.length : s.devices || 0}</td>
-        <td class="px-3 py-2">${s.lastUpdate || 'Unknown'}</td>
+        <td class="px-3 py-2 text-gray-900 dark:text-gray-100">${s.capacity.toFixed(2)} MW</td>
+        <td class="px-3 py-2 text-gray-900 dark:text-gray-100">${Array.isArray(s.devices) ? s.devices.length : s.devices || 0}</td>
+        <td class="px-3 py-2 text-gray-900 dark:text-gray-100">${s.lastUpdate || 'Unknown'}</td>
         <td class="px-3 py-2">
-          <button onclick="editSite('${s.id || s.name}')" class="px-2 py-1 text-xs rounded-md border border-gray-200 dark:border-gray-700">Edit</button>
-          <button onclick="viewSite('${s.id || s.name}')" class="px-2 py-1 text-xs rounded-md ml-1 bg-blue-600 text-white">View</button>
-          <button onclick="deleteSite('${s.id || s.name}')" class="px-2 py-1 text-xs rounded-md ml-1 bg-red-600 text-white">Delete</button>
+          <button onclick="editSite('${s.id || s.name}')" class="px-2 py-1 text-xs rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">Edit</button>
+          <button onclick="viewSite('${s.id || s.name}')" class="px-2 py-1 text-xs rounded-md ml-1 bg-blue-600 text-white hover:bg-blue-700">View</button>
+          <button onclick="deleteSite('${s.id || s.name}')" class="px-2 py-1 text-xs rounded-md ml-1 bg-red-600 text-white hover:bg-red-700">Delete</button>
         </td>
       </tr>
     `).join('');
@@ -184,6 +184,12 @@ initSiteSearch();
   function deleteSite(siteId) {
     if (!confirm(`"${siteId}" sitesini silmek istediğinizden emin misiniz?`)) return;
     alert('Site deletion feature would be implemented here');
+  }
+  
+  // Global navigation override (ensure compatibility with base template)
+  function navigateToSection(section) {
+    window.location.href = `/ui#${section}`;
+    return false;
   }
 </script>
 {% endblock %}
