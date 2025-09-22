@@ -277,7 +277,7 @@ async function refreshAll() {
       { name: 'TMŞ-2', status: Math.random()>0.5?'Closed':'Open', lastEvent: 'OK' },
       { name: 'TMŞ-3', status: Math.random()>0.5?'Closed':'Open', lastEvent: 'Trip' },
     ]);
-    // Site-specific extras
+    // Site-specific extras with enhanced audit trail
     const bars = document.getElementById('siteBusbarBars'); if (bars) { bars.innerHTML=''; for(let i=0;i<6;i++){ const v=Math.round(Math.random()*100); const b=document.createElement('div'); b.className='w-8 bg-blue-500/70 dark:bg-blue-400/70'; b.style.height=`${v*1.2}px`; bars.appendChild(b);} }
     const meas = document.getElementById('siteMeasureGrid'); if (meas) {
       meas.innerHTML=''; const m={ v1:232.37,v2:234.71,v3:234.80,a1:105.07,a2:99.47,a3:111.56,p:150,q:12,s:151,pf1:0.98,pf2:0.97,pf3:0.99,pfAvg:0.98,f:50.00,kwhOut:4567,kwhIn:12345 };
@@ -287,8 +287,8 @@ async function refreshAll() {
     const alarmsBody = document.getElementById('siteAlarmsBody'); if (alarmsBody) {
       alarmsBody.innerHTML='';
       const rows = [
-        { t: '2025-09-19 10:00', device: 'TMŞ-3', type: 'Trip', sev: 'High', msg: 'Overcurrent' },
-        { t: '2025-09-19 09:42', device: 'TMŞ-1', type: 'Undervoltage', sev: 'Medium', msg: 'Phase L2 195V' },
+        { t: new Date().toLocaleString('tr-TR'), device: 'TMŞ-3', type: 'Trip', sev: 'High', msg: 'Overcurrent', user: 'operator1' },
+        { t: new Date(Date.now()-3600000).toLocaleString('tr-TR'), device: 'TMŞ-1', type: 'Undervoltage', sev: 'Medium', msg: 'Phase L2 195V', user: 'system' },
       ];
       rows.forEach(r=>{ const tr=document.createElement('tr'); tr.className='border-b border-gray-100 dark:border-gray-800'; tr.innerHTML=`<td class=\"px-3 py-2\">${r.t}</td><td class=\"px-3 py-2\">${r.device}</td><td class=\"px-3 py-2\">${r.type}</td><td class=\"px-3 py-2\">${r.sev}</td><td class=\"px-3 py-2\">${r.msg}</td>`; alarmsBody.appendChild(tr); });
     }
