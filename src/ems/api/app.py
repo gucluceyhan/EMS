@@ -44,10 +44,9 @@ requests_counter = Counter("ems_api_requests_total", "API Requests", registry=re
 def create_app(context: APIContext) -> FastAPI:
     app = FastAPI(title="GES Solar EMS", version="0.1.0")
     static_dir = Path(__file__).resolve().parent.parent / "ui" / "static"
-    templates = Jinja2Templates(
-        directory=str(Path(__file__).resolve().parent.parent / "ui" / "templates")
-    )
-    app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+    templates_dir = Path(__file__).resolve().parent.parent / "ui" / "templates"
+    ui_config = context.config.global_.ui
+    ui_enabled = ui_config.enabled
 
     def require_token(
         credentials: HTTPAuthorizationCredentials | None = Depends(security_scheme),
@@ -62,8 +61,8 @@ def create_app(context: APIContext) -> FastAPI:
 
     def require_basic(credentials: HTTPBasicCredentials = Depends(basic_auth)) -> None:
         if (
-            credentials.username != context.config.global_.ui.basic_auth_user
-            or credentials.password != context.config.global_.ui.basic_auth_password
+            credentials.username != ui_config.basic_auth_user
+            or credentials.password != ui_config.basic_auth_password
         ):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
@@ -113,7 +112,7 @@ def create_app(context: APIContext) -> FastAPI:
 
     @app.get("/config")
     async def get_config(token: None = Depends(require_token)) -> dict[str, Any]:
-        data = context.config.model_dump(mode="json")
+        data = context.config.model_dump(mode="json", by_alias=True)
         data["global"]["api"]["auth_token"] = "***"
         data["global"]["export"]["auth_token"] = "***"
         data["global"]["uplink"]["api_key"] = "***"
@@ -139,76 +138,74 @@ def create_app(context: APIContext) -> FastAPI:
             status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Control path not yet implemented"
         )
 
-    @app.get("/ui", response_class=HTMLResponse)
-    async def ui(request: Request, _: None = Depends(require_basic)) -> HTMLResponse:
-        return templates.TemplateResponse(
-            "index.html",
-            {
-                "request": request,
-                "plant": context.config.plant.model_dump(),
-            },
-        )
+    if ui_enabled:
+        app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+        templates = Jinja2Templates(directory=str(templates_dir))
 
-    @app.get("/ui/sites/add", response_class=HTMLResponse)
-    async def ui_sites_add(request: Request, _: None = Depends(require_basic)) -> HTMLResponse:
-        return templates.TemplateResponse(
-            "sites-add.html",
-            {
-                "request": request,
-                "plant": context.config.plant.model_dump(),
-            },
-        )
+        def render_template(name: str, request: Request) -> HTMLResponse:
+            return templates.TemplateResponse(
+                name,
+                {
+                    "request": request,
+                    "plant": context.config.plant.model_dump(),
+                },
+            )
 
-    @app.get("/ui/automation/breakers", response_class=HTMLResponse)
-    async def ui_automation_breakers(
-        request: Request, _: None = Depends(require_basic)
-    ) -> HTMLResponse:
-        return templates.TemplateResponse(
-            "automation-breakers.html",
-            {
-                "request": request,
-                "plant": context.config.plant.model_dump(),
-            },
-        )
+        @app.get("/ui/api/devices")
+        async def ui_devices(_: None = Depends(require_basic)) -> list[dict[str, Any]]:
+            return list(context.device_status.values())
 
-    # Settings routes (additive)
-    @app.get("/ui/settings/org", response_class=HTMLResponse)
-    async def ui_settings_org(request: Request, _: None = Depends(require_basic)) -> HTMLResponse:
-        return templates.TemplateResponse(
-            "settings/org.html",
-            {"request": request, "plant": context.config.plant.model_dump()},
-        )
+        @app.get("/ui", response_class=HTMLResponse)
+        async def ui(request: Request, _: None = Depends(require_basic)) -> HTMLResponse:
+            return render_template("index.html", request)
 
-    @app.get("/ui/settings/profiles", response_class=HTMLResponse)
-    async def ui_settings_profiles(request: Request, _: None = Depends(require_basic)) -> HTMLResponse:
-        return templates.TemplateResponse(
-            "settings/profiles.html",
-            {"request": request, "plant": context.config.plant.model_dump()},
-        )
+        @app.get("/ui/sites/add", response_class=HTMLResponse)
+        async def ui_sites_add(request: Request, _: None = Depends(require_basic)) -> HTMLResponse:
+            return render_template("sites-add.html", request)
 
-    @app.get("/ui/settings/health", response_class=HTMLResponse)
-    async def ui_settings_health(request: Request, _: None = Depends(require_basic)) -> HTMLResponse:
-        return templates.TemplateResponse(
-            "settings/health.html",
-            {"request": request, "plant": context.config.plant.model_dump()},
-        )
+        @app.get("/ui/automation/breakers", response_class=HTMLResponse)
+        async def ui_automation_breakers(
+            request: Request, _: None = Depends(require_basic)
+        ) -> HTMLResponse:
+            return render_template("automation-breakers.html", request)
 
-    # Generic settings/pages catch-all (non-destructive, template must exist)
-    @app.get("/ui/settings/{page}", response_class=HTMLResponse)
-    async def ui_settings_dynamic(page: str, request: Request, _: None = Depends(require_basic)) -> HTMLResponse:
-        name = f"settings/{page}.html"
-        base = Path(__file__).resolve().parent.parent / "ui" / "templates"
-        if not (base / name).exists():
-            raise HTTPException(status_code=404, detail="Not Found")
-        return templates.TemplateResponse(name, {"request": request, "plant": context.config.plant.model_dump()})
+        # Settings routes (additive)
+        @app.get("/ui/settings/org", response_class=HTMLResponse)
+        async def ui_settings_org(
+            request: Request, _: None = Depends(require_basic)
+        ) -> HTMLResponse:
+            return render_template("settings/org.html", request)
 
-    @app.get("/ui/pages/{page}", response_class=HTMLResponse)
-    async def ui_pages_dynamic(page: str, request: Request, _: None = Depends(require_basic)) -> HTMLResponse:
-        name = f"pages/{page}.html"
-        base = Path(__file__).resolve().parent.parent / "ui" / "templates"
-        if not (base / name).exists():
-            raise HTTPException(status_code=404, detail="Not Found")
-        return templates.TemplateResponse(name, {"request": request, "plant": context.config.plant.model_dump()})
+        @app.get("/ui/settings/profiles", response_class=HTMLResponse)
+        async def ui_settings_profiles(
+            request: Request, _: None = Depends(require_basic)
+        ) -> HTMLResponse:
+            return render_template("settings/profiles.html", request)
+
+        @app.get("/ui/settings/health", response_class=HTMLResponse)
+        async def ui_settings_health(
+            request: Request, _: None = Depends(require_basic)
+        ) -> HTMLResponse:
+            return render_template("settings/health.html", request)
+
+        # Generic settings/pages catch-all (non-destructive, template must exist)
+        @app.get("/ui/settings/{page}", response_class=HTMLResponse)
+        async def ui_settings_dynamic(
+            page: str, request: Request, _: None = Depends(require_basic)
+        ) -> HTMLResponse:
+            name = f"settings/{page}.html"
+            if not (templates_dir / name).exists():
+                raise HTTPException(status_code=404, detail="Not Found")
+            return render_template(name, request)
+
+        @app.get("/ui/pages/{page}", response_class=HTMLResponse)
+        async def ui_pages_dynamic(
+            page: str, request: Request, _: None = Depends(require_basic)
+        ) -> HTMLResponse:
+            name = f"pages/{page}.html"
+            if not (templates_dir / name).exists():
+                raise HTTPException(status_code=404, detail="Not Found")
+            return render_template(name, request)
 
     return app
 

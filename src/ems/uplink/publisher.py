@@ -3,10 +3,15 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
+import logging
+
 import httpx
 
 from ..store.database import Database, MeasurementRecord
 from ..utils.config import UplinkConfig
+
+
+logger = logging.getLogger(__name__)
 
 
 class UplinkPublisher:
@@ -23,6 +28,12 @@ class UplinkPublisher:
         ts_end = now.replace(second=0, microsecond=0)
         ts_start = ts_end - timedelta(seconds=self._config.batch_period_s)
         records = await self._db.latest_measurements(since=ts_start)
+        if not records:
+            logger.debug(
+                "Skipping uplink publish: no new records in window",
+                extra={"ts_start": ts_start.isoformat(), "ts_end": ts_end.isoformat()},
+            )
+            return
         payload = self._build_payload(records, ts_start, ts_end)
         await self._db.enqueue_uplink(payload, ts_start, ts_end)
         await self.flush()

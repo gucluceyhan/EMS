@@ -3,9 +3,10 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import asyncio
 import pandas as pd
 
-from .database import Database
+from .database import Database, MeasurementRecord
 
 
 class ParquetExporter:
@@ -19,6 +20,11 @@ class ParquetExporter:
         records = await self._db.latest_measurements(since=cutoff)
         if not records:
             return None
+        return await asyncio.to_thread(self._write_parquet, records, cutoff)
+
+    def _write_parquet(
+        self, records: list[MeasurementRecord], cutoff: datetime
+    ) -> Path:  # pragma: no cover - exercised via export_last_hour
         df = pd.DataFrame(
             [
                 {
