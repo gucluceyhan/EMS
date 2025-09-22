@@ -1,0 +1,257 @@
+# Custom Device Point Map Template
+# Bu dosya yeni cihaz profilleri için template olarak kullanılabilir
+
+device_info:
+  type: "custom"
+  protocol: "modbus_tcp"  # modbus_tcp, modbus_rtu, mqtt, serial, can
+  description: "Custom device point mapping template"
+  version: "1.0"
+  author: "EMS Configuration"
+
+# Modbus TCP/RTU Protocol Settings
+modbus_settings:
+  byte_order: "big_endian"    # big_endian, little_endian
+  word_order: "big_endian"    # big_endian, little_endian
+  unit_id: 1                  # Modbus slave address (1-247)
+
+# Point Definitions
+points:
+  # Basic Power Measurements
+  active_power:
+    address: 100              # Modbus register address
+    function_code: 3          # 1=coils, 2=discrete, 3=holding, 4=input
+    data_type: "float32"      # uint16, int16, uint32, int32, float32, float64
+    byte_count: 2             # Number of registers (float32 = 2 registers)
+    scale: 0.001              # Scale factor (raw_value * scale)
+    offset: 0                 # Offset (scaled_value + offset)
+    unit: "kW"               # Physical unit
+    description: "Active Power Output"
+    read_only: true          # true=read-only, false=read-write
+    
+  reactive_power:
+    address: 102
+    function_code: 3
+    data_type: "float32"
+    byte_count: 2
+    scale: 0.001
+    offset: 0
+    unit: "kVar"
+    description: "Reactive Power Output"
+    read_only: true
+    
+  # Voltage Measurements
+  voltage_l1:
+    address: 110
+    function_code: 3
+    data_type: "uint16"
+    byte_count: 1
+    scale: 0.1
+    offset: 0
+    unit: "V"
+    description: "Line 1 Voltage"
+    read_only: true
+    min_value: 0
+    max_value: 1000
+    
+  voltage_l2:
+    address: 111
+    function_code: 3
+    data_type: "uint16"
+    byte_count: 1
+    scale: 0.1
+    offset: 0
+    unit: "V"
+    description: "Line 2 Voltage"
+    read_only: true
+    min_value: 0
+    max_value: 1000
+    
+  voltage_l3:
+    address: 112
+    function_code: 3
+    data_type: "uint16"
+    byte_count: 1
+    scale: 0.1
+    offset: 0
+    unit: "V"
+    description: "Line 3 Voltage"
+    read_only: true
+    min_value: 0
+    max_value: 1000
+    
+  # Current Measurements
+  current_l1:
+    address: 120
+    function_code: 3
+    data_type: "uint16"
+    byte_count: 1
+    scale: 0.01
+    offset: 0
+    unit: "A"
+    description: "Line 1 Current"
+    read_only: true
+    
+  current_l2:
+    address: 121
+    function_code: 3
+    data_type: "uint16"
+    byte_count: 1
+    scale: 0.01
+    offset: 0
+    unit: "A"
+    description: "Line 2 Current"
+    read_only: true
+    
+  current_l3:
+    address: 122
+    function_code: 3
+    data_type: "uint16"
+    byte_count: 1
+    scale: 0.01
+    offset: 0
+    unit: "A"
+    description: "Line 3 Current"
+    read_only: true
+    
+  # Frequency
+  frequency:
+    address: 130
+    function_code: 3
+    data_type: "uint16"
+    byte_count: 1
+    scale: 0.01
+    offset: 0
+    unit: "Hz"
+    description: "Grid Frequency"
+    read_only: true
+    min_value: 45.0
+    max_value: 55.0
+    
+  # Temperature
+  temperature:
+    address: 140
+    function_code: 3
+    data_type: "int16"
+    byte_count: 1
+    scale: 0.1
+    offset: 0
+    unit: "°C"
+    description: "Device Temperature"
+    read_only: true
+    min_value: -40.0
+    max_value: 85.0
+    
+  # Status and Alarms (Bitfield)
+  device_status:
+    address: 200
+    function_code: 3
+    data_type: "bitfield16"
+    byte_count: 1
+    description: "Device Status Register"
+    read_only: true
+    bit_definitions:
+      0: "Device_Ready"
+      1: "Device_Running"
+      2: "Device_Fault"
+      3: "Communication_OK"
+      4: "Emergency_Stop"
+      5: "Maintenance_Mode"
+      8: "Alarm_Temperature"
+      9: "Alarm_Overvoltage"
+      10: "Alarm_Overcurrent"
+      11: "Alarm_Frequency"
+      
+  # Alarm Register
+  alarm_register:
+    address: 201
+    function_code: 3
+    data_type: "bitfield16"
+    byte_count: 1
+    description: "Active Alarms"
+    read_only: true
+    bit_definitions:
+      0: "Minor_Alarm"
+      1: "Major_Alarm"
+      2: "Critical_Alarm"
+      3: "Grid_Fault"
+      4: "Hardware_Fault"
+      5: "Communication_Fault"
+      
+  # Control Points (Write Capable)
+  power_limit_setpoint:
+    address: 300
+    function_code: 6          # Function 6 = Write Single Register
+    data_type: "uint16"
+    byte_count: 1
+    scale: 0.1
+    offset: 0
+    unit: "%"
+    description: "Active Power Limit Setpoint"
+    read_only: false         # This is a control point
+    min_value: 0
+    max_value: 100
+    default_value: 100
+    
+  # Control Commands (Discrete)
+  breaker_control:
+    address: 310
+    function_code: 5          # Function 5 = Write Single Coil
+    data_type: "boolean"
+    description: "Breaker Control (0=Open, 1=Close)"
+    read_only: false
+    
+  emergency_stop:
+    address: 311
+    function_code: 5
+    data_type: "boolean"
+    description: "Emergency Stop Command"
+    read_only: false
+
+# Advanced Configuration
+advanced:
+  # Polling configuration
+  poll_groups:
+    fast:                    # High priority, fast polling
+      interval_ms: 1000
+      points: ["active_power", "reactive_power", "device_status"]
+    normal:                  # Normal priority
+      interval_ms: 5000
+      points: ["voltage_l1", "voltage_l2", "voltage_l3", "current_l1", "current_l2", "current_l3", "frequency"]
+    slow:                    # Low priority, slow polling
+      interval_ms: 30000
+      points: ["temperature", "alarm_register"]
+      
+  # Error handling
+  error_handling:
+    max_consecutive_errors: 3
+    error_recovery_delay_ms: 5000
+    timeout_ms: 3000
+    
+  # Data validation
+  validation:
+    enable_range_check: true
+    enable_rate_of_change_check: true
+    max_rate_of_change_percent: 20
+
+# Comments and Documentation
+comments: |
+  Bu custom point map dosyası aşağıdaki cihaz türleri için örnek template'dir:
+  
+  1. Modbus TCP/RTU cihazlar
+  2. Güç ölçüm cihazları (inverter, meter, vb.)
+  3. Kontrol capability'si olan cihazlar
+  
+  Kullanım:
+  1. device_info kısmını cihazınıza göre güncelleyin
+  2. points kısmındaki register adreslerini değiştirin
+  3. Scale ve offset değerlerini cihaz datasheet'ine göre ayarlayın
+  4. İhtiyaç olmayan point'leri silin
+  5. Cihaza özel point'ler ekleyin
+  
+  Test:
+  1. EMS config.yaml'da bu dosyayı point_map olarak kullanın
+  2. Poll interval'ları ihtiyaca göre ayarlayın
+  3. Connection test yapın
+  
+  Not: Bu template genel amaçlı olup, gerçek cihaz datasheet'lerinden
+       doğru register adresleri ve veri formatları alınmalıdır.

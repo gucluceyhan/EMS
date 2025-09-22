@@ -1,0 +1,376 @@
+Register Başlangıç;Register Uznluk;Parametre;Birim;Scale;Veri Tipi;Açıklama (Türkçe);Paket
+0.0;2.0;VL1n;V;1.0;float;Gerilim VL1n;RG20C
+2.0;2.0;VL2n;V;1.0;float;Gerilim VL2n;RG20C
+4.0;2.0;VL3n;V;1.0;float;Gerilim VL3n;RG20C
+8.0;2.0;VL1L2;V;1.0;float;Gerilim VL1L2;RG20C
+10.0;2.0;VL2L3;V;1.0;float;Gerilim VL2L3;RG20C
+12.0;2.0;VL3L1;V;1.0;float;Gerilim VL3L1;RG20C
+14.0;2.0;IL1;mA;1.0;float;Akım IL1;RG20C
+16.0;2.0;IL2;mA;1.0;float;Akım IL2;RG20C
+18.0;2.0;IL3;mA;1.0;float;Akım IL3;RG20C
+;;PL1;;;;Güç PL1;
+;;PL2;;;;Güç PL2;
+;;PL3;;;;Güç PL3;
+42.0;2.0;∑P;W;1.0;float;∑P;RG20C
+48.0;2.0;QL1;var;1.0;float;QL1;RG20C
+50.0;2.0;QL2;var;1.0;float;QL2;RG20C
+52.0;2.0;QL3;var;1.0;float;QL3;RG20C
+64.0;2.0;∑Q;var;1.0;float;∑Q;RG20C
+;;∑S;;;;∑S;
+134.0;2.0;PF;;1.0;float;Güç Faktörü;RG20C
+32.0;2.0;frequency;Hz;1.0;float;Frekans;RG20C
+;;pozitif aktif enerji           Ep +;;;;pozitif aktif enerji           Ep +;
+;;negatif aktif enerji         Ep-;;;;negatif aktif enerji         Ep-;
+;;Inductive reaktif enerji    Eq +;;;;Inductive reaktif enerji    Eq +;
+;;Capacitive reaktif enerji       Eq-;;;;Capacitive reaktif enerji       Eq-;
+22.0;2.0;In (nötr akım);mA;1.0;float;In (nötr akım);RG20C
+;;SL1;;;;SL1;
+68.0;2.0;SL2;VA;1.0;float;SL2;RG20C
+70.0;2.0;SL3;VA;1.0;float;SL3;RG20C
+126.0;2.0;PFL1;-;1.0;float;Güç Faktörü L1;RG20C
+128.0;2.0;PFL2;-;1.0;float;Güç Faktörü L2;RG20C
+130.0;2.0;PFL3;-;1.0;float;Güç Faktörü L3;RG20C
+;;VL1 RMS;;;;Gerilim VL1 RMS;
+;;VL2 RMS;;;;Gerilim VL2 RMS;
+;;VL3 RMS;;;;Gerilim VL3 RMS;
+;;IL1 RMS;;;;Akım IL1 RMS;
+;;IL2 RMS;;;;Akım IL2 RMS;
+;;IL3 RMS;;;;Akım IL3 RMS;
+;;VL1 Fund;;;;Gerilim VL1 Fund;
+;;VL2 Fund;;;;Gerilim VL2 Fund;
+;;VL3 Fund;;;;Gerilim VL3 Fund;
+;;IL1 Fund;;;;Akım IL1 Fund;
+;;IL2 Fund;;;;Akım IL2 Fund;
+;;IL3 Fund;;;;Akım IL3 Fund;
+;;VL1 Toplam Harmonik Distorsiyon;;;;Gerilim VL1 Toplam Harmonik Distorsiyon;
+;;VL2 Toplam Harmonik Distorsiyon;;;;Gerilim VL2 Toplam Harmonik Distorsiyon;
+;;VL3 Toplam Harmonik Distorsiyon;;;;Gerilim VL3 Toplam Harmonik Distorsiyon;
+;;IL1 Toplam Harmonik Distorsiyon;;;;Akım IL1 Toplam Harmonik Distorsiyon;
+;;IL2 Toplam Harmonik Distorsiyon;;;;Akım IL2 Toplam Harmonik Distorsiyon;
+;;IL3 Toplam Harmonik Distorsiyon;;;;Akım IL3 Toplam Harmonik Distorsiyon;
+8226.0;2.0;VL1 H2;V;1.0;float;Gerilim VL1 H2;RG20C
+8230.0;2.0;VL2 H2;V;1.0;float;Gerilim VL2 H2;RG20C
+8234.0;2.0;VL3 H2;V;1.0;float;Gerilim VL3 H2;RG20C
+4138.0;2.0;IL1 H2;A;1.0;float;Akım IL1 H2;RG20C
+4142.0;2.0;IL2 H2;A;1.0;float;Akım IL2 H2;RG20C
+4146.0;2.0;IL3 H2;A;1.0;float;Akım IL3 H2;RG20C
+8242.0;2.0;VL1 H3;V;1.0;float;Gerilim VL1 H3;RG20C
+8246.0;2.0;VL2 H3;V;1.0;float;Gerilim VL2 H3;RG20C
+8250.0;2.0;VL3 H3;V;1.0;float;Gerilim VL3 H3;RG20C
+4158.0;2.0;IL1 H3;A;1.0;float;Akım IL1 H3;RG20C
+4162.0;2.0;IL2 H3;A;1.0;float;Akım IL2 H3;RG20C
+4166.0;2.0;IL3 H3;A;1.0;float;Akım IL3 H3;RG20C
+8258.0;2.0;VL1 H4;V;1.0;float;Gerilim VL1 H4;RG20C
+8262.0;2.0;VL2 H4;V;1.0;float;Gerilim VL2 H4;RG20C
+8266.0;2.0;VL3 H4;V;1.0;float;Gerilim VL3 H4;RG20C
+4178.0;2.0;IL1 H4;A;1.0;float;Akım IL1 H4;RG20C
+4182.0;2.0;IL2 H4;A;1.0;float;Akım IL2 H4;RG20C
+4186.0;2.0;IL3 H4;A;1.0;float;Akım IL3 H4;RG20C
+8274.0;2.0;VL1 H5;V;1.0;float;Gerilim VL1 H5;RG20C
+8278.0;2.0;VL2 H5;V;1.0;float;Gerilim VL2 H5;RG20C
+8282.0;2.0;VL3 H5;V;1.0;float;Gerilim VL3 H5;RG20C
+4198.0;2.0;IL1 H5;A;1.0;float;Akım IL1 H5;RG20C
+4202.0;2.0;IL2 H5;A;1.0;float;Akım IL2 H5;RG20C
+4206.0;2.0;IL3 H5;A;1.0;float;Akım IL3 H5;RG20C
+8290.0;2.0;VL1 H6;V;1.0;float;Gerilim VL1 H6;RG20C
+8294.0;2.0;VL2 H6;V;1.0;float;Gerilim VL2 H6;RG20C
+8298.0;2.0;VL3 H6;V;1.0;float;Gerilim VL3 H6;RG20C
+4218.0;2.0;IL1 H6;A;1.0;float;Akım IL1 H6;RG20C
+4222.0;2.0;IL2 H6;A;1.0;float;Akım IL2 H6;RG20C
+4226.0;2.0;IL3 H6;A;1.0;float;Akım IL3 H6;RG20C
+8306.0;2.0;VL1 H7;V;1.0;float;Gerilim VL1 H7;RG20C
+8310.0;2.0;VL2 H7;V;1.0;float;Gerilim VL2 H7;RG20C
+8314.0;2.0;VL3 H7;V;1.0;float;Gerilim VL3 H7;RG20C
+4238.0;2.0;IL1 H7;A;1.0;float;Akım IL1 H7;RG20C
+4242.0;2.0;IL2 H7;A;1.0;float;Akım IL2 H7;RG20C
+4246.0;2.0;IL3 H7;A;1.0;float;Akım IL3 H7;RG20C
+8322.0;2.0;VL1 H8;V;1.0;float;Gerilim VL1 H8;RG20C
+8326.0;2.0;VL2 H8;V;1.0;float;Gerilim VL2 H8;RG20C
+8330.0;2.0;VL3 H8;V;1.0;float;Gerilim VL3 H8;RG20C
+4258.0;2.0;IL1 H8;A;1.0;float;Akım IL1 H8;RG20C
+4262.0;2.0;IL2 H8;A;1.0;float;Akım IL2 H8;RG20C
+4266.0;2.0;IL3 H8;A;1.0;float;Akım IL3 H8;RG20C
+8338.0;2.0;VL1 H9;V;1.0;float;Gerilim VL1 H9;RG20C
+8342.0;2.0;VL2 H9;V;1.0;float;Gerilim VL2 H9;RG20C
+8346.0;2.0;VL3 H9;V;1.0;float;Gerilim VL3 H9;RG20C
+4278.0;2.0;IL1 H9;A;1.0;float;Akım IL1 H9;RG20C
+4282.0;2.0;IL2 H9;A;1.0;float;Akım IL2 H9;RG20C
+4286.0;2.0;IL3 H9;A;1.0;float;Akım IL3 H9;RG20C
+8354.0;2.0;VL1 H10;V;1.0;float;Gerilim VL1 H10;RG20C
+8358.0;2.0;VL2 H10;V;1.0;float;Gerilim VL2 H10;RG20C
+8362.0;2.0;VL3 H10;V;1.0;float;Gerilim VL3 H10;RG20C
+4298.0;2.0;IL1 H10;A;1.0;float;Akım IL1 H10;RG20C
+4302.0;2.0;IL2 H10;A;1.0;float;Akım IL2 H10;RG20C
+4306.0;2.0;IL3 H10;A;1.0;float;Akım IL3 H10;RG20C
+8370.0;2.0;VL1 H11;V;1.0;float;Gerilim VL1 H11;RG20C
+8374.0;2.0;VL2 H11;V;1.0;float;Gerilim VL2 H11;RG20C
+8378.0;2.0;VL3 H11;V;1.0;float;Gerilim VL3 H11;RG20C
+4318.0;2.0;IL1 H11;A;1.0;float;Akım IL1 H11;RG20C
+4322.0;2.0;IL2 H11;A;1.0;float;Akım IL2 H11;RG20C
+4326.0;2.0;IL3 H11;A;1.0;float;Akım IL3 H11;RG20C
+8386.0;2.0;VL1 H12;V;1.0;float;Gerilim VL1 H12;RG20C
+8390.0;2.0;VL2 H12;V;1.0;float;Gerilim VL2 H12;RG20C
+8394.0;2.0;VL3 H12;V;1.0;float;Gerilim VL3 H12;RG20C
+4338.0;2.0;IL1 H12;A;1.0;float;Akım IL1 H12;RG20C
+4342.0;2.0;IL2 H12;A;1.0;float;Akım IL2 H12;RG20C
+4346.0;2.0;IL3 H12;A;1.0;float;Akım IL3 H12;RG20C
+8402.0;2.0;VL1 H13;V;1.0;float;Gerilim VL1 H13;RG20C
+8406.0;2.0;VL2 H13;V;1.0;float;Gerilim VL2 H13;RG20C
+8410.0;2.0;VL3 H13;V;1.0;float;Gerilim VL3 H13;RG20C
+4358.0;2.0;IL1 H13;A;1.0;float;Akım IL1 H13;RG20C
+4362.0;2.0;IL2 H13;A;1.0;float;Akım IL2 H13;RG20C
+4366.0;2.0;IL3 H13;A;1.0;float;Akım IL3 H13;RG20C
+8418.0;2.0;VL1 H14;V;1.0;float;Gerilim VL1 H14;RG20C
+8422.0;2.0;VL2 H14;V;1.0;float;Gerilim VL2 H14;RG20C
+8426.0;2.0;VL3 H14;V;1.0;float;Gerilim VL3 H14;RG20C
+4378.0;2.0;IL1 H14;A;1.0;float;Akım IL1 H14;RG20C
+4382.0;2.0;IL2 H14;A;1.0;float;Akım IL2 H14;RG20C
+4386.0;2.0;IL3 H14;A;1.0;float;Akım IL3 H14;RG20C
+8434.0;2.0;VL1 H15;V;1.0;float;Gerilim VL1 H15;RG20C
+8438.0;2.0;VL2 H15;V;1.0;float;Gerilim VL2 H15;RG20C
+8442.0;2.0;VL3 H15;V;1.0;float;Gerilim VL3 H15;RG20C
+4398.0;2.0;IL1 H15;A;1.0;float;Akım IL1 H15;RG20C
+4402.0;2.0;IL2 H15;A;1.0;float;Akım IL2 H15;RG20C
+4406.0;2.0;IL3 H15;A;1.0;float;Akım IL3 H15;RG20C
+8450.0;2.0;VL1 H16;V;1.0;float;Gerilim VL1 H16;RG20C
+8454.0;2.0;VL2 H16;V;1.0;float;Gerilim VL2 H16;RG20C
+8458.0;2.0;VL3 H16;V;1.0;float;Gerilim VL3 H16;RG20C
+4418.0;2.0;IL1 H16;A;1.0;float;Akım IL1 H16;RG20C
+4422.0;2.0;IL2 H16;A;1.0;float;Akım IL2 H16;RG20C
+4426.0;2.0;IL3 H16;A;1.0;float;Akım IL3 H16;RG20C
+8466.0;2.0;VL1 H17;V;1.0;float;Gerilim VL1 H17;RG20C
+8470.0;2.0;VL2 H17;V;1.0;float;Gerilim VL2 H17;RG20C
+8474.0;2.0;VL3 H17;V;1.0;float;Gerilim VL3 H17;RG20C
+4438.0;2.0;IL1 H17;A;1.0;float;Akım IL1 H17;RG20C
+4442.0;2.0;IL2 H17;A;1.0;float;Akım IL2 H17;RG20C
+4446.0;2.0;IL3 H17;A;1.0;float;Akım IL3 H17;RG20C
+8482.0;2.0;VL1 H18;V;1.0;float;Gerilim VL1 H18;RG20C
+8486.0;2.0;VL2 H18;V;1.0;float;Gerilim VL2 H18;RG20C
+8490.0;2.0;VL3 H18;V;1.0;float;Gerilim VL3 H18;RG20C
+4458.0;2.0;IL1 H18;A;1.0;float;Akım IL1 H18;RG20C
+4462.0;2.0;IL2 H18;A;1.0;float;Akım IL2 H18;RG20C
+4466.0;2.0;IL3 H18;A;1.0;float;Akım IL3 H18;RG20C
+8498.0;2.0;VL1 H19;V;1.0;float;Gerilim VL1 H19;RG20C
+8502.0;2.0;VL2 H19;V;1.0;float;Gerilim VL2 H19;RG20C
+8506.0;2.0;VL3 H19;V;1.0;float;Gerilim VL3 H19;RG20C
+4478.0;2.0;IL1 H19;A;1.0;float;Akım IL1 H19;RG20C
+4482.0;2.0;IL2 H19;A;1.0;float;Akım IL2 H19;RG20C
+4486.0;2.0;IL3 H19;A;1.0;float;Akım IL3 H19;RG20C
+8514.0;2.0;VL1 H20;V;1.0;float;Gerilim VL1 H20;RG20C
+8518.0;2.0;VL2 H20;V;1.0;float;Gerilim VL2 H20;RG20C
+8522.0;2.0;VL3 H20;V;1.0;float;Gerilim VL3 H20;RG20C
+4498.0;2.0;IL1 H20;A;1.0;float;Akım IL1 H20;RG20C
+4502.0;2.0;IL2 H20;A;1.0;float;Akım IL2 H20;RG20C
+4506.0;2.0;IL3 H20;A;1.0;float;Akım IL3 H20;RG20C
+8530.0;2.0;VL1 H21;V;1.0;float;Gerilim VL1 H21;RG20C
+8534.0;2.0;VL2 H21;V;1.0;float;Gerilim VL2 H21;RG20C
+8538.0;2.0;VL3 H21;V;1.0;float;Gerilim VL3 H21;RG20C
+4518.0;2.0;IL1 H21;A;1.0;float;Akım IL1 H21;RG20C
+4522.0;2.0;IL2 H21;A;1.0;float;Akım IL2 H21;RG20C
+4526.0;2.0;IL3 H21;A;1.0;float;Akım IL3 H21;RG20C
+8546.0;2.0;VL1 H22;V;1.0;float;Gerilim VL1 H22;RG20C
+8550.0;2.0;VL2 H22;V;1.0;float;Gerilim VL2 H22;RG20C
+8554.0;2.0;VL3 H22;V;1.0;float;Gerilim VL3 H22;RG20C
+4538.0;2.0;IL1 H22;A;1.0;float;Akım IL1 H22;RG20C
+4542.0;2.0;IL2 H22;A;1.0;float;Akım IL2 H22;RG20C
+4546.0;2.0;IL3 H22;A;1.0;float;Akım IL3 H22;RG20C
+8562.0;2.0;VL1 H23;V;1.0;float;Gerilim VL1 H23;RG20C
+8566.0;2.0;VL2 H23;V;1.0;float;Gerilim VL2 H23;RG20C
+8570.0;2.0;VL3 H23;V;1.0;float;Gerilim VL3 H23;RG20C
+4558.0;2.0;IL1 H23;A;1.0;float;Akım IL1 H23;RG20C
+4562.0;2.0;IL2 H23;A;1.0;float;Akım IL2 H23;RG20C
+4566.0;2.0;IL3 H23;A;1.0;float;Akım IL3 H23;RG20C
+8578.0;2.0;VL1 H24;V;1.0;float;Gerilim VL1 H24;RG20C
+8582.0;2.0;VL2 H24;V;1.0;float;Gerilim VL2 H24;RG20C
+8586.0;2.0;VL3 H24;V;1.0;float;Gerilim VL3 H24;RG20C
+4578.0;2.0;IL1 H24;A;1.0;float;Akım IL1 H24;RG20C
+4582.0;2.0;IL2 H24;A;1.0;float;Akım IL2 H24;RG20C
+4586.0;2.0;IL3 H24;A;1.0;float;Akım IL3 H24;RG20C
+8594.0;2.0;VL1 H25;V;1.0;float;Gerilim VL1 H25;RG20C
+8598.0;2.0;VL2 H25;V;1.0;float;Gerilim VL2 H25;RG20C
+8602.0;2.0;VL3 H25;V;1.0;float;Gerilim VL3 H25;RG20C
+4598.0;2.0;IL1 H25;A;1.0;float;Akım IL1 H25;RG20C
+4602.0;2.0;IL2 H25;A;1.0;float;Akım IL2 H25;RG20C
+4606.0;2.0;IL3 H25;A;1.0;float;Akım IL3 H25;RG20C
+8610.0;2.0;VL1 H26;V;1.0;float;Gerilim VL1 H26;RG20C
+8614.0;2.0;VL2 H26;V;1.0;float;Gerilim VL2 H26;RG20C
+8618.0;2.0;VL3 H26;V;1.0;float;Gerilim VL3 H26;RG20C
+4618.0;2.0;IL1 H26;A;1.0;float;Akım IL1 H26;RG20C
+4622.0;2.0;IL2 H26;A;1.0;float;Akım IL2 H26;RG20C
+4626.0;2.0;IL3 H26;A;1.0;float;Akım IL3 H26;RG20C
+8626.0;2.0;VL1 H27;V;1.0;float;Gerilim VL1 H27;RG20C
+8630.0;2.0;VL2 H27;V;1.0;float;Gerilim VL2 H27;RG20C
+8634.0;2.0;VL3 H27;V;1.0;float;Gerilim VL3 H27;RG20C
+4638.0;2.0;IL1 H27;A;1.0;float;Akım IL1 H27;RG20C
+4642.0;2.0;IL2 H27;A;1.0;float;Akım IL2 H27;RG20C
+4646.0;2.0;IL3 H27;A;1.0;float;Akım IL3 H27;RG20C
+8642.0;2.0;VL1 H28;V;1.0;float;Gerilim VL1 H28;RG20C
+8646.0;2.0;VL2 H28;V;1.0;float;Gerilim VL2 H28;RG20C
+8650.0;2.0;VL3 H28;V;1.0;float;Gerilim VL3 H28;RG20C
+4658.0;2.0;IL1 H28;A;1.0;float;Akım IL1 H28;RG20C
+4662.0;2.0;IL2 H28;A;1.0;float;Akım IL2 H28;RG20C
+4666.0;2.0;IL3 H28;A;1.0;float;Akım IL3 H28;RG20C
+8658.0;2.0;VL1 H29;V;1.0;float;Gerilim VL1 H29;RG20C
+8662.0;2.0;VL2 H29;V;1.0;float;Gerilim VL2 H29;RG20C
+8666.0;2.0;VL3 H29;V;1.0;float;Gerilim VL3 H29;RG20C
+4678.0;2.0;IL1 H29;A;1.0;float;Akım IL1 H29;RG20C
+4682.0;2.0;IL2 H29;A;1.0;float;Akım IL2 H29;RG20C
+4686.0;2.0;IL3 H29;A;1.0;float;Akım IL3 H29;RG20C
+8674.0;2.0;VL1 H30;V;1.0;float;Gerilim VL1 H30;RG20C
+8678.0;2.0;VL2 H30;V;1.0;float;Gerilim VL2 H30;RG20C
+8682.0;2.0;VL3 H30;V;1.0;float;Gerilim VL3 H30;RG20C
+4698.0;2.0;IL1 H30;A;1.0;float;Akım IL1 H30;RG20C
+4702.0;2.0;IL2 H30;A;1.0;float;Akım IL2 H30;RG20C
+4706.0;2.0;IL3 H30;A;1.0;float;Akım IL3 H30;RG20C
+8690.0;2.0;VL1 H31;V;1.0;float;Gerilim VL1 H31;RG20C
+8694.0;2.0;VL2 H31;V;1.0;float;Gerilim VL2 H31;RG20C
+8698.0;2.0;VL3 H31;V;1.0;float;Gerilim VL3 H31;RG20C
+4718.0;2.0;IL1 H31;A;1.0;float;Akım IL1 H31;RG20C
+4722.0;2.0;IL2 H31;A;1.0;float;Akım IL2 H31;RG20C
+4726.0;2.0;IL3 H31;A;1.0;float;Akım IL3 H31;RG20C
+8706.0;2.0;VL1 H32;V;1.0;float;Gerilim VL1 H32;RG20C
+8710.0;2.0;VL2 H32;V;1.0;float;Gerilim VL2 H32;RG20C
+8714.0;2.0;VL3 H32;V;1.0;float;Gerilim VL3 H32;RG20C
+4738.0;2.0;IL1 H32;A;1.0;float;Akım IL1 H32;RG20C
+4742.0;2.0;IL2 H32;A;1.0;float;Akım IL2 H32;RG20C
+4746.0;2.0;IL3 H32;A;1.0;float;Akım IL3 H32;RG20C
+8722.0;2.0;VL1 H33;V;1.0;float;Gerilim VL1 H33;RG20C
+8726.0;2.0;VL2 H33;V;1.0;float;Gerilim VL2 H33;RG20C
+8730.0;2.0;VL3 H33;V;1.0;float;Gerilim VL3 H33;RG20C
+4758.0;2.0;IL1 H33;A;1.0;float;Akım IL1 H33;RG20C
+4762.0;2.0;IL2 H33;A;1.0;float;Akım IL2 H33;RG20C
+4766.0;2.0;IL3 H33;A;1.0;float;Akım IL3 H33;RG20C
+8738.0;2.0;VL1 H34;V;1.0;float;Gerilim VL1 H34;RG20C
+8742.0;2.0;VL2 H34;V;1.0;float;Gerilim VL2 H34;RG20C
+8746.0;2.0;VL3 H34;V;1.0;float;Gerilim VL3 H34;RG20C
+4778.0;2.0;IL1 H34;A;1.0;float;Akım IL1 H34;RG20C
+4782.0;2.0;IL2 H34;A;1.0;float;Akım IL2 H34;RG20C
+4786.0;2.0;IL3 H34;A;1.0;float;Akım IL3 H34;RG20C
+8754.0;2.0;VL1 H35;V;1.0;float;Gerilim VL1 H35;RG20C
+8758.0;2.0;VL2 H35;V;1.0;float;Gerilim VL2 H35;RG20C
+8762.0;2.0;VL3 H35;V;1.0;float;Gerilim VL3 H35;RG20C
+4798.0;2.0;IL1 H35;A;1.0;float;Akım IL1 H35;RG20C
+4802.0;2.0;IL2 H35;A;1.0;float;Akım IL2 H35;RG20C
+4806.0;2.0;IL3 H35;A;1.0;float;Akım IL3 H35;RG20C
+8770.0;2.0;VL1 H36;V;1.0;float;Gerilim VL1 H36;RG20C
+8774.0;2.0;VL2 H36;V;1.0;float;Gerilim VL2 H36;RG20C
+8778.0;2.0;VL3 H36;V;1.0;float;Gerilim VL3 H36;RG20C
+4818.0;2.0;IL1 H36;A;1.0;float;Akım IL1 H36;RG20C
+4822.0;2.0;IL2 H36;A;1.0;float;Akım IL2 H36;RG20C
+4826.0;2.0;IL3 H36;A;1.0;float;Akım IL3 H36;RG20C
+8786.0;2.0;VL1 H37;V;1.0;float;Gerilim VL1 H37;RG20C
+8790.0;2.0;VL2 H37;V;1.0;float;Gerilim VL2 H37;RG20C
+8794.0;2.0;VL3 H37;V;1.0;float;Gerilim VL3 H37;RG20C
+4838.0;2.0;IL1 H37;A;1.0;float;Akım IL1 H37;RG20C
+4842.0;2.0;IL2 H37;A;1.0;float;Akım IL2 H37;RG20C
+4846.0;2.0;IL3 H37;A;1.0;float;Akım IL3 H37;RG20C
+8802.0;2.0;VL1 H38;V;1.0;float;Gerilim VL1 H38;RG20C
+8806.0;2.0;VL2 H38;V;1.0;float;Gerilim VL2 H38;RG20C
+8810.0;2.0;VL3 H38;V;1.0;float;Gerilim VL3 H38;RG20C
+4858.0;2.0;IL1 H38;A;1.0;float;Akım IL1 H38;RG20C
+4862.0;2.0;IL2 H38;A;1.0;float;Akım IL2 H38;RG20C
+4866.0;2.0;IL3 H38;A;1.0;float;Akım IL3 H38;RG20C
+8818.0;2.0;VL1 H39;V;1.0;float;Gerilim VL1 H39;RG20C
+8822.0;2.0;VL2 H39;V;1.0;float;Gerilim VL2 H39;RG20C
+8826.0;2.0;VL3 H39;V;1.0;float;Gerilim VL3 H39;RG20C
+4878.0;2.0;IL1 H39;A;1.0;float;Akım IL1 H39;RG20C
+4882.0;2.0;IL2 H39;A;1.0;float;Akım IL2 H39;RG20C
+4886.0;2.0;IL3 H39;A;1.0;float;Akım IL3 H39;RG20C
+8834.0;2.0;VL1 H40;V;1.0;float;Gerilim VL1 H40;RG20C
+8838.0;2.0;VL2 H40;V;1.0;float;Gerilim VL2 H40;RG20C
+8842.0;2.0;VL3 H40;V;1.0;float;Gerilim VL3 H40;RG20C
+4898.0;2.0;IL1 H40;A;1.0;float;Akım IL1 H40;RG20C
+4902.0;2.0;IL2 H40;A;1.0;float;Akım IL2 H40;RG20C
+4906.0;2.0;IL3 H40;A;1.0;float;Akım IL3 H40;RG20C
+8850.0;2.0;VL1 H41;V;1.0;float;Gerilim VL1 H41;RG20C
+8854.0;2.0;VL2 H41;V;1.0;float;Gerilim VL2 H41;RG20C
+8858.0;2.0;VL3 H41;V;1.0;float;Gerilim VL3 H41;RG20C
+4918.0;2.0;IL1 H41;A;1.0;float;Akım IL1 H41;RG20C
+4922.0;2.0;IL2 H41;A;1.0;float;Akım IL2 H41;RG20C
+4926.0;2.0;IL3 H41;A;1.0;float;Akım IL3 H41;RG20C
+8866.0;2.0;VL1 H42;V;1.0;float;Gerilim VL1 H42;RG20C
+8870.0;2.0;VL2 H42;V;1.0;float;Gerilim VL2 H42;RG20C
+8874.0;2.0;VL3 H42;V;1.0;float;Gerilim VL3 H42;RG20C
+4938.0;2.0;IL1 H42;A;1.0;float;Akım IL1 H42;RG20C
+4942.0;2.0;IL2 H42;A;1.0;float;Akım IL2 H42;RG20C
+4946.0;2.0;IL3 H42;A;1.0;float;Akım IL3 H42;RG20C
+8882.0;2.0;VL1 H43;V;1.0;float;Gerilim VL1 H43;RG20C
+8886.0;2.0;VL2 H43;V;1.0;float;Gerilim VL2 H43;RG20C
+8890.0;2.0;VL3 H43;V;1.0;float;Gerilim VL3 H43;RG20C
+4958.0;2.0;IL1 H43;A;1.0;float;Akım IL1 H43;RG20C
+4962.0;2.0;IL2 H43;A;1.0;float;Akım IL2 H43;RG20C
+4966.0;2.0;IL3 H43;A;1.0;float;Akım IL3 H43;RG20C
+8898.0;2.0;VL1 H44;V;1.0;float;Gerilim VL1 H44;RG20C
+8902.0;2.0;VL2 H44;V;1.0;float;Gerilim VL2 H44;RG20C
+8906.0;2.0;VL3 H44;V;1.0;float;Gerilim VL3 H44;RG20C
+4978.0;2.0;IL1 H44;A;1.0;float;Akım IL1 H44;RG20C
+4982.0;2.0;IL2 H44;A;1.0;float;Akım IL2 H44;RG20C
+4986.0;2.0;IL3 H44;A;1.0;float;Akım IL3 H44;RG20C
+8914.0;2.0;VL1 H45;V;1.0;float;Gerilim VL1 H45;RG20C
+8918.0;2.0;VL2 H45;V;1.0;float;Gerilim VL2 H45;RG20C
+8922.0;2.0;VL3 H45;V;1.0;float;Gerilim VL3 H45;RG20C
+4998.0;2.0;IL1 H45;A;1.0;float;Akım IL1 H45;RG20C
+5002.0;2.0;IL2 H45;A;1.0;float;Akım IL2 H45;RG20C
+5006.0;2.0;IL3 H45;A;1.0;float;Akım IL3 H45;RG20C
+8930.0;2.0;VL1 H46;V;1.0;float;Gerilim VL1 H46;RG20C
+8934.0;2.0;VL2 H46;V;1.0;float;Gerilim VL2 H46;RG20C
+8938.0;2.0;VL3 H46;V;1.0;float;Gerilim VL3 H46;RG20C
+5018.0;2.0;IL1 H46;A;1.0;float;Akım IL1 H46;RG20C
+5022.0;2.0;IL2 H46;A;1.0;float;Akım IL2 H46;RG20C
+5026.0;2.0;IL3 H46;A;1.0;float;Akım IL3 H46;RG20C
+8946.0;2.0;VL1 H47;V;1.0;float;Gerilim VL1 H47;RG20C
+8950.0;2.0;VL2 H47;V;1.0;float;Gerilim VL2 H47;RG20C
+8954.0;2.0;VL3 H47;V;1.0;float;Gerilim VL3 H47;RG20C
+5038.0;2.0;IL1 H47;A;1.0;float;Akım IL1 H47;RG20C
+5042.0;2.0;IL2 H47;A;1.0;float;Akım IL2 H47;RG20C
+5046.0;2.0;IL3 H47;A;1.0;float;Akım IL3 H47;RG20C
+8962.0;2.0;VL1 H48;V;1.0;float;Gerilim VL1 H48;RG20C
+8966.0;2.0;VL2 H48;V;1.0;float;Gerilim VL2 H48;RG20C
+8970.0;2.0;VL3 H48;V;1.0;float;Gerilim VL3 H48;RG20C
+5058.0;2.0;IL1 H48;A;1.0;float;Akım IL1 H48;RG20C
+5062.0;2.0;IL2 H48;A;1.0;float;Akım IL2 H48;RG20C
+5066.0;2.0;IL3 H48;A;1.0;float;Akım IL3 H48;RG20C
+8978.0;2.0;VL1 H49;V;1.0;float;Gerilim VL1 H49;RG20C
+8982.0;2.0;VL2 H49;V;1.0;float;Gerilim VL2 H49;RG20C
+8986.0;2.0;VL3 H49;V;1.0;float;Gerilim VL3 H49;RG20C
+5078.0;2.0;IL1 H49;A;1.0;float;Akım IL1 H49;RG20C
+5082.0;2.0;IL2 H49;A;1.0;float;Akım IL2 H49;RG20C
+5086.0;2.0;IL3 H49;A;1.0;float;Akım IL3 H49;RG20C
+8994.0;2.0;VL1 H50;V;1.0;float;Gerilim VL1 H50;RG20C
+8998.0;2.0;VL2 H50;V;1.0;float;Gerilim VL2 H50;RG20C
+9002.0;2.0;VL3 H50;V;1.0;float;Gerilim VL3 H50;RG20C
+5098.0;2.0;IL1 H50;A;1.0;float;Akım IL1 H50;RG20C
+5102.0;2.0;IL2 H50;A;1.0;float;Akım IL2 H50;RG20C
+5106.0;2.0;IL3 H50;A;1.0;float;Akım IL3 H50;RG20C
+9010.0;2.0;VL1 H51;V;1.0;float;Gerilim VL1 H51;RG20C
+9014.0;2.0;VL2 H51;V;1.0;float;Gerilim VL2 H51;RG20C
+9018.0;2.0;VL3 H51;V;1.0;float;Gerilim VL3 H51;RG20C
+5118.0;2.0;IL1 H51;A;1.0;float;Akım IL1 H51;RG20C
+5122.0;2.0;IL2 H51;A;1.0;float;Akım IL2 H51;RG20C
+5126.0;2.0;IL3 H51;A;1.0;float;Akım IL3 H51;RG20C
+10240.0;2.0;1. KADEME GÜCÜ;VAr;1.0;float;1. kademe gücü;RG20C
+10259.0;2.0;2. KADEME GÜCÜ;VAr;1.0;float;2. kademe gücü;RG20C
+10278.0;2.0;3. KADEME GÜCÜ;VAr;1.0;float;3. kademe gücü;RG20C
+10297.0;2.0;4. KADEME GÜCÜ;VAr;1.0;float;4. kademe gücü;RG20C
+10316.0;2.0;5. KADEME GÜCÜ;VAr;1.0;float;5. kademe gücü;RG20C
+10335.0;2.0;6. KADEME GÜCÜ;VAr;1.0;float;6. kademe gücü;RG20C
+10354.0;2.0;7. KADEME GÜCÜ;VAr;1.0;float;7. kademe gücü;RG20C
+10373.0;2.0;8. KADEME GÜCÜ;VAr;1.0;float;8. kademe gücü;RG20C
+10392.0;2.0;9. KADEME GÜCÜ;VAr;1.0;float;9. kademe gücü;RG20C
+10411.0;2.0;10. KADEME GÜCÜ;VAr;1.0;float;10. kademe gücü;RG20C
+10430.0;2.0;11. KADEME GÜCÜ;VAr;1.0;float;11. kademe gücü;RG20C
+10449.0;2.0;12. KADEME GÜCÜ;VAr;1.0;float;12. kademe gücü;RG20C
+10468.0;2.0;13. KADEME GÜCÜ;VAr;1.0;float;13. kademe gücü;RG20C
+10487.0;2.0;14. KADEME GÜCÜ;VAr;1.0;float;14. kademe gücü;RG20C
+10506.0;2.0;15. KADEME GÜCÜ;VAr;1.0;float;15. kademe gücü;RG20C
+10525.0;2.0;16. KADEME GÜCÜ;VAr;1.0;float;16. kademe gücü;RG20C
+10544.0;2.0;17. KADEME GÜCÜ;VAr;1.0;float;17. kademe gücü;RG20C
+10563.0;2.0;18. KADEME GÜCÜ;VAr;1.0;float;18. kademe gücü;RG20C
+10582.0;2.0;19. KADEME GÜCÜ;VAr;1.0;float;19. kademe gücü;RG20C
+10601.0;2.0;20. KADEME GÜCÜ;VAr;1.0;float;20. kademe gücü;RG20C
+10620.0;2.0;21. KADEME GÜCÜ;VAr;1.0;float;21. kademe gücü;RG20C
+10639.0;2.0;22. KADEME GÜCÜ;VAr;1.0;float;22. kademe gücü;RG20C
+10658.0;2.0;23. KADEME GÜCÜ;VAr;1.0;float;23. kademe gücü;RG20C
+10677.0;2.0;24. KADEME GÜCÜ;VAr;1.0;float;24. kademe gücü;RG20C
+60416.0;1.0;Device ID;;1.0;ushort;Cihaz Kimliği;RG20C
+60418.0;2.0;Serial Number;;1.0;uint;Seri Numarası;RG20C

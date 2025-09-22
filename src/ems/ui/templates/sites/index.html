@@ -178,7 +178,7 @@ initSiteSearch();
   }
   
   function viewSite(siteId) {
-    window.location.href = '/ui';
+    window.location.href = `/ui/sites/${siteId}`;
   }
   
   function deleteSite(siteId) {
@@ -188,7 +188,8 @@ initSiteSearch();
   
   // Global navigation override (ensure compatibility with base template)
   function navigateToSection(section) {
-    window.location.href = `/ui#${section}`;
+    // Force navigation to dashboard with section hash
+    window.location.assign(`/ui#${section}`);
     return false;
   }
 </script>

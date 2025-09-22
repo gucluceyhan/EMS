@@ -21,71 +21,89 @@
       <div class="lg:col-span-1">
         <h3 class="font-semibold mb-2">Available Profiles</h3>
         <div class="space-y-2" id="profilesList">
-          <div class="p-3 border border-gray-200 dark:border-gray-700 rounded-md bg-blue-50 dark:bg-blue-900/20">
-            <div class="font-semibold">SunSpec Inverters</div>
-            <div class="text-xs text-gray-500">Standard SunSpec protocol</div>
-          </div>
-          <div class="p-3 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-900">
-            <div class="font-semibold">IEC Meters</div>
-            <div class="text-xs text-gray-500">IEC 62053 compliant meters</div>
-          </div>
-          <div class="p-3 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-900">
-            <div class="font-semibold">Weather Stations</div>
-            <div class="text-xs text-gray-500">Serial & Modbus weather</div>
-          </div>
-          <div class="p-3 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-900">
-            <div class="font-semibold">BMS MQTT</div>
-            <div class="text-xs text-gray-500">Battery management systems</div>
-          </div>
-          <div class="p-3 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-900">
-            <div class="font-semibold">Tracker Systems</div>
-            <div class="text-xs text-gray-500">Single & dual-axis trackers</div>
-          </div>
+          <!-- Profiles will be populated by JavaScript -->
         </div>
       </div>
       
-      <div class="lg:col-span-2">
-        <h3 class="font-semibold mb-2">Profile Details: "SunSpec Inverters"</h3>
-        <div class="space-y-4">
+      <div class="lg:col-span-2" id="profileDetailsSection">
+        <div id="noProfileSelected" class="text-center py-8">
+          <div class="text-4xl mb-2">📝</div>
+          <div class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">No Profile Selected</div>
+          <div class="text-sm text-gray-500">Select a profile from the list to view and edit its details</div>
+        </div>
+        
+        <div id="profileDetailsForm" class="hidden space-y-4">
+          <h3 class="font-semibold mb-2">Profile Details: "<span id="selectedProfileTitle">-</span>"</h3>
+          
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <label class="text-sm">Profile Name<input id="profileName" value="SunSpec Inverters" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
-            <label class="text-sm">Point Map File<input id="pointMapFile" value="pointmaps/sunspec_inverter_common.yaml" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
-            <label class="text-sm">Poll Interval (s)<input id="pollInterval" value="30" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
-            <label class="text-sm">Timeout (ms)<input id="timeout" value="3000" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
-            <label class="text-sm">Retries<input id="retries" value="3" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
-            <label class="text-sm">Protocol<select id="protocol" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>modbus_tcp</option><option>modbus_rtu</option></select></label>
+            <label class="text-sm text-gray-700 dark:text-gray-300">
+              Profile Name
+              <input id="profileName" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-gray-900 dark:text-gray-100" />
+            </label>
+            <label class="text-sm text-gray-700 dark:text-gray-300">
+              Point Map File
+              <input id="pointMapFile" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-gray-900 dark:text-gray-100" />
+            </label>
+            <label class="text-sm text-gray-700 dark:text-gray-300">
+              Poll Interval (s)
+              <input id="pollInterval" type="number" min="1" max="300" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-gray-900 dark:text-gray-100" />
+            </label>
+            <label class="text-sm text-gray-700 dark:text-gray-300">
+              Timeout (ms)
+              <input id="timeout" type="number" min="1000" max="30000" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-gray-900 dark:text-gray-100" />
+            </label>
+            <label class="text-sm text-gray-700 dark:text-gray-300">
+              Retries
+              <input id="retries" type="number" min="0" max="10" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-gray-900 dark:text-gray-100" />
+            </label>
+            <label class="text-sm text-gray-700 dark:text-gray-300">
+              Protocol
+              <select id="protocol" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-gray-900 dark:text-gray-100">
+                <option value="modbus_tcp">Modbus TCP</option>
+                <option value="modbus_rtu">Modbus RTU</option>
+                <option value="mqtt">MQTT</option>
+                <option value="can">CAN Bus</option>
+                <option value="serial">Serial</option>
+              </select>
+            </label>
           </div>
           
           <div>
-            <h4 class="font-medium mb-2">Control Capabilities</h4>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
-              <label class="flex items-center gap-2"><input type="checkbox" checked />Set Active Power Limit</label>
-              <label class="flex items-center gap-2"><input type="checkbox" checked />Open Breaker</label>
-              <label class="flex items-center gap-2"><input type="checkbox" checked />Close Breaker</label>
-              <label class="flex items-center gap-2"><input type="checkbox" />Emergency Stop</label>
-              <label class="flex items-center gap-2"><input type="checkbox" />Reactive Power Control</label>
-              <label class="flex items-center gap-2"><input type="checkbox" />Frequency Control</label>
+            <h4 class="font-medium mb-2 text-gray-900 dark:text-gray-100">Control Capabilities</h4>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm" id="controlCapabilities">
+              <label class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                <input type="checkbox" id="cap_power_limit" />Set Active Power Limit
+              </label>
+              <label class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                <input type="checkbox" id="cap_open_breaker" />Open Breaker
+              </label>
+              <label class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                <input type="checkbox" id="cap_close_breaker" />Close Breaker
+              </label>
+              <label class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                <input type="checkbox" id="cap_emergency_stop" />Emergency Stop
+              </label>
+              <label class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                <input type="checkbox" id="cap_reactive_power" />Reactive Power Control
+              </label>
+              <label class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                <input type="checkbox" id="cap_frequency" />Frequency Control
+              </label>
             </div>
           </div>
           
           <div>
-            <h4 class="font-medium mb-2">Point Map Preview</h4>
-            <div class="bg-gray-50 dark:bg-gray-900 rounded-md p-3 text-xs font-mono max-h-40 overflow-y-auto">
-              <div>AC_P: fc=3, address=107, type=float, scale=0.001, unit=kW</div>
-              <div>AC_Q: fc=3, address=109, type=float, scale=0.001, unit=kVar</div>
-              <div>DC_P: fc=3, address=149, type=float, scale=0.001, unit=kW</div>
-              <div>DC_V: fc=3, address=135, type=uint16, scale=0.1, unit=V</div>
-              <div>DC_I: fc=3, address=137, type=uint16, scale=0.1, unit=A</div>
-              <div>Cabinet_Temp: fc=3, address=143, type=int16, scale=0.1, unit=C</div>
-              <div>Status: fc=3, address=402, type=bitfield16, decode={0:'OFF',1:'STANDBY',2:'ON',3:'FAULT'}</div>
+            <h4 class="font-medium mb-2 text-gray-900 dark:text-gray-100">Point Map Preview</h4>
+            <div id="pointMapPreview" class="bg-gray-50 dark:bg-gray-900 rounded-md p-3 text-xs font-mono max-h-40 overflow-y-auto text-gray-800 dark:text-gray-200">
+              <!-- Point map preview will be populated here -->
             </div>
           </div>
           
           <div class="pt-4 border-t border-gray-200 dark:border-gray-800">
-            <button id="btnSaveProfile" class="px-3 py-2 rounded-md bg-brand-600 text-white">Save Changes</button>
-            <button id="btnTestProfile" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 ml-2">Test Connection</button>
-            <button id="btnResetProfile" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 ml-2">Reset</button>
-            <button id="btnDeleteProfile" class="px-3 py-2 rounded-md bg-red-600 text-white ml-2">Delete</button>
+            <button id="btnSaveProfile" class="px-3 py-2 rounded-md bg-brand-600 text-white hover:bg-brand-700">Save Changes</button>
+            <button id="btnTestProfile" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 ml-2">Test Connection</button>
+            <button id="btnResetProfile" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 ml-2">Reset</button>
+            <button id="btnDeleteProfile" class="px-3 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 ml-2">Delete</button>
           </div>
         </div>
       </div>

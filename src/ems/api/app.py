@@ -167,6 +167,22 @@ def create_app(context: APIContext) -> FastAPI:
         async def ui_sites_add(request: Request, _: None = Depends(require_basic)) -> HTMLResponse:
             return render_template("sites-add.html", request)
 
+        @app.get("/ui/sites/{site_id}", response_class=HTMLResponse)
+        async def ui_sites_detail(
+            site_id: str, request: Request, _: None = Depends(require_basic)
+        ) -> HTMLResponse:
+            # Convert site_id to display name for template
+            site_name = site_id.replace('-', ' ').replace('ges', 'GES').title()
+            return templates.TemplateResponse(
+                "sites/detail.html",
+                {
+                    "request": request,
+                    "plant": context.config.plant.model_dump(),
+                    "site_id": site_id,
+                    "site_name": site_name,
+                },
+            )
+
         @app.get("/ui/automation/breakers", response_class=HTMLResponse)
         async def ui_automation_breakers(
             request: Request, _: None = Depends(require_basic)

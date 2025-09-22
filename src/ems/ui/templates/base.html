@@ -113,8 +113,8 @@
         showView(section);
         return false; // Prevent link navigation
       }
-      // Otherwise, navigate to dashboard with section
-      window.location.href = `/ui#${section}`;
+      // Otherwise, navigate to dashboard with section and force reload to ensure proper handling
+      window.location.assign(`/ui#${section}`);
       return false;
     }
 

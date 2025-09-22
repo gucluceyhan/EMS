@@ -160,14 +160,15 @@ function renderFleetSitesTable(rows) {
     const prBadge = makeBadge(`${r.pr}%`, r.pr >= 85 ? 'green' : r.pr >= 70 ? 'amber' : 'red');
     const socText = (r.soc === '-' ? '-' : `${r.soc}%`);
     const alarmBadge = r.alarms && r.alarms > 0 ? makeBadge(`${r.alarms}`, 'red') : makeBadge('0', 'gray');
-    tr.innerHTML = `<td class=\"px-3 py-2 font-medium text-gray-900 dark:text-gray-100\">${r.name}</td>
+    tr.innerHTML = `<td class=\"px-3 py-2 font-medium text-gray-900 dark:text-gray-100\">
+                      <a href=\"/ui/sites/${r.id}\" class=\"hover:text-brand-600 dark:hover:text-brand-400\">${r.name}</a>
+                    </td>
                     <td class=\"px-3 py-2 text-gray-900 dark:text-gray-100\">${r.capacity}</td>
                     <td class=\"px-3 py-2 text-gray-900 dark:text-gray-100\">${r.generation}</td>
                     <td class=\"px-3 py-2\">${prBadge}</td>
                     <td class=\"px-3 py-2 text-gray-900 dark:text-gray-100\">${socText}</td>
                     <td class=\"px-3 py-2\">${alarmBadge}</td>`;
-    tr.style.cursor = 'pointer';
-    tr.addEventListener('click', () => navigateToSite(r));
+    // Site name links directly to detail page
     tbody.appendChild(tr);
   });
 }
@@ -392,11 +393,27 @@ document.addEventListener('DOMContentLoaded', () => {
   initNav();
   initMap();
   initTabs();
-  showView('fleet');
+  
+  // Handle hash navigation for dashboard sections
+  const hash = window.location.hash.substring(1);
+  if (hash && hash !== 'fleet') {
+    showView(hash);
+  } else {
+    showView('fleet');
+  }
+  
   refreshAll();
   bindAddDeviceButtons();
   const ss = document.getElementById('siteSearch');
   if (ss) ss.addEventListener('input', () => filterSites());
+});
+
+// Handle hash changes for dashboard sections
+window.addEventListener('hashchange', () => {
+  const hash = window.location.hash.substring(1);
+  if (hash && window.location.pathname === '/ui') {
+    showView(hash);
+  }
 });
 
 function filterSites(){

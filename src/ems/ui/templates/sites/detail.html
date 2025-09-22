@@ -1,0 +1,448 @@
+{% extends "base.html" %}
+{% block title %}{{ site_name }} - Site Detail{% endblock %}
+{% block subtitle %}Site Overview & Device Management{% endblock %}
+
+{% block content %}
+<!-- Site Overview Cards -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+  <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
+    <div class="text-2xl mb-2">☀️</div>
+    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100" id="siteCapacity">-</div>
+    <div class="text-sm text-gray-500">Total Capacity</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
+    <div class="text-2xl mb-2">⚡</div>
+    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100" id="currentGeneration">-</div>
+    <div class="text-sm text-gray-500">Current Generation</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
+    <div class="text-2xl mb-2">🔧</div>
+    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100" id="deviceCount">-</div>
+    <div class="text-sm text-gray-500">Total Devices</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
+    <div class="text-2xl mb-2">📊</div>
+    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100" id="performanceRatio">-</div>
+    <div class="text-sm text-gray-500">Performance Ratio</div>
+  </div>
+</div>
+
+<!-- Device Management Section -->
+<div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6">
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Site Devices</h2>
+      <p class="text-sm text-gray-500">Manage all devices in this site</p>
+    </div>
+    <div class="flex gap-2">
+      <button onclick="refreshDevices()" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 text-sm">
+        🔄 Refresh
+      </button>
+      <button onclick="openAddDeviceModal()" class="px-4 py-2 rounded-md bg-brand-600 text-white hover:bg-brand-700 text-sm">
+        ➕ Add New Device
+      </button>
+    </div>
+  </div>
+
+  <!-- Device Filters -->
+  <div class="flex flex-wrap gap-2 mb-4">
+    <button onclick="filterDevices('all')" class="px-3 py-1 rounded-md text-xs border border-gray-200 dark:border-gray-700 filter-btn active">All</button>
+    <button onclick="filterDevices('inverter')" class="px-3 py-1 rounded-md text-xs border border-gray-200 dark:border-gray-700 filter-btn">Inverters</button>
+    <button onclick="filterDevices('meter')" class="px-3 py-1 rounded-md text-xs border border-gray-200 dark:border-gray-700 filter-btn">Meters</button>
+    <button onclick="filterDevices('weather')" class="px-3 py-1 rounded-md text-xs border border-gray-200 dark:border-gray-700 filter-btn">Weather</button>
+    <button onclick="filterDevices('tracker')" class="px-3 py-1 rounded-md text-xs border border-gray-200 dark:border-gray-700 filter-btn">Trackers</button>
+    <button onclick="filterDevices('bms')" class="px-3 py-1 rounded-md text-xs border border-gray-200 dark:border-gray-700 filter-btn">BMS</button>
+  </div>
+
+  <!-- Devices Table -->
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 dark:bg-gray-900/50">
+        <tr class="border-b border-gray-200 dark:border-gray-800">
+          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+          </th>
+          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Device ID</th>
+          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Make/Model</th>
+          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Connection</th>
+          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Poll</th>
+          <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="devicesTableBody" class="divide-y divide-gray-200 dark:divide-gray-800">
+        <!-- Devices will be populated here -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Empty State -->
+  <div id="emptyState" class="text-center py-8 hidden">
+    <div class="text-4xl mb-2">🔌</div>
+    <div class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">No devices found</div>
+    <div class="text-sm text-gray-500 mb-4">Start by adding your first device to this site</div>
+    <button onclick="openAddDeviceModal()" class="px-4 py-2 rounded-md bg-brand-600 text-white hover:bg-brand-700">
+      Add First Device
+    </button>
+  </div>
+</div>
+
+<!-- Bulk Actions Bar (Hidden by default) -->
+<div id="bulkActionsBar" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-lg shadow-lg px-4 py-2 hidden">
+  <div class="flex items-center gap-3">
+    <span class="text-sm text-gray-700 dark:text-gray-300">
+      <span id="selectedCount">0</span> devices selected
+    </span>
+    <button onclick="bulkEdit()" class="px-3 py-1 text-xs rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
+      Edit
+    </button>
+    <button onclick="bulkControl()" class="px-3 py-1 text-xs rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
+      Control
+    </button>
+    <button onclick="bulkDelete()" class="px-3 py-1 text-xs rounded-md bg-red-600 text-white hover:bg-red-700">
+      Delete
+    </button>
+    <button onclick="clearSelection()" class="px-3 py-1 text-xs rounded-md text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+      Clear
+    </button>
+  </div>
+</div>
+
+<!-- Add Device Modal -->
+<div id="addDeviceModal" class="fixed inset-0 hidden flex items-center justify-center bg-black/50 z-50" role="dialog" aria-modal="true">
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+    <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+      <h4 class="font-semibold text-gray-900 dark:text-gray-100">Add Device to {{ site_name }}</h4>
+      <button onclick="closeAddDeviceModal()" class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm">Close</button>
+    </div>
+    <div class="flex-1 overflow-y-auto p-4">
+      <!-- Device Type Selection -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        <button onclick="selectDeviceType('inverter')" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+          <div class="text-2xl mb-2">⚡</div>
+          <div class="text-sm font-medium">Inverter</div>
+        </button>
+        <button onclick="selectDeviceType('meter')" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+          <div class="text-2xl mb-2">📊</div>
+          <div class="text-sm font-medium">Energy Meter</div>
+        </button>
+        <button onclick="selectDeviceType('weather')" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+          <div class="text-2xl mb-2">🌤️</div>
+          <div class="text-sm font-medium">Weather Station</div>
+        </button>
+        <button onclick="selectDeviceType('tracker')" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+          <div class="text-2xl mb-2">🎯</div>
+          <div class="text-sm font-medium">Solar Tracker</div>
+        </button>
+        <button onclick="selectDeviceType('bms')" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+          <div class="text-2xl mb-2">🔋</div>
+          <div class="text-sm font-medium">BMS</div>
+        </button>
+        <button onclick="selectDeviceType('analyzer')" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+          <div class="text-2xl mb-2">🔬</div>
+          <div class="text-sm font-medium">Power Analyzer</div>
+        </button>
+        <button onclick="selectDeviceType('breaker')" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+          <div class="text-2xl mb-2">🔌</div>
+          <div class="text-sm font-medium">Smart Breaker</div>
+        </button>
+        <button onclick="selectDeviceType('facility')" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+          <div class="text-2xl mb-2">🏭</div>
+          <div class="text-sm font-medium">Facility Monitor</div>
+        </button>
+      </div>
+      
+      <!-- Device Configuration Form (Shows after type selection) -->
+      <div id="deviceConfigForm" class="hidden space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Device ID</label>
+            <input type="text" id="deviceId" placeholder="unique-device-id" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Display Name</label>
+            <input type="text" id="deviceName" placeholder="Device Name" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Make</label>
+            <input type="text" id="deviceMake" placeholder="e.g., Huawei, SMA" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Model</label>
+            <input type="text" id="deviceModel" placeholder="e.g., SUN2000-100KTL" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Protocol</label>
+            <select id="deviceProtocol" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+              <option value="modbus_tcp">Modbus TCP</option>
+              <option value="modbus_rtu">Modbus RTU</option>
+              <option value="mqtt">MQTT</option>
+              <option value="can">CAN Bus</option>
+              <option value="serial">Serial</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Connection</label>
+            <input type="text" id="deviceConnection" placeholder="IP:Port or /dev/ttyUSB0" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
+      <button onclick="testDeviceConnection()" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">Test Connection</button>
+      <div class="flex gap-2">
+        <button onclick="closeAddDeviceModal()" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Cancel</button>
+        <button onclick="saveNewDevice()" class="px-4 py-2 rounded-md bg-brand-600 text-white hover:bg-brand-700">Add Device</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Current site data
+let currentSite = {
+  id: '{{ site_id }}',
+  name: '{{ site_name }}',
+  devices: []
+};
+
+let selectedDevices = new Set();
+let deviceTypeFilter = 'all';
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', () => {
+  loadSiteDevices();
+});
+
+async function loadSiteDevices() {
+  try {
+    const response = await fetch('/ui/api/devices');
+    const allDevices = await response.json();
+    
+    // Filter devices for current site
+    currentSite.devices = allDevices.filter(device => device.plant_id === currentSite.id);
+    
+    updateSiteStats();
+    renderDevicesTable();
+    
+  } catch (error) {
+    console.error('Error loading site devices:', error);
+    document.getElementById('emptyState').classList.remove('hidden');
+  }
+}
+
+function updateSiteStats() {
+  const devices = currentSite.devices;
+  
+  // Calculate total capacity from inverters
+  let totalCapacity = 0;
+  devices.filter(d => d.type === 'inverter').forEach(inverter => {
+    totalCapacity += getInverterCapacity(inverter.make, inverter.model);
+  });
+  
+  document.getElementById('siteCapacity').textContent = totalCapacity.toFixed(1) + ' MW';
+  document.getElementById('currentGeneration').textContent = (totalCapacity * 0.7).toFixed(1) + ' MW';
+  document.getElementById('deviceCount').textContent = devices.length;
+  document.getElementById('performanceRatio').textContent = '87.5%';
+}
+
+function getInverterCapacity(make, model) {
+  const capacityMap = {
+    'SUN2000-100KTL': 0.1, 'SUN2000-50KTL': 0.05, 'STP60-10': 0.06,
+    'PVS980-58': 0.058, 'TRIO-50.0-TL': 0.05, 'IG500HV': 0.5
+  };
+  return capacityMap[model] || 0.1;
+}
+
+function renderDevicesTable() {
+  const tbody = document.getElementById('devicesTableBody');
+  const emptyState = document.getElementById('emptyState');
+  
+  let filteredDevices = currentSite.devices;
+  if (deviceTypeFilter !== 'all') {
+    filteredDevices = currentSite.devices.filter(d => d.type === deviceTypeFilter);
+  }
+  
+  if (filteredDevices.length === 0) {
+    tbody.innerHTML = '';
+    emptyState.classList.remove('hidden');
+    return;
+  }
+  
+  emptyState.classList.add('hidden');
+  
+  tbody.innerHTML = filteredDevices.map(device => `
+    <tr class="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900">
+      <td class="px-3 py-2">
+        <input type="checkbox" value="${device.device_id}" onchange="toggleDeviceSelection('${device.device_id}')">
+      </td>
+      <td class="px-3 py-2 font-medium text-gray-900 dark:text-gray-100">${device.device_id}</td>
+      <td class="px-3 py-2">
+        <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-300">
+          ${device.type}
+        </span>
+      </td>
+      <td class="px-3 py-2 text-gray-900 dark:text-gray-100">${device.make} ${device.model}</td>
+      <td class="px-3 py-2 text-gray-700 dark:text-gray-300 text-xs font-mono">${getConnectionString(device)}</td>
+      <td class="px-3 py-2">${getStatusBadge(device.healthy)}</td>
+      <td class="px-3 py-2 text-gray-700 dark:text-gray-300 text-xs">${device.last_poll_utc || 'Never'}</td>
+      <td class="px-3 py-2">
+        <button onclick="editDevice('${device.device_id}')" class="px-2 py-1 text-xs rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 mr-1">Edit</button>
+        <button onclick="controlDevice('${device.device_id}')" class="px-2 py-1 text-xs rounded-md bg-blue-600 text-white hover:bg-blue-700">Control</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function getConnectionString(device) {
+  // Simplified connection string display
+  return device.connection?.host || device.connection?.device || 'N/A';
+}
+
+function getStatusBadge(healthy) {
+  if (healthy === true) {
+    return '<span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-300">Online</span>';
+  } else {
+    return '<span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-300">Offline</span>';
+  }
+}
+
+function filterDevices(type) {
+  deviceTypeFilter = type;
+  
+  // Update filter button styles
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.remove('active', 'bg-brand-600', 'text-white');
+    btn.classList.add('border-gray-200', 'dark:border-gray-700');
+  });
+  event.target.classList.add('active', 'bg-brand-600', 'text-white');
+  event.target.classList.remove('border-gray-200', 'dark:border-gray-700');
+  
+  renderDevicesTable();
+}
+
+function toggleDeviceSelection(deviceId) {
+  if (selectedDevices.has(deviceId)) {
+    selectedDevices.delete(deviceId);
+  } else {
+    selectedDevices.add(deviceId);
+  }
+  updateBulkActionsBar();
+}
+
+function toggleSelectAll() {
+  const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+  const selectAll = document.getElementById('selectAll');
+  
+  if (selectAll.checked) {
+    checkboxes.forEach(cb => {
+      cb.checked = true;
+      selectedDevices.add(cb.value);
+    });
+  } else {
+    checkboxes.forEach(cb => {
+      cb.checked = false;
+      selectedDevices.delete(cb.value);
+    });
+  }
+  updateBulkActionsBar();
+}
+
+function updateBulkActionsBar() {
+  const bulkBar = document.getElementById('bulkActionsBar');
+  const count = document.getElementById('selectedCount');
+  
+  count.textContent = selectedDevices.size;
+  
+  if (selectedDevices.size > 0) {
+    bulkBar.classList.remove('hidden');
+  } else {
+    bulkBar.classList.add('hidden');
+  }
+}
+
+function clearSelection() {
+  selectedDevices.clear();
+  document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+  updateBulkActionsBar();
+}
+
+// Device management functions
+function refreshDevices() {
+  loadSiteDevices();
+}
+
+function openAddDeviceModal() {
+  document.getElementById('addDeviceModal').classList.remove('hidden');
+}
+
+function closeAddDeviceModal() {
+  document.getElementById('addDeviceModal').classList.add('hidden');
+  document.getElementById('deviceConfigForm').classList.add('hidden');
+  // Reset form
+  document.querySelectorAll('.device-type-btn').forEach(btn => {
+    btn.classList.remove('bg-brand-600', 'text-white');
+  });
+}
+
+function selectDeviceType(type) {
+  // Update button styles
+  document.querySelectorAll('.device-type-btn').forEach(btn => {
+    btn.classList.remove('bg-brand-600', 'text-white');
+  });
+  event.target.classList.add('bg-brand-600', 'text-white');
+  
+  // Show configuration form
+  document.getElementById('deviceConfigForm').classList.remove('hidden');
+  
+  // Pre-fill some values based on type
+  document.getElementById('deviceId').value = `${currentSite.id}-${type}-${Date.now()}`;
+  document.getElementById('deviceName').value = `${type.charAt(0).toUpperCase() + type.slice(1)} ${Math.floor(Math.random() * 100)}`;
+}
+
+function testDeviceConnection() {
+  alert('Testing connection... (This would perform actual device discovery in production)');
+}
+
+function saveNewDevice() {
+  const deviceData = {
+    device_id: document.getElementById('deviceId').value,
+    name: document.getElementById('deviceName').value,
+    make: document.getElementById('deviceMake').value,
+    model: document.getElementById('deviceModel').value,
+    protocol: document.getElementById('deviceProtocol').value,
+    connection: document.getElementById('deviceConnection').value
+  };
+  
+  // In production, this would make an API call to save the device
+  alert(`Device "${deviceData.name}" would be added to ${currentSite.name}`);
+  closeAddDeviceModal();
+}
+
+function editDevice(deviceId) {
+  alert(`Edit device: ${deviceId}`);
+}
+
+function controlDevice(deviceId) {
+  alert(`Control device: ${deviceId}`);
+}
+
+function bulkEdit() {
+  alert(`Bulk edit ${selectedDevices.size} devices`);
+}
+
+function bulkControl() {
+  alert(`Bulk control ${selectedDevices.size} devices`);
+}
+
+function bulkDelete() {
+  if (confirm(`Delete ${selectedDevices.size} selected devices?`)) {
+    alert(`${selectedDevices.size} devices would be deleted`);
+    clearSelection();
+  }
+}
+</script>
+{% endblock %}
