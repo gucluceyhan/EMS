@@ -8,6 +8,13 @@
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
   <div class="max-w-7xl mx-auto p-4 space-y-6">
+    <div class="flex items-center gap-3 mb-4">
+      <a href="/ui" class="text-blue-600 dark:text-blue-400 hover:underline">← Dashboard</a>
+      <span class="text-gray-400">|</span>
+      <a href="/ui" onclick="showView('settings'); return false;" class="text-blue-600 dark:text-blue-400 hover:underline">Settings</a>
+      <span class="text-gray-400">|</span>
+      <span class="text-gray-600 dark:text-gray-400">Organizasyon</span>
+    </div>
     <h1 class="text-xl font-semibold">Settings – Organizasyon & Çoklu Kiracı</h1>
     <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -23,6 +30,7 @@
     </div>
   </div>
   <script src="/static/assets/js/settings.js"></script>
+  <script src="/static/assets/js/nav-helper.js"></script>
 </body>
 </html>
 
