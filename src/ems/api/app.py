@@ -211,6 +211,15 @@ def create_app(context: APIContext) -> FastAPI:
                 raise HTTPException(status_code=404, detail="Not Found")
             return render_template(name, request)
 
+        @app.get("/ui/control/{page}", response_class=HTMLResponse)
+        async def ui_control_dynamic(
+            page: str, request: Request, _: None = Depends(require_basic)
+        ) -> HTMLResponse:
+            name = f"control/{page}.html"
+            if not (templates_dir / name).exists():
+                raise HTTPException(status_code=404, detail="Not Found")
+            return render_template(name, request)
+
     return app
 
 
