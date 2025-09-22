@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <title>Sites Management</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+  <div class="max-w-7xl mx-auto p-4 space-y-6">
+    <div class="flex items-center gap-3 mb-4">
+      <a href="/ui" class="text-blue-600 dark:text-blue-400 hover:underline">← Dashboard</a>
+      <span class="text-gray-400">|</span>
+      <span class="text-gray-600 dark:text-gray-400">Sites Management</span>
+    </div>
+    
+    <h1 class="text-xl font-semibold">Sites Management</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <a href="/ui/sites/add" class="block rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 hover:bg-gray-50 dark:hover:bg-gray-900 text-center">
+        <div class="text-3xl mb-2">➕</div>
+        <div class="font-semibold">Add New Site</div>
+        <div class="text-sm text-gray-500 mt-1">7-step wizard to create new site</div>
+      </a>
+      
+      <a href="/ui/sites/manage" class="block rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 hover:bg-gray-50 dark:hover:bg-gray-900 text-center">
+        <div class="text-3xl mb-2">🏗️</div>
+        <div class="font-semibold">Manage Sites</div>
+        <div class="text-sm text-gray-500 mt-1">Edit existing sites and devices</div>
+      </a>
+      
+      <a href="/ui/sites/bulk" class="block rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6 hover:bg-gray-50 dark:hover:bg-gray-900 text-center">
+        <div class="text-3xl mb-2">📦</div>
+        <div class="font-semibold">Bulk Operations</div>
+        <div class="text-sm text-gray-500 mt-1">Import/export, batch updates</div>
+      </a>
+    </div>
+
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-semibold">Recent Sites</h2>
+        <input id="siteSearch" placeholder="Search sites..." class="text-sm bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-gray-800 text-white uppercase tracking-wide text-xs">
+            <tr>
+              <th class="px-3 py-2 text-left">Site</th>
+              <th class="px-3 py-2 text-left">Status</th>
+              <th class="px-3 py-2 text-left">Capacity</th>
+              <th class="px-3 py-2 text-left">Devices</th>
+              <th class="px-3 py-2 text-left">Last Update</th>
+              <th class="px-3 py-2 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="sitesTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Load sites from localStorage
+      const stored = JSON.parse(localStorage.getItem('emsSites') || '[]');
+      const defaultSite = { id: 'site-1', name: 'Demo Site', status: 'online', capacity: 5.0, devices: 9, lastUpdate: new Date().toLocaleString('tr-TR') };
+      const sites = [defaultSite, ...stored];
+      
+      const tbody = document.getElementById('sitesTableBody');
+      if (tbody) {
+        const statusBadge = (s) => {
+          const colors = {
+            online: 'bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-300',
+            offline: 'bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-300',
+            maintenance: 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300'
+          };
+          return `<span class="inline-flex px-2 py-0.5 rounded-full text-xs ${colors[s] || colors.online}">${s}</span>`;
+        };
+        
+        tbody.innerHTML = sites.map((s, idx) => `
+          <tr class="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900">
+            <td class="px-3 py-2 font-medium">${s.name}</td>
+            <td class="px-3 py-2">${statusBadge(s.status || 'online')}</td>
+            <td class="px-3 py-2">${s.capacity || 0} MW</td>
+            <td class="px-3 py-2">${s.devices || 0}</td>
+            <td class="px-3 py-2">${s.lastUpdate || 'Unknown'}</td>
+            <td class="px-3 py-2">
+              <button onclick="editSite('${s.id || s.name}')" class="px-2 py-1 text-xs rounded-md border border-gray-200 dark:border-gray-700">Edit</button>
+              <button onclick="viewSite('${s.id || s.name}')" class="px-2 py-1 text-xs rounded-md ml-1 bg-blue-600 text-white">View</button>
+              ${idx > 0 ? `<button onclick="deleteSite('${s.id || s.name}')" class="px-2 py-1 text-xs rounded-md ml-1 bg-red-600 text-white">Delete</button>` : ''}
+            </td>
+          </tr>
+        `).join('');
+      }
+      
+      // Search functionality
+      const search = document.getElementById('siteSearch');
+      if (search) {
+        search.addEventListener('input', (e) => {
+          const query = e.target.value.toLowerCase();
+          const rows = tbody.querySelectorAll('tr');
+          rows.forEach(row => {
+            const siteName = row.querySelector('td').textContent.toLowerCase();
+            row.style.display = siteName.includes(query) ? '' : 'none';
+          });
+        });
+      }
+    });
+    
+    function editSite(siteId) {
+      alert(`Edit site: ${siteId} (redirect to edit form)`);
+    }
+    
+    function viewSite(siteId) {
+      window.location.href = '/ui';
+      // Would navigate to site-specific view
+    }
+    
+    function deleteSite(siteId) {
+      if (!confirm(`"${siteId}" sitesini silmek istediğinizden emin misiniz?`)) return;
+      
+      const stored = JSON.parse(localStorage.getItem('emsSites') || '[]');
+      const filtered = stored.filter(s => (s.id || s.name) !== siteId);
+      localStorage.setItem('emsSites', JSON.stringify(filtered));
+      
+      location.reload();
+    }
+  </script>
+</body>
+</html>

@@ -159,6 +159,10 @@ def create_app(context: APIContext) -> FastAPI:
         async def ui(request: Request, _: None = Depends(require_basic)) -> HTMLResponse:
             return render_template("index.html", request)
 
+        @app.get("/ui/sites", response_class=HTMLResponse)
+        async def ui_sites(request: Request, _: None = Depends(require_basic)) -> HTMLResponse:
+            return render_template("sites/index.html", request)
+
         @app.get("/ui/sites/add", response_class=HTMLResponse)
         async def ui_sites_add(request: Request, _: None = Depends(require_basic)) -> HTMLResponse:
             return render_template("sites-add.html", request)
