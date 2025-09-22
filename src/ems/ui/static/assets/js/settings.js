@@ -1,6 +1,6 @@
 // Minimal placeholder interactions for Settings pages
+
 document.addEventListener('DOMContentLoaded', () => {
-  // Profiles list mock
   const tbody = document.getElementById('profilesTBody');
   if (tbody) {
     const rows = [
@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
       { vendor: 'IEC', model: '62053', proto: 'Modbus', ver: '1.0' },
     ];
     tbody.innerHTML = '';
-    rows.forEach(r => {
+    rows.forEach((r) => {
       const tr = document.createElement('tr');
       tr.className = 'border-b border-gray-200 dark:border-gray-800';
       tr.innerHTML = `<td class="px-3 py-2">${r.vendor}</td>
