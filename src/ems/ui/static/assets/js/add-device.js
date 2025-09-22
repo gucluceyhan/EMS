@@ -35,11 +35,44 @@ function renderAddBody(){
   const step = ADD_STEPS[addDeviceState.step]; const t = addDeviceState.type;
   body.innerHTML = '';
   if(step==='Basics'){
-    body.innerHTML = input('Cihaz Adı/ID','devName','INV-1') + input('Vendor','vendor','Generic') + input('Model','model','SunSpec-103');
+    const deviceTypes = ['inverter', 'meter', 'weather', 'tracker', 'bms', 'power_analyzer', 'generic_modbus'];
+    body.innerHTML = select('Device Type','deviceType', deviceTypes) + 
+                     input('Cihaz Adı/ID','devName','device-01') + 
+                     input('Vendor','vendor','Generic') + 
+                     input('Model','model','Model-X');
   } else if(step==='Connection'){
-    body.innerHTML = select('Protokol','proto',['SunSpec','Modbus TCP','Modbus RTU','Vendor API']) + input('IP/Host','host','10.0.0.10') + input('Port/Slave','port','502/1');
+    body.innerHTML = select('Protokol','proto',['modbus_tcp','modbus_rtu','mqtt','serial','can']) + 
+                     input('IP/Host','host','10.0.0.10') + 
+                     input('Port','port','502') + 
+                     input('Unit ID','unitId','1');
   } else if(step==='Profile'){
-    body.innerHTML = select('Profil','profile',['Generic SunSpec-103 v1.2','IEC 62053 v1.0']);
+    // Get profiles from profiles.js if available
+    let profileOptions = ['Generic Profile'];
+    if (typeof driverProfiles !== 'undefined' && driverProfiles.length > 0) {
+      profileOptions = driverProfiles.map(p => p.name);
+    }
+    body.innerHTML = select('Profil','profile', profileOptions) + 
+                     '<div id="profilePreview" class="mt-2 p-2 bg-gray-50 dark:bg-gray-900 rounded text-xs" style="max-height:200px; overflow-y:auto;">Profil seçin...</div>';
+    
+    // Add profile selection handler
+    const profileSelect = document.getElementById('profile');
+    if (profileSelect && typeof driverProfiles !== 'undefined') {
+      profileSelect.addEventListener('change', function() {
+        const selectedProfile = driverProfiles.find(p => p.name === this.value);
+        const preview = document.getElementById('profilePreview');
+        if (selectedProfile && preview) {
+          preview.innerHTML = `
+            <strong>${selectedProfile.name}</strong><br>
+            <em>${selectedProfile.description}</em><br>
+            Point Map: ${selectedProfile.pointMapFile}<br>
+            Poll Interval: ${selectedProfile.pollInterval}s<br>
+            <div class="mt-1 text-xs">
+              ${selectedProfile.pointMapPreview?.slice(0, 5).join('<br>') || 'No preview available'}
+            </div>
+          `;
+        }
+      });
+    }
   } else if(step==='Discovery'){
     body.innerHTML = input('CIDR','cidr','192.168.1.0/24')+`<button id="btnRunDiscovery" class="mt-2 px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Discover</button><div id="discResult" class="mt-2 text-sm text-gray-500">-</div>`;
     const btn = document.getElementById('btnRunDiscovery'); if(btn){ btn.onclick=()=>{ const r=document.getElementById('discResult'); if(r) r.textContent='1 cihaz bulundu (mock).'; }; }

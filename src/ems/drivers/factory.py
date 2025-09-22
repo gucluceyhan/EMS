@@ -20,6 +20,7 @@ DRIVER_MAP: Dict[str, Type[BaseDriver]] = {
     "bms": MQTTBMSDriver,
     "dio": DIOExpanderDriver,
     "generic_modbus": GenericModbusDriver,
+    "power_analyzer": GenericModbusDriver,  # Power analyzers, reactive power relays (RG20C, etc.)
 }
 
 
