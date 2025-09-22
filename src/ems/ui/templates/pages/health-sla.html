@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <title>Health & SLA Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+  <div class="max-w-7xl mx-auto p-4 space-y-6">
+    <h1 class="text-xl font-semibold">Health & SLA Dashboard</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+        <div class="text-sm text-gray-500">Fleet Uptime</div>
+        <div class="text-2xl font-semibold text-green-600">99.94%</div>
+        <div class="text-xs text-gray-500 mt-1">Last 30 days</div>
+      </div>
+      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+        <div class="text-sm text-gray-500">Avg Latency</div>
+        <div class="text-2xl font-semibold">23ms</div>
+        <div class="text-xs text-gray-500 mt-1">P95: 45ms</div>
+      </div>
+      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+        <div class="text-sm text-gray-500">Packet Loss</div>
+        <div class="text-2xl font-semibold text-amber-600">0.12%</div>
+        <div class="text-xs text-gray-500 mt-1">Within SLA</div>
+      </div>
+      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+        <div class="text-sm text-gray-500">Stale Devices</div>
+        <div class="text-2xl font-semibold text-red-600">2</div>
+        <div class="text-xs text-gray-500 mt-1">Needs attention</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+        <h2 class="font-semibold mb-2">Uptime Trends</h2>
+        <canvas id="uptimeChart" height="120"></canvas>
+      </div>
+      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+        <h2 class="font-semibold mb-2">Latency Distribution</h2>
+        <canvas id="latencyChart" height="120"></canvas>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+      <h2 class="font-semibold mb-2">Device Health Status</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-gray-800 text-white uppercase tracking-wide text-xs">
+            <tr>
+              <th class="px-3 py-2 text-left">Device</th>
+              <th class="px-3 py-2 text-left">Type</th>
+              <th class="px-3 py-2 text-left">Status</th>
+              <th class="px-3 py-2 text-left">Last Seen</th>
+              <th class="px-3 py-2 text-left">Latency</th>
+              <th class="px-3 py-2 text-left">Uptime</th>
+            </tr>
+          </thead>
+          <tbody id="healthTBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Health table
+      const tbody = document.getElementById('healthTBody');
+      if (tbody) {
+        const devices = [
+          { id: 'INV-1', type: 'Inverter', status: 'online', lastSeen: '2s ago', latency: '23ms', uptime: '99.9%' },
+          { id: 'BMS-1', type: 'BMS', status: 'online', lastSeen: '1s ago', latency: '18ms', uptime: '99.8%' },
+          { id: 'TMŞ-1', type: 'Breaker', status: 'stale', lastSeen: '5m ago', latency: '125ms', uptime: '98.2%' },
+          { id: 'METER-1', type: 'Meter', status: 'offline', lastSeen: '1h ago', latency: '-', uptime: '95.1%' }
+        ];
+        
+        const statusBadge = (s) => {
+          const colors = {
+            online: 'bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-300',
+            stale: 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300',
+            offline: 'bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-300'
+          };
+          return `<span class="inline-flex px-2 py-0.5 rounded-full text-xs ${colors[s]}">${s}</span>`;
+        };
+        
+        tbody.innerHTML = devices.map(d => 
+          `<tr class="border-b border-gray-200 dark:border-gray-800">
+            <td class="px-3 py-2 font-medium">${d.id}</td>
+            <td class="px-3 py-2">${d.type}</td>
+            <td class="px-3 py-2">${statusBadge(d.status)}</td>
+            <td class="px-3 py-2">${d.lastSeen}</td>
+            <td class="px-3 py-2">${d.latency}</td>
+            <td class="px-3 py-2">${d.uptime}</td>
+          </tr>`
+        ).join('');
+      }
+      
+      // Charts
+      const uptimeCtx = document.getElementById('uptimeChart');
+      if (uptimeCtx) {
+        new Chart(uptimeCtx, {
+          type: 'line',
+          data: {
+            labels: Array.from({length: 30}, (_, i) => `Day ${i+1}`),
+            datasets: [{
+              label: 'Uptime %',
+              data: Array.from({length: 30}, () => 99 + Math.random()),
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              fill: true
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: { y: { min: 98, max: 100 } }
+          }
+        });
+      }
+      
+      const latencyCtx = document.getElementById('latencyChart');
+      if (latencyCtx) {
+        new Chart(latencyCtx, {
+          type: 'bar',
+          data: {
+            labels: ['0-10ms', '10-25ms', '25-50ms', '50-100ms', '100ms+'],
+            datasets: [{
+              label: 'Device Count',
+              data: [12, 45, 23, 8, 2],
+              backgroundColor: '#3b82f6'
+            }]
+          },
+          options: { responsive: true }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
