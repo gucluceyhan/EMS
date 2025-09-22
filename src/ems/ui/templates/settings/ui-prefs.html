@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <title>Settings – UI Tercihleri</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+  <div class="max-w-7xl mx-auto p-4 space-y-6">
+    <h1 class="text-xl font-semibold">UI Tercihleri</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+        <h2 class="font-semibold mb-2">Tema & Görünüm</h2>
+        <label class="text-sm block">Tema<select class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>Auto</option><option>Light</option><option>Dark</option></select></label>
+        <label class="text-sm block mt-2">Kontrast<select class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>Normal</option><option>High</option></select></label>
+        <label class="text-sm block mt-2">Dashboard Preset<select class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>Fleet Overview</option><option>Site Detail</option><option>Analytics</option></select></label>
+      </div>
+      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+        <h2 class="font-semibold mb-2">Veri & Navigasyon</h2>
+        <label class="text-sm block">Map Default Zoom<input type="number" value="6" min="1" max="18" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+        <label class="text-sm block mt-2">Table Pagination<select class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>25</option><option>50</option><option>100</option></select></label>
+        <label class="text-sm block mt-2">Default Export<select class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>PDF</option><option>Excel</option><option>CSV</option></select></label>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
