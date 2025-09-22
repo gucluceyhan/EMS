@@ -16,7 +16,10 @@
         <label class="text-sm">Birimler<select class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>SI</option><option>Imperial</option></select></label>
         <label class="text-sm">Locale<input placeholder="tr-TR" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
       </div>
-      <div class="mt-4"><button class="px-3 py-2 rounded-md bg-brand-600 text-white">Kaydet</button></div>
+      <div class="mt-4">
+        <button id="btnSaveOrg" class="px-3 py-2 rounded-md bg-brand-600 text-white">Kaydet</button>
+        <div id="saveResult" class="mt-2 text-sm hidden"></div>
+      </div>
     </div>
   </div>
   <script src="/static/assets/js/settings.js"></script>
