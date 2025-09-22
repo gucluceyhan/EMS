@@ -1,9 +1,9 @@
 ---
 version: 1
 plant:
-  id: "plant-alpha"
-  name: "Sample Solar Plant"
-  timezone: "UTC"
+  id: "ges-fleet"
+  name: "Ankara GES Fleet Management"
+  timezone: "Europe/Istanbul"
 
 global:
   enable_control: false
@@ -58,141 +58,880 @@ can:
 
 
 devices:
-  - id: "inv-1"
-    plant_id: "plant-alpha"
+  # ===== ANKARA SINCAN GES (10 MW) =====
+  # String Inverters
+  - id: "sincan-inv-01"
+    plant_id: "ankara-sincan-ges"
     type: "inverter"
-    make: "Generic"
-    model: "SunSpec-103"
+    make: "Huawei"
+    model: "SUN2000-100KTL-M1"
     protocol: "modbus_tcp"
     connection:
-      host: "127.0.0.1"
-      port: 5020
+      host: "192.168.10.101"
+      port: 502
       unit_id: 1
-    poll_interval_s: 60
-    timeout_ms: 2000
+    poll_interval_s: 30
+    timeout_ms: 3000
     retries: 3
     point_map: "pointmaps/sunspec_inverter_common.yaml"
     control_capabilities:
-      set_active_power_limit: false
-      open_breaker: false
-      close_breaker: false
-  - id: "inv-2"
-    plant_id: "plant-alpha"
+      set_active_power_limit: true
+      open_breaker: true
+      close_breaker: true
+  
+  - id: "sincan-inv-02"
+    plant_id: "ankara-sincan-ges"
     type: "inverter"
-    make: "Generic"
-    model: "SunSpec-113"
+    make: "ABB"
+    model: "PVS980-58-2000kVA-A"
     protocol: "modbus_tcp"
     connection:
-      host: "127.0.0.1"
-      port: 5021
-      unit_id: 2
-    poll_interval_s: 60
-    timeout_ms: 2000
+      host: "192.168.10.102"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 3000
     retries: 3
     point_map: "pointmaps/sunspec_inverter_common.yaml"
     control_capabilities:
-      set_active_power_limit: false
-      open_breaker: false
-      close_breaker: false
-  - id: "meter-1"
-    plant_id: "plant-alpha"
-    type: "meter"
-    make: "IEC"
-    model: "62053"
+      set_active_power_limit: true
+      open_breaker: true
+      close_breaker: true
+  
+  # Weather Station
+  - id: "sincan-weather"
+    plant_id: "ankara-sincan-ges"
+    type: "weather"
+    make: "Kipp&Zonen"
+    model: "SOLYS-2-AP"
     protocol: "modbus_rtu"
     connection:
-      port: "/dev/ttyUSB-meter"
-      baudrate: 9600
-      parity: "E"
-      stopbits: 1
-      unit_id: 3
-    poll_interval_s: 60
-    timeout_ms: 2000
-    retries: 3
-    point_map: "pointmaps/meter_iec62053_generic.yaml"
-  - id: "weather-1"
-    plant_id: "plant-alpha"
-    type: "weather"
-    make: "Generic"
-    model: "SerialMet"
-    protocol: "serial"
-    connection:
-      port: "/dev/ttyUSB-weather"
+      port: "/dev/ttyUSB-sincan-weather"
       baudrate: 19200
-      bytesize: 8
       parity: "N"
       stopbits: 1
+      unit_id: 10
     poll_interval_s: 60
     timeout_ms: 2000
     retries: 3
     point_map: "pointmaps/weather_serial_generic.yaml"
-  - id: "tracker-1"
-    plant_id: "plant-alpha"
-    type: "tracker"
-    make: "Generic"
-    model: "DualAxis"
-    protocol: "modbus_rtu"
-    connection:
-      port: "/dev/ttyUSB-tracker"
-      baudrate: 19200
-      parity: "N"
-      stopbits: 1
-      unit_id: 4
-    poll_interval_s: 60
-    timeout_ms: 2000
-    retries: 3
-    point_map: "pointmaps/tracker_generic.yaml"
-  - id: "bms-1"
-    plant_id: "plant-alpha"
-    type: "bms"
-    make: "Generic"
-    model: "MQTT"
-    protocol: "mqtt"
-    connection:
-      topic_prefix: "plants/plant-alpha/bms"
-    poll_interval_s: 60
-    timeout_ms: 2000
-    retries: 3
-    point_map: "pointmaps/bms_mqtt_generic.yaml"
-  - id: "dio-1"
-    plant_id: "plant-alpha"
-    type: "dio"
-    make: "MCP"
-    model: "23017"
-    protocol: "i2c"
-    connection:
-      bus: 1
-      address: 0x20
-    poll_interval_s: 60
-    timeout_ms: 2000
-    retries: 3
-  - id: "modbus-a"
-    plant_id: "plant-alpha"
+
+  # Power Quality Analyzer
+  - id: "sincan-pqa"
+    plant_id: "ankara-sincan-ges"
     type: "generic_modbus"
-    make: "BrandA"
-    model: "ControllerX"
+    make: "Janitza"
+    model: "UMG-512-PRO"
     protocol: "modbus_tcp"
     connection:
-      host: "127.0.0.1"
-      port: 1502
-      unit_id: 5
-    poll_interval_s: 90
+      host: "192.168.10.120"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 15
     timeout_ms: 2000
     retries: 3
     point_map: "pointmaps/generic_modbus_brandA.yaml"
-  - id: "modbus-b"
-    plant_id: "plant-alpha"
-    type: "generic_modbus"
-    make: "BrandB"
-    model: "EnviroSense"
+
+  # Tracker System
+  - id: "sincan-tracker-01"
+    plant_id: "ankara-sincan-ges"
+    type: "tracker"
+    make: "NEXTracker"
+    model: "NX-Horizon"
+    protocol: "modbus_tcp"
+    connection:
+      host: "192.168.10.130"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 120
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/tracker_generic.yaml"
+
+  # Energy Meter
+  - id: "sincan-meter-main"
+    plant_id: "ankara-sincan-ges"
+    type: "meter"
+    make: "Carlo Gavazzi"
+    model: "EM340-DIN-AV2-3-CE-X"
     protocol: "modbus_rtu"
     connection:
-      port: "/dev/ttyUSB-brandb"
+      port: "/dev/ttyUSB-sincan-meter"
       baudrate: 9600
       parity: "N"
       stopbits: 1
-      unit_id: 6
-    poll_interval_s: 75
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/meter_iec62053_generic.yaml"
+
+  # Battery Storage System
+  - id: "sincan-bms"
+    plant_id: "ankara-sincan-ges"
+    type: "bms"
+    make: "CATL"
+    model: "LFP-280Ah-ESS"
+    protocol: "mqtt"
+    connection:
+      topic_prefix: "plants/ankara-sincan-ges/bms"
+    poll_interval_s: 10
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/bms_mqtt_generic.yaml"
+
+  # ===== ODTÜ TEKNOKENT ÇAT GES (500 kW) =====
+  # String Inverters
+  - id: "teknokent-inv-01"
+    plant_id: "odtu-teknokent-ges"
+    type: "inverter"
+    make: "SMA"
+    model: "SUNNY TRIPOWER CORE1-50"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.10.20.101"
+      port: 502
+      unit_id: 3
+    poll_interval_s: 30
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: true
+      open_breaker: false
+      close_breaker: false
+
+  - id: "teknokent-inv-02"
+    plant_id: "odtu-teknokent-ges"
+    type: "inverter"
+    make: "Fronius"
+    model: "SYMO-20.0-3-M"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.10.20.102"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: true
+      open_breaker: false
+      close_breaker: false
+
+  # Weather Station
+  - id: "teknokent-weather"
+    plant_id: "odtu-teknokent-ges"
+    type: "weather"
+    make: "IMT Solar"
+    model: "Si-420TC-T"
+    protocol: "modbus_rtu"
+    connection:
+      port: "/dev/ttyUSB-teknokent-weather"
+      baudrate: 9600
+      parity: "N"
+      stopbits: 1
+      unit_id: 15
+    poll_interval_s: 60
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/weather_serial_generic.yaml"
+
+  # Smart Meter
+  - id: "teknokent-meter"
+    plant_id: "odtu-teknokent-ges"
+    type: "meter"
+    make: "Schneider Electric"
+    model: "ION-7650"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.10.20.150"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 15
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/meter_iec62053_generic.yaml"
+
+  # ===== ANKARA POLATLI GES (5 MW) =====
+  # Central Inverters
+  - id: "polatli-inv-01"
+    plant_id: "ankara-polatli-ges"
+    type: "inverter"
+    make: "FIMER"
+    model: "PVS-980-58-2000kVA-A"
+    protocol: "modbus_tcp"
+    connection:
+      host: "172.16.30.101"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: true
+      open_breaker: true
+      close_breaker: true
+
+  # Weather Station
+  - id: "polatli-weather"
+    plant_id: "ankara-polatli-ges"
+    type: "weather"
+    make: "METER Group"
+    model: "ATMOS-41"
+    protocol: "serial"
+    connection:
+      port: "/dev/ttyUSB-polatli-weather"
+      baudrate: 9600
+      bytesize: 8
+      parity: "N"
+      stopbits: 1
+    poll_interval_s: 300
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/weather_serial_generic.yaml"
+
+  # String Monitoring
+  - id: "polatli-string-monitor"
+    plant_id: "ankara-polatli-ges"
+    type: "generic_modbus"
+    make: "SolarEdge"
+    model: "SE1000M-RWS0BNI4"
+    protocol: "modbus_tcp"
+    connection:
+      host: "172.16.30.200"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 60
     timeout_ms: 2000
     retries: 3
     point_map: "pointmaps/generic_modbus_brandB.yaml"
+
+  # Transformer Monitoring
+  - id: "polatli-transformer"
+    plant_id: "ankara-polatli-ges"
+    type: "generic_modbus"
+    make: "Schneider Electric"
+    model: "PM8000"
+    protocol: "modbus_tcp"
+    connection:
+      host: "172.16.30.210"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/generic_modbus_brandA.yaml"
+
+  # SCADA Gateway (All Sites)
+  - id: "fleet-scada-gateway"
+    plant_id: "ges-fleet"
+    type: "generic_modbus"
+    make: "MOXA"
+    model: "ioLogik-E5242"
+    protocol: "modbus_tcp"
+    connection:
+      host: "192.168.1.100"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/generic_modbus_brandA.yaml"
+
+  # Security System
+  - id: "fleet-security"
+    plant_id: "ges-fleet"
+    type: "generic_modbus"
+    make: "Hikvision"
+    model: "DS-K2600-Series"
+    protocol: "modbus_tcp"
+    connection:
+      host: "192.168.1.200"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 60
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/generic_modbus_brandB.yaml"
+
+  # ===== ANTALYA MANAVGAT GES (25 MW) =====
+  - id: "manavgat-inv-01"
+    plant_id: "antalya-manavgat-ges"
+    type: "inverter"
+    make: "Huawei"
+    model: "SUN2000-215KTL-H0"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.50.1.101"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: true
+      open_breaker: true
+      close_breaker: true
+
+  - id: "manavgat-weather"
+    plant_id: "antalya-manavgat-ges"
+    type: "weather"
+    make: "Hukseflux"
+    model: "SR30-M2-D1"
+    protocol: "modbus_rtu"
+    connection:
+      port: "/dev/ttyUSB-manavgat-weather"
+      baudrate: 9600
+      parity: "N"
+      stopbits: 1
+      unit_id: 20
+    poll_interval_s: 60
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/weather_serial_generic.yaml"
+
+  - id: "manavgat-tracker"
+    plant_id: "antalya-manavgat-ges"
+    type: "tracker"
+    make: "Array Technologies"
+    model: "DuraTrack HZ v3"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.50.1.130"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 120
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/tracker_generic.yaml"
+
+  # ===== MERSİN ERDEMLI GES (30 MW) =====
+  - id: "erdemli-inv-01"
+    plant_id: "mersin-erdemli-ges"
+    type: "inverter"
+    make: "SMA"
+    model: "SUNNY CENTRAL 2000-EV"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.60.1.101"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: true
+      open_breaker: true
+      close_breaker: true
+
+  - id: "erdemli-meter"
+    plant_id: "mersin-erdemli-ges"
+    type: "meter"
+    make: "Landis+Gyr"
+    model: "E650-Series"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.60.1.150"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 15
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/meter_iec62053_generic.yaml"
+
+  - id: "erdemli-bms"
+    plant_id: "mersin-erdemli-ges"
+    type: "bms"
+    make: "BYD"
+    model: "Battery-Box Commercial 13.8"
+    protocol: "mqtt"
+    connection:
+      topic_prefix: "plants/mersin-erdemli-ges/bms"
+    poll_interval_s: 10
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/bms_mqtt_generic.yaml"
+
+  # ===== ADANA KOZAN GES (20 MW) =====
+  - id: "kozan-inv-01"
+    plant_id: "adana-kozan-ges"
+    type: "inverter"
+    make: "ABB"
+    model: "PVS980-58-2000kVA-A"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.70.1.101"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: true
+      open_breaker: true
+      close_breaker: true
+
+  - id: "kozan-weather"
+    plant_id: "adana-kozan-ges"
+    type: "weather"
+    make: "Campbell Scientific"
+    model: "CS320-L"
+    protocol: "serial"
+    connection:
+      port: "/dev/ttyUSB-kozan-weather"
+      baudrate: 9600
+      bytesize: 8
+      parity: "N"
+      stopbits: 1
+    poll_interval_s: 300
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/weather_serial_generic.yaml"
+
+  # ===== HATAY İSKENDERUN GES (15 MW) =====
+  - id: "iskenderun-inv-01"
+    plant_id: "hatay-iskenderun-ges"
+    type: "inverter"
+    make: "Power Electronics"
+    model: "FS2800K-TL"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.80.1.101"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: true
+      open_breaker: false
+      close_breaker: false
+
+  - id: "iskenderun-pqa"
+    plant_id: "hatay-iskenderun-ges"
+    type: "generic_modbus"
+    make: "CIRCUTOR"
+    model: "CVM-NET4+"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.80.1.120"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 15
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/generic_modbus_brandA.yaml"
+
+  # ===== GAZİANTEP NİZİP GES (40 MW) =====
+  - id: "nizip-inv-01"
+    plant_id: "gaziantep-nizip-ges"
+    type: "inverter"
+    make: "TBEA"
+    model: "TB2500KTL-HV"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.90.1.101"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: true
+      open_breaker: true
+      close_breaker: true
+
+  - id: "nizip-tracker"
+    plant_id: "gaziantep-nizip-ges"
+    type: "tracker"
+    make: "PVHardware"
+    model: "2V Tracker"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.90.1.130"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 120
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/tracker_generic.yaml"
+
+  # ===== ŞANLIURFA VİRANŞEHİR GES (50 MW) =====
+  - id: "viransehir-inv-01"
+    plant_id: "sanliurfa-viransehir-ges"
+    type: "inverter"
+    make: "Sineng Electric"
+    model: "SN3125K-30"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.100.1.101"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: true
+      open_breaker: true
+      close_breaker: true
+
+  - id: "viransehir-weather"
+    plant_id: "sanliurfa-viransehir-ges"
+    type: "weather"
+    make: "EKO Instruments"
+    model: "MS-80M"
+    protocol: "modbus_rtu"
+    connection:
+      port: "/dev/ttyUSB-viransehir-weather"
+      baudrate: 9600
+      parity: "N"
+      stopbits: 1
+      unit_id: 25
+    poll_interval_s: 60
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/weather_serial_generic.yaml"
+
+  # ===== MARDİN MİDYAT GES (35 MW) =====
+  - id: "midyat-inv-01"
+    plant_id: "mardin-midyat-ges"
+    type: "inverter"
+    make: "Growatt"
+    model: "MAX 100KTL3-X LV"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.110.1.101"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: true
+      open_breaker: false
+      close_breaker: false
+
+  - id: "midyat-meter"
+    plant_id: "mardin-midyat-ges"
+    type: "meter"
+    make: "Socomec"
+    model: "DIRIS A40"
+    protocol: "modbus_rtu"
+    connection:
+      port: "/dev/ttyUSB-midyat-meter"
+      baudrate: 19200
+      parity: "E"
+      stopbits: 1
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/meter_iec62053_generic.yaml"
+
+  # ===== BATMAN BEŞIRI GES (22 MW) =====
+  - id: "besiri-inv-01"
+    plant_id: "batman-besiri-ges"
+    type: "inverter"
+    make: "Delta Electronics"
+    model: "M88H-12"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.120.1.101"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: true
+      open_breaker: true
+      close_breaker: true
+
+  # ===== DİYARBAKIR SİLVAN GES (28 MW) =====
+  - id: "silvan-inv-01"
+    plant_id: "diyarbakir-silvan-ges"
+    type: "inverter"
+    make: "GoodWe"
+    model: "GW100K-MT"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.130.1.101"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: true
+      open_breaker: false
+      close_breaker: false
+
+  - id: "silvan-weather"
+    plant_id: "diyarbakir-silvan-ges"
+    type: "weather"
+    make: "Vaisala"
+    model: "WXT536"
+    protocol: "serial"
+    connection:
+      port: "/dev/ttyUSB-silvan-weather"
+      baudrate: 19200
+      bytesize: 8
+      parity: "N"
+      stopbits: 1
+    poll_interval_s: 300
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/weather_serial_generic.yaml"
+
+  # ===== KONYA EREĞLI GES (45 MW) =====
+  - id: "eregli-inv-01"
+    plant_id: "konya-eregli-ges"
+    type: "inverter"
+    make: "Kstar"
+    model: "KSG-50K-TM"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.140.1.101"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: true
+      open_breaker: true
+      close_breaker: true
+
+  - id: "eregli-tracker"
+    plant_id: "konya-eregli-ges"
+    type: "tracker"
+    make: "Soltec"
+    model: "SFOne"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.140.1.130"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 120
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/tracker_generic.yaml"
+
+  # ===== KARAMAN ERMENEK GES (18 MW) =====
+  - id: "ermenek-inv-01"
+    plant_id: "karaman-ermenek-ges"
+    type: "inverter"
+    make: "Sungrow"
+    model: "SG125HV"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.150.1.101"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: true
+      open_breaker: false
+      close_breaker: false
+
+  # ===== AKSARAY ORTAKÖY GES (12 MW) =====
+  - id: "ortakoy-inv-01"
+    plant_id: "aksaray-ortakoy-ges"
+    type: "inverter"
+    make: "Ingeteam"
+    model: "INGECON SUN PowerMax 185TL U M"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.160.1.101"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: true
+      open_breaker: true
+      close_breaker: true
+
+  - id: "ortakoy-meter"
+    plant_id: "aksaray-ortakoy-ges"
+    type: "meter"
+    make: "Chint"
+    model: "DTSU666-H"
+    protocol: "modbus_rtu"
+    connection:
+      port: "/dev/ttyUSB-ortakoy-meter"
+      baudrate: 9600
+      parity: "N"
+      stopbits: 1
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/meter_iec62053_generic.yaml"
+
+  # ===== NEVŞEHİR AVANOS GES (8 MW) =====
+  - id: "avanos-inv-01"
+    plant_id: "nevsehir-avanos-ges"
+    type: "inverter"
+    make: "Solaredge"
+    model: "SE100K"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.170.1.101"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: true
+      open_breaker: false
+      close_breaker: false
+
+  # ===== KAYSERİ YAHYALI GES (15 MW) =====
+  - id: "yahyali-inv-01"
+    plant_id: "kayseri-yahyali-ges"
+    type: "inverter"
+    make: "Chint"
+    model: "CPS SC100KTL-HV-DO/US"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.180.1.101"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: true
+      open_breaker: true
+      close_breaker: true
+
+  - id: "yahyali-weather"
+    plant_id: "kayseri-yahyali-ges"
+    type: "weather"
+    make: "Apogee Instruments"
+    model: "SP-510-SS"
+    protocol: "modbus_rtu"
+    connection:
+      port: "/dev/ttyUSB-yahyali-weather"
+      baudrate: 9600
+      parity: "N"
+      stopbits: 1
+      unit_id: 30
+    poll_interval_s: 60
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/weather_serial_generic.yaml"
+
+  # ===== MALATYA DOĞANŞEHIR GES (20 MW) =====
+  - id: "dogansehir-inv-01"
+    plant_id: "malatya-dogansehir-ges"
+    type: "inverter"
+    make: "TMEIC"
+    model: "SOLAR WARE SAMURAI 2156Nh-US-480"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.190.1.101"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: true
+      open_breaker: true
+      close_breaker: true
+
+  # ===== İZMİR ÇEŞME GES (6 MW) =====
+  - id: "cesme-inv-01"
+    plant_id: "izmir-cesme-ges"
+    type: "inverter"
+    make: "Omron"
+    model: "KP100L-DD-EU"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.200.1.101"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: true
+      open_breaker: false
+      close_breaker: false
+
+  - id: "cesme-weather"
+    plant_id: "izmir-cesme-ges"
+    type: "weather"
+    make: "Meteorologie Consult"
+    model: "Meteocontrol WS600-UMB"
+    protocol: "serial"
+    connection:
+      port: "/dev/ttyUSB-cesme-weather"
+      baudrate: 19200
+      bytesize: 8
+      parity: "N"
+      stopbits: 1
+    poll_interval_s: 300
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/weather_serial_generic.yaml"
+
+  # ===== MUĞ LA BODRUM GES (4 MW) =====
+  - id: "bodrum-inv-01"
+    plant_id: "mugla-bodrum-ges"
+    type: "inverter"
+    make: "Schneider Electric"
+    model: "CONEXT CL-25000E"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.210.1.101"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/sunspec_inverter_common.yaml"
+    control_capabilities:
+      set_active_power_limit: true
+      open_breaker: false
+      close_breaker: false
+
+  - id: "bodrum-meter"
+    plant_id: "mugla-bodrum-ges"
+    type: "meter"
+    make: "ZIV"
+    model: "5CTD"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.210.1.150"
+      port: 502
+      unit_id: 1
+    poll_interval_s: 15
+    timeout_ms: 2000
+    retries: 3
+    point_map: "pointmaps/meter_iec62053_generic.yaml"
