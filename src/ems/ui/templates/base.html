@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="tr" class="h-full">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}GES Solar EMS{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <!-- Tailwind (Play CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f7ff', 100: '#dceeff', 200: '#bfe0ff', 300: '#91caff',
+              400: '#5ea9ff', 500: '#3b8cff', 600: '#1f6df2', 700: '#1856c2',
+              800: '#14489c', 900: '#133f84'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  {% block head_extra %}{% endblock %}
+</head>
+<body class="h-full bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+  <div class="min-h-screen flex">
+    <!-- Sidebar -->
+    <aside class="w-64 flex flex-col border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
+      <div class="px-4 py-4 border-b border-gray-200 dark:border-gray-800">
+        <div class="text-lg font-semibold">GES Solar</div>
+        <div class="text-xs text-gray-500">EMS • BMS • Automation</div>
+      </div>
+      <nav class="flex-1 p-2 space-y-1">
+        <a href="/ui" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2 {% if request.url.path == '/ui' %}bg-gray-100 dark:bg-gray-800{% endif %}">
+          <span>🌍</span><span>Dashboard</span>
+        </a>
+        <a href="/ui/sites" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2 {% if '/ui/sites' in request.url.path %}bg-gray-100 dark:bg-gray-800{% endif %}">
+          <span>☀️</span><span>Sites</span>
+        </a>
+        <button data-nav="analytics" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2 nav-item">
+          <span>📊</span><span>Analytics</span>
+        </button>
+        <button data-nav="control" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2 nav-item">
+          <span>🛡</span><span>Control</span>
+        </button>
+        <button data-nav="reports" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2 nav-item">
+          <span>📑</span><span>Reports</span>
+        </button>
+        <button data-nav="settings" class="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2 nav-item {% if '/ui/settings' in request.url.path %}bg-gray-100 dark:bg-gray-800{% endif %}">
+          <span>⚙️</span><span>Settings</span>
+        </button>
+      </nav>
+      <div class="p-3 text-xs text-gray-500">v0.1.0</div>
+    </aside>
+
+    <!-- Main -->
+    <div class="flex-1 flex flex-col">
+      <!-- Topbar -->
+      <header class="sticky top-0 z-10 bg-white/75 dark:bg-gray-950/75 backdrop-blur border-b border-gray-200 dark:border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <button id="sidebarToggle" class="lg:hidden inline-flex items-center px-2 py-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Toggle sidebar">☰</button>
+            <div>
+              <div class="font-semibold">{{ plant.name }}</div>
+              <div class="text-xs text-gray-500">{% block page_subtitle %}{% endblock %}</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="themeToggle" class="px-3 py-1.5 rounded-md bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm">Dark/Light</button>
+            <span class="text-sm text-gray-500">Role:</span>
+            <select id="roleSelect" class="text-sm bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1">
+              <option>Viewer</option>
+              <option>Operator</option>
+              <option>Manager</option>
+              <option>Admin</option>
+            </select>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <main class="flex-1">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  <!-- Base JavaScript -->
+  <script>
+    // Theme toggle
+    function initTheme() {
+      const btn = document.getElementById('themeToggle');
+      if (!btn) return;
+      const apply = (mode) => {
+        const root = document.documentElement;
+        if (mode === 'dark') root.classList.add('dark'); else root.classList.remove('dark');
+        localStorage.setItem('theme', mode);
+      };
+      apply(localStorage.getItem('theme') || 'light');
+      btn.addEventListener('click', () => {
+        const next = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+        apply(next);
+      });
+    }
+
+    // Nav views (for single-page sections)
+    function initNav() {
+      const items = document.querySelectorAll('.nav-item');
+      items.forEach((el) =>
+        el.addEventListener('click', () => showView(el.getAttribute('data-nav')))
+      );
+    }
+
+    function showView(key) {
+      const sections = {
+        fleet: document.getElementById('view-fleet'),
+        site: document.getElementById('view-site'),
+        analytics: document.getElementById('view-analytics'),
+        control: document.getElementById('view-control'),
+        reports: document.getElementById('view-reports'),
+        settings: document.getElementById('view-settings'),
+      };
+      Object.values(sections).forEach((s) => s && s.classList.add('hidden'));
+      if (sections[key]) sections[key].classList.remove('hidden');
+    }
+
+    // Initialize base functionality
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      initNav();
+      {% block init_js %}{% endblock %}
+    });
+  </script>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>
