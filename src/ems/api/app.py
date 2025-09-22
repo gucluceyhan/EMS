@@ -171,6 +171,21 @@ def create_app(context: APIContext) -> FastAPI:
             },
         )
 
+    # Settings routes (additive)
+    @app.get("/ui/settings/org", response_class=HTMLResponse)
+    async def ui_settings_org(request: Request, _: None = Depends(require_basic)) -> HTMLResponse:
+        return templates.TemplateResponse(
+            "settings/org.html",
+            {"request": request, "plant": context.config.plant.model_dump()},
+        )
+
+    @app.get("/ui/settings/profiles", response_class=HTMLResponse)
+    async def ui_settings_profiles(request: Request, _: None = Depends(require_basic)) -> HTMLResponse:
+        return templates.TemplateResponse(
+            "settings/profiles.html",
+            {"request": request, "plant": context.config.plant.model_dump()},
+        )
+
     return app
 
 
