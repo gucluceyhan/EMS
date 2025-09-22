@@ -119,35 +119,35 @@
     <div class="flex-1 overflow-y-auto p-4">
       <!-- Device Type Selection -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <button onclick="selectDeviceType('inverter')" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+        <button onclick="selectDeviceType('inverter', this)" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
           <div class="text-2xl mb-2">⚡</div>
           <div class="text-sm font-medium">Inverter</div>
         </button>
-        <button onclick="selectDeviceType('meter')" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+        <button onclick="selectDeviceType('meter', this)" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
           <div class="text-2xl mb-2">📊</div>
           <div class="text-sm font-medium">Energy Meter</div>
         </button>
-        <button onclick="selectDeviceType('weather')" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+        <button onclick="selectDeviceType('weather', this)" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
           <div class="text-2xl mb-2">🌤️</div>
           <div class="text-sm font-medium">Weather Station</div>
         </button>
-        <button onclick="selectDeviceType('tracker')" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+        <button onclick="selectDeviceType('tracker', this)" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
           <div class="text-2xl mb-2">🎯</div>
           <div class="text-sm font-medium">Solar Tracker</div>
         </button>
-        <button onclick="selectDeviceType('bms')" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+        <button onclick="selectDeviceType('bms', this)" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
           <div class="text-2xl mb-2">🔋</div>
           <div class="text-sm font-medium">BMS</div>
         </button>
-        <button onclick="selectDeviceType('power_analyzer')" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+        <button onclick="selectDeviceType('power_analyzer', this)" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
           <div class="text-2xl mb-2">🔬</div>
           <div class="text-sm font-medium">Power Analyzer</div>
         </button>
-        <button onclick="selectDeviceType('breaker')" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+        <button onclick="selectDeviceType('breaker', this)" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
           <div class="text-2xl mb-2">🔌</div>
           <div class="text-sm font-medium">Smart Breaker</div>
         </button>
-        <button onclick="selectDeviceType('facility')" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+        <button onclick="selectDeviceType('facility', this)" class="device-type-btn p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
           <div class="text-2xl mb-2">🏭</div>
           <div class="text-sm font-medium">Facility Monitor</div>
         </button>
@@ -430,14 +430,14 @@ function closeAddDeviceModal() {
   });
 }
 
-function selectDeviceType(type) {
+function selectDeviceType(type, element) {
   selectedDeviceType = type;
   
   // Update button styles
   document.querySelectorAll('.device-type-btn').forEach(btn => {
     btn.classList.remove('bg-brand-600', 'text-white');
   });
-  event.target.classList.add('bg-brand-600', 'text-white');
+  element.classList.add('bg-brand-600', 'text-white');
   
   // Show configuration form
   document.getElementById('deviceConfigForm').classList.remove('hidden');

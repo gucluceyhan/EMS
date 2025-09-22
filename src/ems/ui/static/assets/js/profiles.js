@@ -1,6 +1,7 @@
 // Device Driver Profiles Management
 
-let driverProfiles = [
+// Make profiles globally available
+window.driverProfiles = [
   {
     id: 'sunspec-inverters',
     name: 'SunSpec Inverters',
@@ -337,7 +338,7 @@ function renderProfilesList() {
   const profilesList = document.getElementById('profilesList');
   if (!profilesList) return;
   
-  profilesList.innerHTML = driverProfiles.map(profile => `
+  profilesList.innerHTML = window.driverProfiles.map(profile => `
     <div class="profile-item p-3 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer transition-colors" 
          data-profile-id="${profile.id}" 
          onclick="selectProfile('${profile.id}')">
@@ -349,7 +350,7 @@ function renderProfilesList() {
 
 function selectProfile(profileId) {
   selectedProfileId = profileId;
-  const profile = driverProfiles.find(p => p.id === profileId);
+  const profile = window.driverProfiles.find(p => p.id === profileId);
   if (!profile) return;
   
   // Store original data for reset functionality
@@ -453,7 +454,7 @@ function createNewProfile() {
     pointMapPreview: ['# New profile - configure point map']
   };
   
-  driverProfiles.push(newProfile);
+  window.driverProfiles.push(newProfile);
   renderProfilesList();
   selectProfile(newProfile.id);
   showSuccess('New profile created successfully');
@@ -484,7 +485,7 @@ function importProfile() {
 function saveProfile() {
   if (!selectedProfileId) return;
   
-  const profile = driverProfiles.find(p => p.id === selectedProfileId);
+  const profile = window.driverProfiles.find(p => p.id === selectedProfileId);
   if (!profile) return;
   
   // Update profile with form values
@@ -516,7 +517,7 @@ function saveProfile() {
 function testProfile() {
   if (!selectedProfileId) return;
   
-  const profile = driverProfiles.find(p => p.id === selectedProfileId);
+  const profile = window.driverProfiles.find(p => p.id === selectedProfileId);
   if (!profile) return;
   
   // Mock connection test
@@ -536,7 +537,7 @@ function resetProfile() {
   if (!selectedProfileId || !originalProfileData) return;
   
   if (confirm('Reset all changes to original values?')) {
-    const profileIndex = driverProfiles.findIndex(p => p.id === selectedProfileId);
+    const profileIndex = window.window.driverProfiles.findIndex(p => p.id === selectedProfileId);
     if (profileIndex >= 0) {
       driverProfiles[profileIndex] = JSON.parse(JSON.stringify(originalProfileData));
       showProfileDetails(driverProfiles[profileIndex]);
@@ -550,7 +551,7 @@ function resetProfile() {
 function deleteProfile() {
   if (!selectedProfileId) return;
   
-  const profile = driverProfiles.find(p => p.id === selectedProfileId);
+  const profile = window.driverProfiles.find(p => p.id === selectedProfileId);
   if (!profile) return;
   
   if (confirm(`Delete profile "${profile.name}"? This action cannot be undone.`)) {
@@ -605,8 +606,8 @@ function showNotification(message, type = 'info') {
 // Form change detection
 document.addEventListener('DOMContentLoaded', () => {
   // Debug: Check if profiles are loaded
-  console.log('Profiles.js loaded, profile count:', driverProfiles.length);
-  console.log('Profiles:', driverProfiles.map(p => p.name));
+  console.log('Profiles.js loaded, profile count:', window.driverProfiles.length);
+  console.log('Profiles:', window.driverProfiles.map(p => p.name));
   
   // Add change detection to form fields
   const formFields = ['profileName', 'pointMapFile', 'pollInterval', 'timeout', 'retries', 'protocol',
