@@ -21,9 +21,13 @@
         <div class="text-center">
           <div class="text-2xl font-semibold">Tap: +3</div>
           <div class="mt-3 space-x-2">
-            <button class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Step Down</button>
-            <button class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Step Up</button>
+            <button id="btnStepDown" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Step Down</button>
+            <button id="btnStepUp" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Step Up</button>
           </div>
+          <div class="mt-3">
+            <button id="btnSaveOLTC" class="px-3 py-2 rounded-md bg-red-600 text-white text-xs">Save OLTC Config</button>
+          </div>
+          <div id="oltcResult" class="mt-2 text-sm hidden"></div>
         </div>
       </div>
     </div>
