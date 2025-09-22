@@ -17,18 +17,62 @@ The repository ships with:
 - Tools for register map management and safe Modbus scanning
 - Systemd unit, CLI utility, and comprehensive documentation
 
-## Quickstart
+## Quickstart (local)
 
 ```bash
-sudo apt update && sudo apt install -y python3.11 python3.11-venv libpq-dev
+cd /home/ankaref/Documents/PI_EMS-main
 python3.11 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+export PYTHONPATH=src
 python -m ems --config config.yaml
 ```
 
-The first launch initializes the SQLite database at `data/ems.sqlite`, starts simulated pollers for the
-sample devices, and serves the local API/UI at `http://127.0.0.1:8080`.
+- UI: http://127.0.0.1:8080/ui (Basic Auth: ems/ems)
+- Health: http://127.0.0.1:8080/health
+
+## Run in background
+```bash
+nohup python -m ems --config config.yaml > ems.out 2>&1 &
+```
+
+## Systemd (auto-start on boot)
+
+Create unit at `/etc/systemd/system/ems.service`:
+
+```ini
+[Unit]
+Description=GES Solar EMS Edge Agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ankaref
+Group=ankaref
+WorkingDirectory=/home/ankaref/Documents/PI_EMS-main
+Environment=PYTHONPATH=/home/ankaref/Documents/PI_EMS-main/src
+ExecStart=/home/ankaref/Documents/PI_EMS-main/.venv/bin/python -m ems --config /home/ankaref/Documents/PI_EMS-main/config.yaml
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable + start:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now ems
+sudo systemctl status ems
+```
+
+## Troubleshooting
+- Logs: `sudo journalctl -u ems -f`
+- Health: `curl -s http://127.0.0.1:8080/health`
+- Port busy: adjust `global.api.port` in `config.yaml` and restart the service.
 
 ### REST API Highlights
 - `GET /health` – consolidated component status and watchdog telemetry
