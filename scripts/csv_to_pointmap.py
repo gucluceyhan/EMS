@@ -1,219 +1,262 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-CSV to Point Map Generator
-Converts device register CSV files to EMS YAML point map files
+CSV to Point Map Generator (FULL)
+- Tüm geçerli satırları *atlamadan* point'e çevirir.
+- Delimiter ve encoding sniff eder.
+- Boş/eksik alanlara dayanıklı.
+- Register uzunluğunu doğru şekilde "register_count" olarak yazar.
+- Duplicated key'lerde otomatik unique isim üretir.
+- Unit dönüşümünü scale ile birlikte yapar (mA->A, W->kW, var->kVar).
+- Hata veren satırları _meta bölümünde raporlar (ilk 10 örnek dahil).
 
-Usage:
-    python csv_to_pointmap.py input.csv output.yaml
-    python csv_to_pointmap.py docs/RG20C_DECIMAL.csv pointmaps/rg20c_reactive_power.yaml
-
-CSV Format:
-    Register Başlangıç;Register Uznluk;Parametre;Birim;Scale;Veri Tipi;Açıklama (Türkçe);Paket
+Kullanım:
+    python csv_to_pointmap.py input.csv output.yaml [device_name]
 """
 
-import csv
-import sys
+from __future__ import annotations
 import os
 from pathlib import Path
+from typing import Dict, Any, Tuple
 import yaml
-from typing import Dict, List, Any, Optional
+import math
+import pandas as pd
+
+def sniff_delimiter_and_encoding(path: str) -> Tuple[str, str]:
+    encodings = ["utf-8", "iso-8859-9", "windows-1254", "latin-1"]
+    for enc in encodings:
+        try:
+            with open(path, "r", encoding=enc) as f:
+                sample = f.read(4096)
+            delimiter = ";" if sample.count(";") >= sample.count(",") else ","
+            return delimiter, enc
+        except UnicodeDecodeError:
+            continue
+    return ";", "latin-1"
 
 def clean_parameter_name(param: str) -> str:
-    """Clean parameter name to be valid YAML key"""
-    # Replace special characters
-    param = param.replace('∑', 'SUM_')
-    param = param.replace('Δ', 'DELTA_')
-    param = param.replace('φ', 'PHI_')
-    param = param.replace('θ', 'THETA_')
-    param = param.replace('α', 'ALPHA_')
-    param = param.replace('β', 'BETA_')
-    param = param.replace('γ', 'GAMMA_')
-    
-    # Remove invalid characters
-    param = ''.join(c if c.isalnum() or c in '_-' else '_' for c in param)
-    
-    # Ensure it starts with a letter
-    if param and param[0].isdigit():
-        param = 'REG_' + param
-        
-    return param or 'UNKNOWN'
+    subs = {"∑": "SUM_", "Δ": "DELTA_", "φ": "PHI_", "θ": "THETA_", "α": "ALPHA_", "β": "BETA_", "γ": "GAMMA_",
+            "ı":"i","İ":"I","ğ":"g","Ğ":"G","ş":"s","Ş":"S","ö":"o","Ö":"O","ü":"u","Ü":"U"}
+    for k, v in subs.items():
+        param = param.replace(k, v)
+    out = []
+    for c in param:
+        if c.isalnum() or c in "_-:.":
+            out.append(c)
+        else:
+            out.append("_")
+    key = "".join(out).strip("_")
+    if key and key[0].isdigit():
+        key = "REG_" + key
+    return key or "UNKNOWN"
 
-def convert_data_type(csv_type: str) -> str:
-    """Convert CSV data type to Point Map data type"""
-    type_mapping = {
-        'float': 'float32',
-        'int': 'int16',
-        'uint': 'uint16',
-        'long': 'int32',
-        'ulong': 'uint32',
-        'bool': 'boolean',
-        'bit': 'bitfield16'
-    }
-    
-    csv_type = csv_type.lower().strip()
-    return type_mapping.get(csv_type, 'float32')
-
-def convert_unit(csv_unit: str) -> str:
-    """Convert CSV unit to standard unit"""
-    unit_mapping = {
-        'mA': 'A',      # Convert mA to A with scale adjustment
-        'kW': 'kW',
-        'W': 'kW',      # Convert W to kW with scale adjustment
-        'kVar': 'kVar',
-        'var': 'kVar',  # Convert var to kVar with scale adjustment
-        'V': 'V',
-        'A': 'A',
-        'Hz': 'Hz',
-        '°C': '°C',
-        'C': '°C',
-        '%': '%',
-        '': 'none'
-    }
-    
-    csv_unit = csv_unit.strip()
-    return unit_mapping.get(csv_unit, csv_unit or 'none')
-
-def adjust_scale_for_unit_conversion(original_scale: float, csv_unit: str, target_unit: str) -> float:
-    """Adjust scale factor when converting units"""
-    conversions = {
-        ('mA', 'A'): 0.001,
-        ('W', 'kW'): 0.001,
-        ('var', 'kVar'): 0.001,
-    }
-    
-    conversion_factor = conversions.get((csv_unit.strip(), target_unit), 1.0)
-    return original_scale * conversion_factor
-
-def parse_csv_to_pointmap(csv_file: str, device_name: str = None) -> Dict[str, Any]:
-    """Parse CSV file and convert to point map structure"""
-    
-    if device_name is None:
-        device_name = Path(csv_file).stem
-    
-    pointmap = {
-        'device_info': {
-            'type': 'power_analyzer',
-            'protocol': 'modbus_tcp',
-            'description': f'{device_name} Power Analyzer/Reactive Power Relay',
-            'version': '1.0',
-            'author': 'CSV Import Tool',
-            'source_file': os.path.basename(csv_file)
-        },
-        'modbus_settings': {
-            'byte_order': 'big_endian',
-            'word_order': 'big_endian',
-            'unit_id': 1
-        },
-        'points': {}
-    }
-    
+def safe_float(v: Any, default: float = 0.0) -> float:
     try:
-        with open(csv_file, 'r', encoding='utf-8') as f:
-            # Try semicolon delimiter first
-            sample = f.read(1024)
-            f.seek(0)
-            
-            delimiter = ';' if sample.count(';') > sample.count(',') else ','
-            
-            reader = csv.DictReader(f, delimiter=delimiter)
-            
-            for row_num, row in enumerate(reader, start=2):
-                try:
-                    # Skip empty rows or rows without register address
-                    reg_start = row.get('Register Başlangıç', '').strip()
-                    if not reg_start or reg_start == '':
-                        continue
-                    
-                    param = row.get('Parametre', '').strip()
-                    if not param or param == '':
-                        continue
-                        
-                    # Parse register information
-                    reg_address = int(float(reg_start))
-                    reg_length = row.get('Register Uznluk', '2').strip()
-                    reg_length = int(float(reg_length)) if reg_length else 2
-                    
-                    # Parse other fields
-                    unit = row.get('Birim', '').strip()
-                    scale = row.get('Scale', '1.0').strip()
-                    scale = float(scale) if scale else 1.0
-                    
-                    data_type = row.get('Veri Tipi', 'float').strip()
-                    description = row.get('Açıklama (Türkçe)', param).strip()
-                    
-                    # Convert and clean values
-                    param_name = clean_parameter_name(param)
-                    target_unit = convert_unit(unit)
-                    adjusted_scale = adjust_scale_for_unit_conversion(scale, unit, target_unit)
-                    point_data_type = convert_data_type(data_type)
-                    
-                    # Create point definition
-                    point_def = {
-                        'address': reg_address,
-                        'function_code': 3,  # Holding registers
-                        'data_type': point_data_type,
-                        'byte_count': reg_length,
-                        'scale': adjusted_scale,
-                        'offset': 0,
-                        'unit': target_unit,
-                        'description': description,
-                        'read_only': True,
-                        'original_parameter': param,
-                        'original_unit': unit
-                    }
-                    
-                    # Add range validation for certain parameters
-                    if target_unit == 'V':
-                        point_def['min_value'] = 0
-                        point_def['max_value'] = 1000
-                    elif target_unit == 'A':
-                        point_def['min_value'] = 0
-                        point_def['max_value'] = 10000
-                    elif target_unit == 'Hz':
-                        point_def['min_value'] = 45.0
-                        point_def['max_value'] = 55.0
-                    elif target_unit == '%':
-                        point_def['min_value'] = 0
-                        point_def['max_value'] = 100
-                    
-                    pointmap['points'][param_name] = point_def
-                    
-                except (ValueError, KeyError) as e:
-                    print(f"Warning: Skipping row {row_num} due to error: {e}")
-                    print(f"Row data: {row}")
-                    continue
-                    
-    except UnicodeDecodeError:
-        # Try with different encoding
-        with open(csv_file, 'r', encoding='iso-8859-1') as f:
-            delimiter = ';' if sample.count(';') > sample.count(',') else ','
-            reader = csv.DictReader(f, delimiter=delimiter)
-            # ... same processing logic
-    
+        s = str(v).strip().replace(",", ".")
+        if s == "" or s.lower() == "nan":
+            return default
+        return float(s)
+    except Exception:
+        return default
+
+def safe_int(v: Any, default: int | None = 0) -> int | None:
+    try:
+        s = str(v).strip().replace(",", ".")
+        if s == "" or s.lower() == "nan":
+            return default
+        return int(float(s))
+    except Exception:
+        return default
+
+def convert_data_type(csv_type: str):
+    t = (csv_type or "").lower().strip()
+    if "bool" in t:
+        return ("boolean", 1)
+    if t in ("bit", "bitfield", "bitfield16"):
+        return ("bitfield16", 1)
+    if "uint32" in t or ("ulong" in t) or ("dword" in t) or ("u32" in t):
+        return ("uint32", 2)
+    if "int32" in t or ("long" in t) or ("i32" in t):
+        return ("int32", 2)
+    if "uint16" in t or ("ushort" in t) or ("u16" in t) or ("word" in t) or ("uint" in t):
+        return ("uint16", 1)
+    if "int16" in t or ("short" in t) or ("i16" in t) or ("int" in t):
+        return ("int16", 1)
+    if "float64" in t or "double" in t:
+        return ("float64", 4)
+    if "float" in t or "real" in t:
+        return ("float32", 2)
+    return ("float32", 2)
+
+def convert_unit_and_scale(csv_unit: str, scale: float):
+    unit_map = {
+        "ma": ("A", 0.001),
+        "w": ("kW", 0.001),
+        "var": ("kVar", 0.001),
+        "°c": ("°C", 1.0),
+        "c": ("°C", 1.0),
+        "": ("none", 1.0),
+    }
+    u = (csv_unit or "").strip()
+    key = u.lower()
+    if key in unit_map:
+        target, factor = unit_map[key]
+        return target, scale * factor
+    if u in ("kW", "kVar", "kVA", "V", "A", "Hz", "%", "kWh", "VA"):
+        return u, scale
+    return (u or "none", scale)
+
+def ensure_unique_key(base: str, existing: Dict[str, Any], suffix: str = "") -> str:
+    key = base if not suffix else f"{base}_{suffix}"
+    if key not in existing:
+        return key
+    i = 2
+    while True:
+        candidate = f"{key}_{i}"
+        if candidate not in existing:
+            return candidate
+        i += 1
+
+def build_point(row: Dict[str, Any], points: Dict[str, Any]):
+    reg_start = row.get("Register Başlangıç", "")
+    reg_len = row.get("Register Uznluk", "")
+    param = row.get("Parametre", "") or ""
+    unit = row.get("Birim", "")
+    scale = row.get("Scale", "")
+    csv_type = row.get("Veri Tipi", "")
+    desc = row.get("Açıklama (Türkçe)", "") or param
+    paket = row.get("Paket", "")
+
+    if str(reg_start).strip() == "":
+        raise ValueError("Boş 'Register Başlangıç'")
+    address = safe_int(reg_start, None)
+    if address is None:
+        raise ValueError(f"Geçersiz address: {reg_start}")
+
+    dtype, default_regs = convert_data_type(str(csv_type))
+    rlen = safe_int(reg_len, default_regs)
+    if rlen is None or rlen <= 0:
+        rlen = default_regs
+
+    sc = safe_float(scale, 1.0)
+    tgt_unit, sc2 = convert_unit_and_scale(unit, sc)
+
+    base_key = clean_parameter_name(param) or f"REG_{address}"
+    key = ensure_unique_key(base_key, points)
+
+    point = {
+        "address": address,
+        "function_code": 3,
+        "register_count": rlen,
+        "data_type": dtype,
+        "scale": sc2,
+        "offset": 0,
+        "unit": tgt_unit,
+        "description": str(desc).strip(),
+        "read_only": True,
+        "csv_original": {
+            "parameter": param,
+            "unit": unit,
+            "scale": scale,
+            "type": csv_type,
+            "register_length": reg_len,
+            "paket": paket,
+        },
+    }
+
+    u = point["unit"]
+    if u == "V":
+        point.update({"min_value": 0, "max_value": 1000})
+    elif u == "A":
+        point.update({"min_value": 0, "max_value": 10000})
+    elif u == "Hz":
+        point.update({"min_value": 45.0, "max_value": 65.0})
+    elif u == "%":
+        point.update({"min_value": 0, "max_value": 100})
+
+    return key, point
+
+def load_dataframe(csv_path: str) -> pd.DataFrame:
+    delim, enc = sniff_delimiter_and_encoding(csv_path)
+    try:
+        df = pd.read_csv(csv_path, sep=delim, encoding=enc, dtype=str, keep_default_na=False)
+    except Exception:
+        for enc2 in ("utf-8", "iso-8859-9", "windows-1254", "latin-1"):
+            try:
+                df = pd.read_csv(csv_path, sep=";", encoding=enc2, dtype=str, keep_default_na=False)
+                break
+            except Exception:
+                continue
+        else:
+            raise
+    df.columns = [c.strip() for c in df.columns]
+    df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
+    return df
+
+def parse_csv_to_pointmap(csv_path: str, device_name: str | None = None) -> Dict[str, Any]:
+    if device_name is None:
+        device_name = Path(csv_path).stem
+
+    df = load_dataframe(csv_path)
+    expected = ["Register Başlangıç", "Register Uznluk", "Parametre", "Birim", "Scale", "Veri Tipi", "Açıklama (Türkçe)", "Paket"]
+    for col in expected:
+        if col not in df.columns:
+            df[col] = ""
+
+    pointmap: Dict[str, Any] = {
+        "device_info": {
+            "type": "power_analyzer",
+            "protocol": "modbus_tcp",
+            "description": f"{device_name} Power Analyzer/Reactive Power Relay",
+            "version": "1.0",
+            "author": "CSV Import Tool (full)",
+            "source_file": os.path.basename(csv_path),
+        },
+        "modbus_settings": {
+            "byte_order": "big_endian",
+            "word_order": "big_endian",
+            "unit_id": 1,
+        },
+        "points": {},
+    }
+
+    total = 0
+    errors = 0
+    err_rows = []
+
+    for idx, row in df.iterrows():
+        total += 1
+        try:
+            key, point = build_point(row.to_dict(), pointmap["points"])
+            pointmap["points"][key] = point
+        except Exception as e:
+            errors += 1
+            err_rows.append({"row_index": int(idx), "error": str(e), "row": row.to_dict()})
+
+    pointmap["_meta"] = {
+        "total_rows": total,
+        "converted_points": len(pointmap["points"]),
+        "errors": errors,
+    }
+    if err_rows:
+        pointmap["_meta"]["error_samples"] = err_rows[:10]
     return pointmap
 
+def float_representer(dumper, value):
+    if math.isfinite(value) and float(int(value)) == float(value):
+        return dumper.represent_int(int(value))
+    return dumper.represent_float(value)
+
+yaml.add_representer(float, float_representer)
+
 def write_pointmap_yaml(pointmap: Dict[str, Any], output_file: str) -> None:
-    """Write point map to YAML file"""
-    
-    # Custom YAML representer for better formatting
-    def float_representer(dumper, value):
-        if value == int(value):
-            return dumper.represent_int(int(value))
-        else:
-            return dumper.represent_float(value)
-    
-    yaml.add_representer(float, float_representer)
-    
-    with open(output_file, 'w', encoding='utf-8') as f:
-        # Write header comment
+    os.makedirs(os.path.dirname(output_file) or ".", exist_ok=True)
+    with open(output_file, "w", encoding="utf-8") as f:
         f.write(f"# Point Map for {pointmap['device_info']['description']}\n")
         f.write(f"# Generated from: {pointmap['device_info']['source_file']}\n")
-        f.write(f"# Generated by: EMS CSV Import Tool\n")
+        f.write(f"# Generated by: CSV Import Tool (full)\n")
         f.write(f"# Total points: {len(pointmap['points'])}\n\n")
-        
-        # Write YAML content
-        yaml.dump(pointmap, f, default_flow_style=False, allow_unicode=True, 
-                 sort_keys=False, indent=2, width=120)
+        yaml.dump(pointmap, f, default_flow_style=False, allow_unicode=True, sort_keys=False, indent=2, width=120)
 
 def generate_profile_js_entry(device_name: str, pointmap_file: str, pointmap: Dict[str, Any]) -> str:
     """Generate JavaScript profile entry for profiles.js"""
@@ -319,6 +362,7 @@ def generate_profile_js_entry(device_name: str, pointmap_file: str, pointmap: Di
     return js_entry
 
 def main():
+    import sys
     if len(sys.argv) < 2:
         print("Usage: python csv_to_pointmap.py input.csv [output.yaml] [device_name]")
         print("Example: python csv_to_pointmap.py docs/RG20C_DECIMAL.csv pointmaps/rg20c.yaml RG20C")
@@ -348,9 +392,6 @@ def main():
         # Parse CSV to point map
         pointmap = parse_csv_to_pointmap(input_csv, device_name)
         
-        # Create output directory if needed
-        os.makedirs(os.path.dirname(output_yaml), exist_ok=True)
-        
         # Write YAML file
         write_pointmap_yaml(pointmap, output_yaml)
         
@@ -361,6 +402,11 @@ def main():
         print(f"   Input:  {input_csv}")
         print(f"   Output: {output_yaml}")
         print(f"   Points: {len(pointmap['points'])} registers")
+        
+        if pointmap.get('_meta', {}).get('errors', 0) > 0:
+            print(f"⚠️  Warnings: {pointmap['_meta']['errors']} rows skipped due to missing/invalid data")
+            print(f"   Total rows processed: {pointmap['_meta']['total_rows']}")
+            print(f"   Successfully converted: {pointmap['_meta']['converted_points']}")
         
         print(f"\\n📝 To add this to profiles.js, add this entry to driverProfiles array:")
         print(f"{js_entry}")
