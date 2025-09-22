@@ -35,8 +35,14 @@
           <label class="flex items-center gap-2"><input type="checkbox" /> Webhook</label>
           <label class="block mt-3">Template ({{device}}, {{value}}, {{threshold}})<textarea rows="3" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" placeholder="ALARM: {{device}} {{metric}} = {{value}} {{unit}} (threshold: {{threshold}})"></textarea></label>
         </div>
+        <button id="btnSaveChannels" class="mt-3 px-3 py-2 rounded-md bg-blue-600 text-white">Kaydet</button>
       </div>
     </div>
+    <div class="mt-4">
+      <button id="btnSaveTemplates" class="px-3 py-2 rounded-md bg-brand-600 text-white">Tüm Şablonları Kaydet</button>
+      <div id="saveResult" class="mt-2 text-sm hidden"></div>
+    </div>
   </div>
+  <script src="/static/assets/js/settings.js"></script>
 </body>
 </html>

@@ -23,7 +23,18 @@
         <div class="text-2xl font-semibold">0.2</div>
       </div>
     </div>
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 mt-6">
+      <h2 class="font-semibold mb-2">SLA Thresholds</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <label class="text-sm">Uptime Min (%)<input type="number" value="99.5" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+        <label class="text-sm">Latency Max (ms)<input type="number" value="100" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+        <label class="text-sm">Packet Loss Max (%)<input type="number" value="1.0" step="0.1" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+      </div>
+      <button id="btnSaveHealth" class="mt-3 px-3 py-2 rounded-md bg-brand-600 text-white">Kaydet</button>
+      <div id="saveResult" class="mt-2 text-sm hidden"></div>
+    </div>
   </div>
+  <script src="/static/assets/js/settings.js"></script>
 </body>
 </html>
 

@@ -21,8 +21,14 @@
         <label class="text-sm block">Map Default Zoom<input type="number" value="6" min="1" max="18" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
         <label class="text-sm block mt-2">Table Pagination<select class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>25</option><option>50</option><option>100</option></select></label>
         <label class="text-sm block mt-2">Default Export<select class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>PDF</option><option>Excel</option><option>CSV</option></select></label>
+        <button id="btnSaveNav" class="mt-3 px-3 py-2 rounded-md bg-blue-600 text-white">Kaydet</button>
       </div>
     </div>
+    <div class="mt-4">
+      <button id="btnSaveUIPrefs" class="px-3 py-2 rounded-md bg-brand-600 text-white">Tüm UI Tercihlerini Kaydet</button>
+      <div id="saveResult" class="mt-2 text-sm hidden"></div>
+    </div>
   </div>
+  <script src="/static/assets/js/settings.js"></script>
 </body>
 </html>

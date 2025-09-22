@@ -14,14 +14,19 @@
         <h2 class="font-semibold mb-2">PT/CT Ratios</h2>
         <label class="text-sm block">PT Ratio<input placeholder="400:1" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
         <label class="text-sm block mt-2">CT Ratio<input placeholder="1000:5" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
-        <button class="mt-3 px-3 py-2 rounded-md bg-blue-600 text-white">Apply & Test</button>
+        <button id="btnApplyPT" class="mt-3 px-3 py-2 rounded-md bg-blue-600 text-white">Apply & Test</button>
       </div>
       <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
         <h2 class="font-semibold mb-2">Meter Direction Fix</h2>
         <label class="text-sm block">Import/Export Direction<select class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>Normal</option><option>Reversed</option></select></label>
-        <button class="mt-3 px-3 py-2 rounded-md bg-blue-600 text-white">Calibrate</button>
+        <button id="btnCalibrate" class="mt-3 px-3 py-2 rounded-md bg-blue-600 text-white">Calibrate</button>
       </div>
     </div>
+    <div class="mt-4">
+      <button id="btnSaveCalibration" class="px-3 py-2 rounded-md bg-brand-600 text-white">Tüm Kalibrasyonları Kaydet</button>
+      <div id="saveResult" class="mt-2 text-sm hidden"></div>
+    </div>
   </div>
+  <script src="/static/assets/js/settings.js"></script>
 </body>
 </html>
