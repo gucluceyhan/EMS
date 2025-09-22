@@ -518,13 +518,22 @@ function saveProfile() {
   const profile = window.driverProfiles.find(p => p.id === selectedProfileId);
   if (!profile) return;
   
+  // Get form values (with debug logging)
+  const protocolElement = document.getElementById('protocol');
+  const newProtocol = protocolElement.value;
+  
+  console.log('Saving profile:', selectedProfileId);
+  console.log('Old protocol:', profile.protocol);
+  console.log('New protocol from form:', newProtocol);
+  console.log('Protocol element:', protocolElement);
+  
   // Update profile with form values
   profile.name = document.getElementById('profileName').value;
   profile.pointMapFile = document.getElementById('pointMapFile').value;
   profile.pollInterval = parseInt(document.getElementById('pollInterval').value);
   profile.timeout = parseInt(document.getElementById('timeout').value);
   profile.retries = parseInt(document.getElementById('retries').value);
-  profile.protocol = document.getElementById('protocol').value;
+  profile.protocol = newProtocol;
   
   // Update control capabilities
   profile.controlCapabilities = {
@@ -536,12 +545,21 @@ function saveProfile() {
     frequency_control: document.getElementById('cap_frequency').checked
   };
   
+  // Debug: Check final profile state
+  console.log('Profile after update:', profile);
+  console.log('All profiles:', window.driverProfiles);
+  
+  // Update original data to reflect the changes
+  originalProfileData = JSON.parse(JSON.stringify(profile));
+  
   // Update title and list
   document.getElementById('selectedProfileTitle').textContent = profile.name;
   renderProfilesList();
-  selectProfile(selectedProfileId); // Re-select to update highlighting
   
-  showSuccess('Profile saved successfully');
+  // Update the form display without re-selecting (which would overwrite our changes)
+  showProfileDetails(profile);
+  
+  showSuccess(`Profile saved successfully! Protocol: ${profile.protocol}`);
 }
 
 function testProfile() {
