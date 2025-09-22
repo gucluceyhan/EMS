@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <title>Settings – Kimlik & Güvenlik</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+  <div class="max-w-7xl mx-auto p-4 space-y-6">
+    <h1 class="text-xl font-semibold">Kimlik & Güvenlik</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+        <h2 class="font-semibold mb-2">SSO</h2>
+        <label class="text-sm">Protokol<select class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2"><option>OIDC</option><option>SAML</option></select></label>
+        <label class="text-sm mt-2 block">Issuer/Metadata URL<input class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+        <label class="text-sm mt-2 block">Client ID<input class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+        <label class="text-sm mt-2 block">Client Secret (vault ref)<input placeholder="vault:secret/ems#oidc" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+      </div>
+      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+        <h2 class="font-semibold mb-2">MFA & Oturum</h2>
+        <div class="space-y-2 text-sm">
+          <label class="flex items-center gap-2"><input type="checkbox" /> TOTP</label>
+          <label class="flex items-center gap-2"><input type="checkbox" /> SMS</label>
+          <label class="flex items-center gap-2"><input type="checkbox" /> WebAuthn</label>
+          <label class="block">Idle timeout (dk)<input type="number" value="30" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" /></label>
+          <label class="block">IP Allowlist (CIDR)<textarea class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" rows="3" placeholder="192.168.1.0/24\n10.0.0.0/8"></textarea></label>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
