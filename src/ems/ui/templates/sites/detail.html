@@ -545,6 +545,9 @@ function updateFieldsFromProfile(profile) {
   protocolSelect.value = profile.protocol || 'modbus_tcp';
   protocolSelect.disabled = false;
   
+  // Update connection field based on protocol
+  updateConnectionFieldForProtocol(profile.protocol);
+  
   // Update poll interval
   const pollIntervalInput = document.getElementById('devicePollInterval');
   pollIntervalInput.value = profile.pollInterval || 60;
@@ -643,6 +646,37 @@ function resetProfileFields() {
   document.getElementById('pointMapPreview').classList.add('hidden');
 }
 
+function updateConnectionFieldForProtocol(protocol) {
+  const connectionInput = document.getElementById('deviceConnection');
+  const connectionLabel = connectionInput.previousElementSibling;
+  
+  switch(protocol) {
+    case 'modbus_tcp':
+      connectionInput.placeholder = 'e.g., 192.168.1.100:502';
+      connectionLabel.innerHTML = '<span class="text-red-500">*</span> Connection (IP:Port)';
+      break;
+    case 'modbus_rtu':
+      connectionInput.placeholder = 'e.g., /dev/ttyUSB0, COM1';
+      connectionLabel.innerHTML = '<span class="text-red-500">*</span> Connection (Serial Port)';
+      break;
+    case 'mqtt':
+      connectionInput.placeholder = 'e.g., mqtt://broker.example.com:1883';
+      connectionLabel.innerHTML = '<span class="text-red-500">*</span> Connection (MQTT Broker)';
+      break;
+    case 'serial':
+      connectionInput.placeholder = 'e.g., /dev/ttyUSB0:9600:8:N:1';
+      connectionLabel.innerHTML = '<span class="text-red-500">*</span> Connection (Serial Config)';
+      break;
+    case 'can':
+      connectionInput.placeholder = 'e.g., can0, vcan0';
+      connectionLabel.innerHTML = '<span class="text-red-500">*</span> Connection (CAN Interface)';
+      break;
+    default:
+      connectionInput.placeholder = 'e.g., 192.168.1.100:502';
+      connectionLabel.innerHTML = '<span class="text-red-500">*</span> Connection';
+  }
+}
+
 function testDeviceConnection() {
   alert('Testing connection... (This would perform actual device discovery in production)');
 }
@@ -725,11 +759,42 @@ function validateDeviceForm() {
     errors.push('Connection is required (e.g., 192.168.1.100:502)');
   }
   
-  // Validate connection format for Modbus TCP
-  if (deviceConnection && selectedProfile?.protocol === 'modbus_tcp') {
-    const tcpPattern = /^(\d{1,3}\.){3}\d{1,3}:\d{1,5}$/;
-    if (!tcpPattern.test(deviceConnection)) {
-      errors.push('Connection must be in format IP:Port (e.g., 192.168.1.100:502)');
+  // Validate connection format based on protocol
+  if (deviceConnection && selectedProfile?.protocol) {
+    const protocol = selectedProfile.protocol;
+    let isValidConnection = true;
+    let expectedFormat = '';
+    
+    switch(protocol) {
+      case 'modbus_tcp':
+        const tcpPattern = /^(\d{1,3}\.){3}\d{1,3}:\d{1,5}$/;
+        isValidConnection = tcpPattern.test(deviceConnection);
+        expectedFormat = 'IP:Port (e.g., 192.168.1.100:502)';
+        break;
+      case 'modbus_rtu':
+        const rtuPattern = /^(\/dev\/tty[A-Z0-9]+|COM\d+)$/i;
+        isValidConnection = rtuPattern.test(deviceConnection);
+        expectedFormat = 'Serial Port (e.g., /dev/ttyUSB0, COM1)';
+        break;
+      case 'mqtt':
+        const mqttPattern = /^mqtts?:\/\/[^\/\s]+:\d+$/;
+        isValidConnection = mqttPattern.test(deviceConnection);
+        expectedFormat = 'MQTT Broker (e.g., mqtt://broker.example.com:1883)';
+        break;
+      case 'serial':
+        const serialPattern = /^(\/dev\/tty[A-Z0-9]+|COM\d+):\d+:\d:[NE]:\d$/i;
+        isValidConnection = serialPattern.test(deviceConnection);
+        expectedFormat = 'Serial Config (e.g., /dev/ttyUSB0:9600:8:N:1)';
+        break;
+      case 'can':
+        const canPattern = /^[a-zA-Z]\w+\d*$/;
+        isValidConnection = canPattern.test(deviceConnection);
+        expectedFormat = 'CAN Interface (e.g., can0, vcan0)';
+        break;
+    }
+    
+    if (!isValidConnection) {
+      errors.push(`Connection must be in format: ${expectedFormat}`);
     }
   }
   

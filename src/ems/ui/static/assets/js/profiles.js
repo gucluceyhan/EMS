@@ -321,6 +321,36 @@ window.driverProfiles = [
       '# TOTAL: 348 REGISTERS with voltage, current, power,',
       '# harmonic analysis, reactive power control stages'
     ]
+  },
+  {
+    id: 'generic-modbus-rtu',
+    name: 'Generic Modbus RTU Device',
+    description: 'Generic Modbus RTU device over serial connection',
+    pointMapFile: 'pointmaps/generic_modbus_brandA.yaml',
+    pollInterval: 30,
+    timeout: 5000,
+    retries: 3,
+    protocol: 'modbus_rtu',
+    controlCapabilities: {
+      set_active_power_limit: false,
+      open_breaker: false,
+      close_breaker: false,
+      emergency_stop: false,
+      reactive_power_control: false,
+      frequency_control: false
+    },
+    pointMapPreview: [
+      '# GENERIC MODBUS RTU REGISTERS',
+      'voltage_l1: fc=3, address=0, type=uint16, scale=0.1, unit=V',
+      'voltage_l2: fc=3, address=1, type=uint16, scale=0.1, unit=V',
+      'voltage_l3: fc=3, address=2, type=uint16, scale=0.1, unit=V',
+      'current_l1: fc=3, address=10, type=uint16, scale=0.01, unit=A',
+      'current_l2: fc=3, address=11, type=uint16, scale=0.01, unit=A',
+      'current_l3: fc=3, address=12, type=uint16, scale=0.01, unit=A',
+      'power_total: fc=3, address=20, type=uint32, scale=0.001, unit=kW',
+      'energy_total: fc=3, address=30, type=uint32, scale=0.001, unit=kWh',
+      '# Serial: 9600 baud, 8 data bits, no parity, 1 stop bit'
+    ]
   }
 ];
 
