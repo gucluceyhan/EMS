@@ -1,0 +1,529 @@
+{% extends "base.html" %}
+
+{% block title %}Battery Control - GES Solar EMS{% endblock %}
+
+{% block page_subtitle %}Battery Energy Storage System Control{% endblock %}
+
+{% block head_extra %}
+<!-- Chart.js for battery monitoring -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+  <!-- Control Header with Safety -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <div class="flex items-center justify-between mb-3">
+      <h1 class="text-xl font-semibold">Battery Energy Storage System Control</h1>
+      <div class="flex items-center gap-3">
+        <div class="text-sm">
+          <span class="text-gray-500">Control Status:</span>
+          <span id="controlStatus" class="inline-flex px-2 py-0.5 rounded-full text-xs bg-red-100 text-red-800">DISABLED (Dry Run)</span>
+        </div>
+        <button id="btnEmergencyStop" class="px-4 py-2 rounded-md bg-red-600 text-white font-semibold">EMERGENCY STOP</button>
+      </div>
+    </div>
+    <div class="text-sm text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-md">
+      ⚠️ Safety Notice: All control commands require authentication and are logged. Dry-run mode is currently enabled.
+    </div>
+  </div>
+
+  <!-- Battery Status Overview -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
+      <div class="text-2xl mb-2 text-green-500">🔋</div>
+      <div class="text-sm text-gray-500">State of Charge</div>
+      <div id="batterySOC" class="text-3xl font-semibold text-green-600">72%</div>
+      <div class="text-xs text-gray-500 mt-1">Target: 20-95%</div>
+    </div>
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
+      <div class="text-2xl mb-2 text-blue-500">💚</div>
+      <div class="text-sm text-gray-500">State of Health</div>
+      <div id="batterySOH" class="text-3xl font-semibold text-blue-600">96%</div>
+      <div class="text-xs text-gray-500 mt-1">Excellent condition</div>
+    </div>
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
+      <div class="text-2xl mb-2 text-purple-500">⚡</div>
+      <div class="text-sm text-gray-500">Active Power</div>
+      <div id="batteryPower" class="text-3xl font-semibold text-purple-600">+2.5 MW</div>
+      <div class="text-xs text-gray-500 mt-1">Charging</div>
+    </div>
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
+      <div class="text-2xl mb-2 text-orange-500">🌡️</div>
+      <div class="text-sm text-gray-500">Temperature</div>
+      <div id="batteryTemp" class="text-3xl font-semibold text-orange-600">25°C</div>
+      <div class="text-xs text-gray-500 mt-1">Optimal range</div>
+    </div>
+  </div>
+
+  <!-- Control Interface -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Battery Control Commands -->
+    <div class="lg:col-span-2 bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+      <h3 class="font-semibold mb-4">Battery Control Commands</h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Charge/Discharge Control -->
+        <div class="space-y-4">
+          <h4 class="font-medium">Power Control</h4>
+          <div class="space-y-3">
+            <label class="text-sm">Power Setpoint (MW)
+              <div class="flex items-center gap-2">
+                <input id="powerSetpoint" type="range" min="-10" max="10" value="0" step="0.1" class="flex-1" />
+                <span id="powerValue" class="text-sm font-mono w-16">0.0 MW</span>
+              </div>
+            </label>
+            <div class="flex gap-2">
+              <button id="btnCharge" class="flex-1 px-3 py-2 rounded-md bg-green-600 text-white">Charge</button>
+              <button id="btnDischarge" class="flex-1 px-3 py-2 rounded-md bg-blue-600 text-white">Discharge</button>
+              <button id="btnStandby" class="flex-1 px-3 py-2 rounded-md bg-gray-600 text-white">Standby</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SOC Management -->
+        <div class="space-y-4">
+          <h4 class="font-medium">SOC Management</h4>
+          <div class="space-y-3">
+            <label class="text-sm">Target SOC (%)
+              <div class="flex items-center gap-2">
+                <input id="targetSOC" type="range" min="20" max="95" value="80" class="flex-1" />
+                <span id="socValue" class="text-sm font-mono w-12">80%</span>
+              </div>
+            </label>
+            <label class="text-sm">Charge Rate Limit (C)
+              <select id="chargeRate" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+                <option value="0.2">0.2C (Conservative)</option>
+                <option value="0.5" selected>0.5C (Standard)</option>
+                <option value="1.0">1.0C (Fast)</option>
+              </select>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Advanced Controls -->
+      <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-800">
+        <h4 class="font-medium mb-3">Advanced Controls</h4>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button id="btnCellBalance" class="px-4 py-3 rounded-md border border-gray-200 dark:border-gray-700 text-center hover:bg-gray-50 dark:hover:bg-gray-900">
+            <div class="text-lg mb-1">⚖️</div>
+            <div class="text-sm font-medium">Cell Balancing</div>
+          </button>
+          <button id="btnBatteryReset" class="px-4 py-3 rounded-md border border-gray-200 dark:border-gray-700 text-center hover:bg-gray-50 dark:hover:bg-gray-900">
+            <div class="text-lg mb-1">🔄</div>
+            <div class="text-sm font-medium">Reset BMS</div>
+          </button>
+          <button id="btnCalibration" class="px-4 py-3 rounded-md border border-gray-200 dark:border-gray-700 text-center hover:bg-gray-50 dark:hover:bg-gray-900">
+            <div class="text-lg mb-1">📐</div>
+            <div class="text-sm font-medium">SOC Calibration</div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Battery Safety & Limits -->
+    <div class="space-y-4">
+      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+        <h4 class="font-semibold mb-3">Safety Limits</h4>
+        <div class="space-y-3 text-sm">
+          <div class="flex justify-between">
+            <span>Min SOC:</span>
+            <span class="font-medium">20%</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Max SOC:</span>
+            <span class="font-medium">95%</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Max Charge Current:</span>
+            <span class="font-medium">400 A</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Max Discharge Current:</span>
+            <span class="font-medium">500 A</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Operating Temp Range:</span>
+            <span class="font-medium">0-45°C</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+        <h4 class="font-semibold mb-3">System Status</h4>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span>Contactors:</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Closed</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Isolation:</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">OK (>1MΩ)</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Cell Balance:</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Balanced</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Cooling:</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Active</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Battery Banks Overview -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl">
+    <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+      <h3 class="font-semibold">Battery Banks Status</h3>
+      <div class="space-x-2">
+        <button id="btnRefreshBanks" class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm">Refresh</button>
+        <button id="btnSelectAll" class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm">Select All</button>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-800 text-white uppercase tracking-wide text-xs">
+          <tr>
+            <th class="px-3 py-2 text-left">
+              <input type="checkbox" id="selectAllBanks" />
+            </th>
+            <th class="px-3 py-2 text-left">Bank ID</th>
+            <th class="px-3 py-2 text-left">SOC</th>
+            <th class="px-3 py-2 text-left">SOH</th>
+            <th class="px-3 py-2 text-left">Voltage</th>
+            <th class="px-3 py-2 text-left">Current</th>
+            <th class="px-3 py-2 text-left">Power</th>
+            <th class="px-3 py-2 text-left">Temp</th>
+            <th class="px-3 py-2 text-left">Status</th>
+            <th class="px-3 py-2 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="batteryBanksBody">
+          <tr class="border-b border-gray-200 dark:border-gray-800">
+            <td class="px-3 py-2"><input type="checkbox" /></td>
+            <td class="px-3 py-2 font-medium">sincan-bms-bank-01</td>
+            <td class="px-3 py-2">72%</td>
+            <td class="px-3 py-2">96%</td>
+            <td class="px-3 py-2">648 V</td>
+            <td class="px-3 py-2">125 A</td>
+            <td class="px-3 py-2">+81 kW</td>
+            <td class="px-3 py-2">24°C</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Charging</span></td>
+            <td class="px-3 py-2">
+              <button onclick="controlBank('sincan-bms-bank-01')" class="px-2 py-1 text-xs rounded-md border border-gray-200 dark:border-gray-700">Control</button>
+            </td>
+          </tr>
+          <tr class="border-b border-gray-200 dark:border-gray-800">
+            <td class="px-3 py-2"><input type="checkbox" /></td>
+            <td class="px-3 py-2 font-medium">erdemli-bms-bank-01</td>
+            <td class="px-3 py-2">68%</td>
+            <td class="px-3 py-2">94%</td>
+            <td class="px-3 py-2">652 V</td>
+            <td class="px-3 py-2">-95 A</td>
+            <td class="px-3 py-2">-62 kW</td>
+            <td class="px-3 py-2">26°C</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-800">Discharging</span></td>
+            <td class="px-3 py-2">
+              <button onclick="controlBank('erdemli-bms-bank-01')" class="px-2 py-1 text-xs rounded-md border border-gray-200 dark:border-gray-700">Control</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Battery Analytics -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+      <h3 class="font-semibold mb-2">SOC Trend (24 Hours)</h3>
+      <canvas id="socChart" height="120"></canvas>
+    </div>
+    
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+      <h3 class="font-semibold mb-2">Power Flow (24 Hours)</h3>
+      <canvas id="powerChart" height="120"></canvas>
+    </div>
+  </div>
+
+  <!-- Energy Arbitrage Strategy -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <h3 class="font-semibold mb-4">Energy Arbitrage Strategy</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div>
+        <h4 class="font-medium mb-2">Market Signals</h4>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span>Current Price:</span>
+            <span class="font-medium">₺342.50/MWh</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Next Hour:</span>
+            <span class="font-medium text-red-600">₺458.75/MWh</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Peak Today:</span>
+            <span class="font-medium">₺612.30/MWh</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Strategy:</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Charge Now</span>
+          </div>
+        </div>
+      </div>
+      
+      <div>
+        <h4 class="font-medium mb-2">Arbitrage Settings</h4>
+        <div class="space-y-3">
+          <label class="text-sm">Strategy
+            <select id="arbitrageStrategy" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+              <option>Conservative</option>
+              <option selected>Moderate</option>
+              <option>Aggressive</option>
+              <option>Manual</option>
+            </select>
+          </label>
+          <label class="text-sm">Profit Threshold (₺/MWh)
+            <input id="profitThreshold" value="50" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+          </label>
+          <label class="flex items-center gap-2 text-sm">
+            <input id="enableArbitrage" type="checkbox" checked />
+            Enable Auto Arbitrage
+          </label>
+        </div>
+      </div>
+      
+      <div>
+        <h4 class="font-medium mb-2">Today's Performance</h4>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span>Energy Traded:</span>
+            <span class="font-medium">45.2 MWh</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Cycles Count:</span>
+            <span class="font-medium">1.2</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Profit:</span>
+            <span class="font-medium text-green-600">₺2,845</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Efficiency:</span>
+            <span class="font-medium">94.2%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Battery Control Modal -->
+<div id="batteryControlModal" class="fixed inset-0 hidden flex items-center justify-center bg-black/50 z-50">
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl w-full max-w-md p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h4 id="modalBankTitle" class="font-semibold">Battery Bank Control</h4>
+      <button id="modalClose" class="text-gray-500 hover:text-gray-700">✕</button>
+    </div>
+    
+    <div class="space-y-4">
+      <div class="grid grid-cols-2 gap-3 text-sm">
+        <div>Current SOC: <span id="modalSOC" class="font-medium">72%</span></div>
+        <div>Current Power: <span id="modalPower" class="font-medium">+81 kW</span></div>
+        <div>Voltage: <span id="modalVoltage" class="font-medium">648 V</span></div>
+        <div>Current: <span id="modalCurrent" class="font-medium">125 A</span></div>
+      </div>
+      
+      <div>
+        <label class="text-sm">Command Type</label>
+        <select id="modalCommand" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+          <option>Set Power</option>
+          <option>Set SOC Target</option>
+          <option>Emergency Stop</option>
+          <option>Reset Faults</option>
+        </select>
+      </div>
+      
+      <div>
+        <label class="text-sm">Value</label>
+        <input id="modalValue" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+      </div>
+      
+      <div class="text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 p-2 rounded">
+        🔒 This command will be executed in DRY RUN mode only
+      </div>
+    </div>
+    
+    <div class="flex items-center justify-end gap-2 mt-6">
+      <button id="modalCancel" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Cancel</button>
+      <button id="modalExecute" class="px-3 py-2 rounded-md bg-brand-600 text-white">Execute</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let batteryCharts = {};
+  
+  document.addEventListener('DOMContentLoaded', () => {
+    initBatteryControls();
+    initBatteryCharts();
+    startBatteryDataRefresh();
+  });
+  
+  function initBatteryControls() {
+    // Power setpoint slider
+    const powerSlider = document.getElementById('powerSetpoint');
+    const powerValue = document.getElementById('powerValue');
+    powerSlider.addEventListener('input', (e) => {
+      const value = parseFloat(e.target.value);
+      powerValue.textContent = `${value.toFixed(1)} MW`;
+    });
+    
+    // SOC target slider
+    const socSlider = document.getElementById('targetSOC');
+    const socValue = document.getElementById('socValue');
+    socSlider.addEventListener('input', (e) => {
+      socValue.textContent = `${e.target.value}%`;
+    });
+    
+    // Control buttons
+    document.getElementById('btnCharge').addEventListener('click', () => executeBatteryCommand('charge'));
+    document.getElementById('btnDischarge').addEventListener('click', () => executeBatteryCommand('discharge'));
+    document.getElementById('btnStandby').addEventListener('click', () => executeBatteryCommand('standby'));
+    
+    // Advanced controls
+    document.getElementById('btnCellBalance').addEventListener('click', () => executeBatteryCommand('cell_balance'));
+    document.getElementById('btnBatteryReset').addEventListener('click', () => executeBatteryCommand('reset'));
+    document.getElementById('btnCalibration').addEventListener('click', () => executeBatteryCommand('calibrate'));
+    
+    // Emergency stop
+    document.getElementById('btnEmergencyStop').addEventListener('click', emergencyStop);
+    
+    // Modal controls
+    document.getElementById('modalClose').addEventListener('click', closeBatteryModal);
+    document.getElementById('modalCancel').addEventListener('click', closeBatteryModal);
+    document.getElementById('modalExecute').addEventListener('click', executeBankCommand);
+  }
+  
+  function initBatteryCharts() {
+    // SOC Trend Chart
+    const socCtx = document.getElementById('socChart');
+    batteryCharts.soc = new Chart(socCtx, {
+      type: 'line',
+      data: {
+        labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+        datasets: [{
+          label: 'SOC (%)',
+          data: Array.from({length: 24}, () => 60 + Math.random() * 30),
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: false, min: 0, max: 100 }
+        }
+      }
+    });
+    
+    // Power Flow Chart
+    const powerCtx = document.getElementById('powerChart');
+    batteryCharts.power = new Chart(powerCtx, {
+      type: 'line',
+      data: {
+        labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+        datasets: [{
+          label: 'Battery Power (MW)',
+          data: Array.from({length: 24}, () => (Math.random() - 0.5) * 10),
+          borderColor: '#8b5cf6',
+          backgroundColor: function(context) {
+            return context.parsed.y >= 0 ? 'rgba(34, 197, 94, 0.2)' : 'rgba(59, 130, 246, 0.2)';
+          },
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  }
+  
+  function executeBatteryCommand(command) {
+    if (!confirm(`Execute battery command: ${command}?`)) return;
+    
+    const payload = {
+      command: command,
+      value: document.getElementById('powerSetpoint').value,
+      target_soc: document.getElementById('targetSOC').value,
+      dry_run: true
+    };
+    
+    console.log('Battery command:', payload);
+    showNotification(`Battery command "${command}" executed (DRY RUN)`, 'success');
+  }
+  
+  function controlBank(bankId) {
+    document.getElementById('modalBankTitle').textContent = `Control: ${bankId}`;
+    document.getElementById('batteryControlModal').classList.remove('hidden');
+    document.getElementById('batteryControlModal').classList.add('flex');
+  }
+  
+  function closeBatteryModal() {
+    document.getElementById('batteryControlModal').classList.add('hidden');
+    document.getElementById('batteryControlModal').classList.remove('flex');
+  }
+  
+  function executeBankCommand() {
+    const command = document.getElementById('modalCommand').value;
+    const value = document.getElementById('modalValue').value;
+    
+    console.log('Bank command:', {command, value});
+    showNotification(`Bank command "${command}" executed (DRY RUN)`, 'success');
+    closeBatteryModal();
+  }
+  
+  function emergencyStop() {
+    if (!confirm('EMERGENCY STOP - All battery operations will be halted immediately. Continue?')) return;
+    
+    console.log('EMERGENCY STOP executed');
+    showNotification('EMERGENCY STOP executed - All battery systems halted', 'error');
+  }
+  
+  function startBatteryDataRefresh() {
+    setInterval(() => {
+      // Simulate real-time data updates
+      const soc = 60 + Math.random() * 30;
+      const power = (Math.random() - 0.5) * 5;
+      const temp = 20 + Math.random() * 10;
+      
+      document.getElementById('batterySOC').textContent = `${soc.toFixed(0)}%`;
+      document.getElementById('batteryPower').textContent = `${power > 0 ? '+' : ''}${power.toFixed(1)} MW`;
+      document.getElementById('batteryTemp').textContent = `${temp.toFixed(0)}°C`;
+    }, 5000);
+  }
+  
+  function showNotification(message, type) {
+    // Simple notification implementation
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-4 py-2 rounded-md text-white z-50 ${
+      type === 'success' ? 'bg-green-600' : 
+      type === 'error' ? 'bg-red-600' : 'bg-blue-600'
+    }`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.remove();
+    }, 3000);
+  }
+</script>
+{% endblock %}

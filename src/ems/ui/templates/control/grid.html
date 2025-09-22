@@ -1,0 +1,584 @@
+{% extends "base.html" %}
+
+{% block title %}Grid Control - GES Solar EMS{% endblock %}
+
+{% block page_subtitle %}Grid Tie & Power Quality Control{% endblock %}
+
+{% block head_extra %}
+<!-- Chart.js for grid monitoring -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+  <!-- Control Header with Safety -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <div class="flex items-center justify-between mb-3">
+      <h1 class="text-xl font-semibold">Grid Tie & Power Quality Control</h1>
+      <div class="flex items-center gap-3">
+        <div class="text-sm">
+          <span class="text-gray-500">Grid Status:</span>
+          <span id="gridStatus" class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">CONNECTED</span>
+        </div>
+        <button id="btnGridDisconnect" class="px-4 py-2 rounded-md bg-red-600 text-white font-semibold">GRID DISCONNECT</button>
+      </div>
+    </div>
+    <div class="text-sm text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-md">
+      ⚠️ Grid Control: All commands comply with Turkish Grid Code and EPDK regulations. Control authority required.
+    </div>
+  </div>
+
+  <!-- Grid Parameters Overview -->
+  <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
+      <div class="text-2xl mb-2 text-blue-500">⚡</div>
+      <div class="text-sm text-gray-500">Grid Voltage</div>
+      <div id="gridVoltage" class="text-2xl font-semibold text-blue-600">402.5 V</div>
+      <div class="text-xs text-gray-500 mt-1">380-420V range</div>
+    </div>
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
+      <div class="text-2xl mb-2 text-green-500">📊</div>
+      <div class="text-sm text-gray-500">Frequency</div>
+      <div id="gridFrequency" class="text-2xl font-semibold text-green-600">50.02 Hz</div>
+      <div class="text-xs text-gray-500 mt-1">49.5-50.5Hz range</div>
+    </div>
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
+      <div class="text-2xl mb-2 text-purple-500">📐</div>
+      <div class="text-sm text-gray-500">Power Factor</div>
+      <div id="powerFactor" class="text-2xl font-semibold text-purple-600">0.97</div>
+      <div class="text-xs text-gray-500 mt-1">Target: >0.95</div>
+    </div>
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
+      <div class="text-2xl mb-2 text-orange-500">🔄</div>
+      <div class="text-sm text-gray-500">Reactive Power</div>
+      <div id="reactivePower" class="text-2xl font-semibold text-orange-600">-1.2 MVAr</div>
+      <div class="text-xs text-gray-500 mt-1">Capacitive</div>
+    </div>
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4 text-center">
+      <div class="text-2xl mb-2 text-red-500">📈</div>
+      <div class="text-sm text-gray-500">Active Power</div>
+      <div id="activePower" class="text-2xl font-semibold text-red-600">25.8 MW</div>
+      <div class="text-xs text-gray-500 mt-1">Export to grid</div>
+    </div>
+  </div>
+
+  <!-- Grid Control Interface -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Power Quality Control -->
+    <div class="lg:col-span-2 bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+      <h3 class="font-semibold mb-4">Power Quality Control</h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Reactive Power Control -->
+        <div class="space-y-4">
+          <h4 class="font-medium">Reactive Power Control</h4>
+          <div class="space-y-3">
+            <label class="text-sm">Control Mode
+              <select id="reactivePowerMode" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+                <option>Power Factor Control</option>
+                <option>Reactive Power Control</option>
+                <option>Voltage Control</option>
+                <option>Automatic (Grid Code)</option>
+              </select>
+            </label>
+            <label class="text-sm">Target Power Factor
+              <div class="flex items-center gap-2">
+                <input id="targetPF" type="range" min="0.85" max="1.0" value="0.97" step="0.01" class="flex-1" />
+                <span id="pfValue" class="text-sm font-mono w-12">0.97</span>
+              </div>
+            </label>
+            <label class="text-sm">Reactive Power Setpoint (MVAr)
+              <div class="flex items-center gap-2">
+                <input id="reactiveSetpoint" type="range" min="-10" max="10" value="-1.2" step="0.1" class="flex-1" />
+                <span id="reactiveValue" class="text-sm font-mono w-16">-1.2 MVAr</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Frequency Support -->
+        <div class="space-y-4">
+          <h4 class="font-medium">Frequency Support</h4>
+          <div class="space-y-3">
+            <label class="text-sm">Frequency Response Mode
+              <select id="frequencyMode" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+                <option selected>Primary Response (±0.2Hz)</option>
+                <option>Secondary Response (±0.5Hz)</option>
+                <option>Manual Control</option>
+                <option>Disabled</option>
+              </select>
+            </label>
+            <label class="text-sm">Droop Setting (%)
+              <input id="droopSetting" value="4.0" step="0.1" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+            </label>
+            <label class="text-sm">Response Time (s)
+              <input id="responseTime" value="2.0" step="0.1" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Power Control -->
+      <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-800">
+        <h4 class="font-medium mb-3">Active Power Control</h4>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="text-sm">Export Limit (MW)
+              <div class="flex items-center gap-2">
+                <input id="exportLimit" type="range" min="0" max="50" value="50" step="0.5" class="flex-1" />
+                <span id="exportValue" class="text-sm font-mono w-16">50.0 MW</span>
+              </div>
+            </label>
+          </div>
+          <div>
+            <label class="text-sm">Ramp Rate (%/min)
+              <input id="rampRate" value="10" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+            </label>
+          </div>
+          <div class="space-y-2">
+            <button id="btnApplyPowerControl" class="w-full px-3 py-2 rounded-md bg-brand-600 text-white">Apply Power Control</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid Code Compliance -->
+    <div class="space-y-4">
+      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+        <h4 class="font-semibold mb-3">Grid Code Compliance</h4>
+        <div class="space-y-3 text-sm">
+          <div class="flex justify-between">
+            <span>Voltage Range:</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">✓ 0.9-1.1 pu</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Frequency Range:</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">✓ 49.5-50.5Hz</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Power Factor:</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">✓ >0.95</span>
+          </div>
+          <div class="flex justify-between">
+            <span>THD Voltage:</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">✓ <5%</span>
+          </div>
+          <div class="flex justify-between">
+            <span>THD Current:</span>
+            <span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-yellow-100 text-yellow-800">⚠ 4.8%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+        <h4 class="font-semibold mb-3">Protection Settings</h4>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span>Over-voltage:</span>
+            <span class="font-medium">420V (110%)</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Under-voltage:</span>
+            <span class="font-medium">342V (90%)</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Over-frequency:</span>
+            <span class="font-medium">50.5Hz</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Under-frequency:</span>
+            <span class="font-medium">49.5Hz</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Trip Delay:</span>
+            <span class="font-medium">100ms</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid Sites Control -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl">
+    <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+      <h3 class="font-semibold">Site Grid Control Status</h3>
+      <div class="space-x-2">
+        <button id="btnRefreshGrid" class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm">Refresh</button>
+        <button id="btnGridEmergency" class="px-3 py-1.5 rounded-md bg-red-600 text-white text-sm">Emergency Disconnect</button>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-800 text-white uppercase tracking-wide text-xs">
+          <tr>
+            <th class="px-3 py-2 text-left">
+              <input type="checkbox" id="selectAllSites" />
+            </th>
+            <th class="px-3 py-2 text-left">Site</th>
+            <th class="px-3 py-2 text-left">Grid Tie</th>
+            <th class="px-3 py-2 text-left">Active Power</th>
+            <th class="px-3 py-2 text-left">Reactive Power</th>
+            <th class="px-3 py-2 text-left">Power Factor</th>
+            <th class="px-3 py-2 text-left">Voltage</th>
+            <th class="px-3 py-2 text-left">Frequency</th>
+            <th class="px-3 py-2 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="gridSitesBody">
+          <tr class="border-b border-gray-200 dark:border-gray-800">
+            <td class="px-3 py-2"><input type="checkbox" /></td>
+            <td class="px-3 py-2 font-medium">Ankara Sincan GES</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Connected</span></td>
+            <td class="px-3 py-2">8.5 MW</td>
+            <td class="px-3 py-2">-0.4 MVAr</td>
+            <td class="px-3 py-2">0.98</td>
+            <td class="px-3 py-2">401.2 V</td>
+            <td class="px-3 py-2">50.01 Hz</td>
+            <td class="px-3 py-2">
+              <button onclick="controlSiteGrid('ankara-sincan-ges')" class="px-2 py-1 text-xs rounded-md border border-gray-200 dark:border-gray-700">Control</button>
+            </td>
+          </tr>
+          <tr class="border-b border-gray-200 dark:border-gray-800">
+            <td class="px-3 py-2"><input type="checkbox" /></td>
+            <td class="px-3 py-2 font-medium">ODTÜ Teknokent GES</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Connected</span></td>
+            <td class="px-3 py-2">0.45 MW</td>
+            <td class="px-3 py-2">0.02 MVAr</td>
+            <td class="px-3 py-2">0.96</td>
+            <td class="px-3 py-2">402.8 V</td>
+            <td class="px-3 py-2">50.03 Hz</td>
+            <td class="px-3 py-2">
+              <button onclick="controlSiteGrid('odtu-teknokent-ges')" class="px-2 py-1 text-xs rounded-md border border-gray-200 dark:border-gray-700">Control</button>
+            </td>
+          </tr>
+          <tr class="border-b border-gray-200 dark:border-gray-800">
+            <td class="px-3 py-2"><input type="checkbox" /></td>
+            <td class="px-3 py-2 font-medium">Antalya Manavgat GES</td>
+            <td class="px-3 py-2"><span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800">Connected</span></td>
+            <td class="px-3 py-2">12.3 MW</td>
+            <td class="px-3 py-2">-0.8 MVAr</td>
+            <td class="px-3 py-2">0.97</td>
+            <td class="px-3 py-2">403.1 V</td>
+            <td class="px-3 py-2">49.98 Hz</td>
+            <td class="px-3 py-2">
+              <button onclick="controlSiteGrid('antalya-manavgat-ges')" class="px-2 py-1 text-xs rounded-md border border-gray-200 dark:border-gray-700">Control</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Grid Analytics -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+      <h3 class="font-semibold mb-2">Power Quality Trend (24 Hours)</h3>
+      <canvas id="powerQualityChart" height="120"></canvas>
+    </div>
+    
+    <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+      <h3 class="font-semibold mb-2">Grid Frequency & Voltage (24 Hours)</h3>
+      <canvas id="gridParametersChart" height="120"></canvas>
+    </div>
+  </div>
+
+  <!-- Grid Services -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+    <h3 class="font-semibold mb-4">Ancillary Grid Services</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div>
+        <h4 class="font-medium mb-2">Frequency Regulation</h4>
+        <div class="space-y-2 text-sm">
+          <label class="flex items-center gap-2">
+            <input id="enablePrimaryResponse" type="checkbox" checked />
+            Primary Frequency Response
+          </label>
+          <label class="flex items-center gap-2">
+            <input id="enableSecondaryResponse" type="checkbox" />
+            Secondary Frequency Response
+          </label>
+          <label>Reserve Capacity (MW)
+            <input id="reserveCapacity" value="2.0" type="number" step="0.1" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" />
+          </label>
+        </div>
+      </div>
+      
+      <div>
+        <h4 class="font-medium mb-2">Voltage Support</h4>
+        <div class="space-y-2 text-sm">
+          <label class="flex items-center gap-2">
+            <input id="enableVoltageSupport" type="checkbox" checked />
+            Voltage Support Service
+          </label>
+          <label class="flex items-center gap-2">
+            <input id="enableReactivePowerService" type="checkbox" checked />
+            Reactive Power Service
+          </label>
+          <label>Voltage Droop (%)
+            <input id="voltageDroop" value="3.0" type="number" step="0.1" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" />
+          </label>
+        </div>
+      </div>
+      
+      <div>
+        <h4 class="font-medium mb-2">Power Curtailment</h4>
+        <div class="space-y-2 text-sm">
+          <label class="flex items-center gap-2">
+            <input id="enableCurtailment" type="checkbox" />
+            Auto Curtailment
+          </label>
+          <label class="flex items-center gap-2">
+            <input id="enableLoadShedding" type="checkbox" />
+            Load Shedding
+          </label>
+          <label>Curtailment Trigger (V)
+            <input id="curtailmentTrigger" value="415" type="number" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-2 py-1" />
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Site Grid Control Modal -->
+<div id="gridControlModal" class="fixed inset-0 hidden flex items-center justify-center bg-black/50 z-50">
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl w-full max-w-lg p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h4 id="modalGridTitle" class="font-semibold">Site Grid Control</h4>
+      <button id="modalGridClose" class="text-gray-500 hover:text-gray-700">✕</button>
+    </div>
+    
+    <div class="space-y-4">
+      <div class="grid grid-cols-2 gap-3 text-sm">
+        <div>Active Power: <span id="modalActivePower" class="font-medium">8.5 MW</span></div>
+        <div>Reactive Power: <span id="modalReactivePower" class="font-medium">-0.4 MVAr</span></div>
+        <div>Power Factor: <span id="modalPowerFactor" class="font-medium">0.98</span></div>
+        <div>Grid Voltage: <span id="modalGridVoltage" class="font-medium">401.2 V</span></div>
+      </div>
+      
+      <div>
+        <label class="text-sm">Grid Control Command</label>
+        <select id="modalGridCommand" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2">
+          <option>Set Power Factor</option>
+          <option>Set Reactive Power</option>
+          <option>Set Active Power Limit</option>
+          <option>Enable Grid Support</option>
+          <option>Disconnect from Grid</option>
+          <option>Reset Protection</option>
+        </select>
+      </div>
+      
+      <div>
+        <label class="text-sm">Command Value</label>
+        <input id="modalGridValue" type="number" step="0.01" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2" />
+      </div>
+      
+      <div class="text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 p-2 rounded">
+        🔒 Grid commands require TEIAS/EPDK compliance and will be logged
+      </div>
+    </div>
+    
+    <div class="flex items-center justify-end gap-2 mt-6">
+      <button id="modalGridCancel" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Cancel</button>
+      <button id="modalGridExecute" class="px-3 py-2 rounded-md bg-brand-600 text-white">Execute Command</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let gridCharts = {};
+  
+  document.addEventListener('DOMContentLoaded', () => {
+    initGridControls();
+    initGridCharts();
+    startGridDataRefresh();
+  });
+  
+  function initGridControls() {
+    // Power factor slider
+    const pfSlider = document.getElementById('targetPF');
+    const pfValue = document.getElementById('pfValue');
+    pfSlider.addEventListener('input', (e) => {
+      pfValue.textContent = parseFloat(e.target.value).toFixed(2);
+    });
+    
+    // Reactive power slider
+    const reactiveSlider = document.getElementById('reactiveSetpoint');
+    const reactiveValue = document.getElementById('reactiveValue');
+    reactiveSlider.addEventListener('input', (e) => {
+      const value = parseFloat(e.target.value);
+      reactiveValue.textContent = `${value.toFixed(1)} MVAr`;
+    });
+    
+    // Export limit slider
+    const exportSlider = document.getElementById('exportLimit');
+    const exportValue = document.getElementById('exportValue');
+    exportSlider.addEventListener('input', (e) => {
+      const value = parseFloat(e.target.value);
+      exportValue.textContent = `${value.toFixed(1)} MW`;
+    });
+    
+    // Control buttons
+    document.getElementById('btnApplyPowerControl').addEventListener('click', applyPowerControl);
+    document.getElementById('btnGridDisconnect').addEventListener('click', gridDisconnect);
+    document.getElementById('btnGridEmergency').addEventListener('click', emergencyGridDisconnect);
+    
+    // Modal controls
+    document.getElementById('modalGridClose').addEventListener('click', closeGridModal);
+    document.getElementById('modalGridCancel').addEventListener('click', closeGridModal);
+    document.getElementById('modalGridExecute').addEventListener('click', executeGridCommand);
+  }
+  
+  function initGridCharts() {
+    // Power Quality Chart
+    const pqCtx = document.getElementById('powerQualityChart');
+    gridCharts.powerQuality = new Chart(pqCtx, {
+      type: 'line',
+      data: {
+        labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+        datasets: [
+          {
+            label: 'Power Factor',
+            data: Array.from({length: 24}, () => 0.95 + Math.random() * 0.05),
+            borderColor: '#8b5cf6',
+            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            yAxisID: 'y'
+          },
+          {
+            label: 'THD Current (%)',
+            data: Array.from({length: 24}, () => 2 + Math.random() * 3),
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { type: 'linear', display: true, position: 'left', min: 0.9, max: 1.0 },
+          y1: { type: 'linear', display: true, position: 'right', min: 0, max: 8 }
+        }
+      }
+    });
+    
+    // Grid Parameters Chart
+    const gridCtx = document.getElementById('gridParametersChart');
+    gridCharts.gridParams = new Chart(gridCtx, {
+      type: 'line',
+      data: {
+        labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+        datasets: [
+          {
+            label: 'Voltage (V)',
+            data: Array.from({length: 24}, () => 400 + Math.random() * 10),
+            borderColor: '#ef4444',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            yAxisID: 'y'
+          },
+          {
+            label: 'Frequency (Hz)',
+            data: Array.from({length: 24}, () => 49.98 + Math.random() * 0.08),
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { type: 'linear', display: true, position: 'left', min: 390, max: 420 },
+          y1: { type: 'linear', display: true, position: 'right', min: 49.5, max: 50.5 }
+        }
+      }
+    });
+  }
+  
+  function applyPowerControl() {
+    const exportLimit = document.getElementById('exportLimit').value;
+    const rampRate = document.getElementById('rampRate').value;
+    const pfTarget = document.getElementById('targetPF').value;
+    
+    if (!confirm(`Apply grid control settings?\nExport Limit: ${exportLimit}MW\nPower Factor: ${pfTarget}`)) return;
+    
+    const payload = {
+      command: 'set_power_control',
+      export_limit: parseFloat(exportLimit),
+      ramp_rate: parseFloat(rampRate),
+      power_factor: parseFloat(pfTarget),
+      dry_run: true
+    };
+    
+    console.log('Grid control command:', payload);
+    showNotification(`Grid control settings applied (DRY RUN)`, 'success');
+  }
+  
+  function gridDisconnect() {
+    if (!confirm('Disconnect all sites from grid? This will stop all power export.')) return;
+    
+    console.log('Grid disconnect executed');
+    showNotification('Grid disconnect executed - All sites isolated', 'error');
+  }
+  
+  function emergencyGridDisconnect() {
+    if (!confirm('EMERGENCY GRID DISCONNECT - All grid connections will be opened immediately. Continue?')) return;
+    
+    console.log('EMERGENCY GRID DISCONNECT executed');
+    showNotification('EMERGENCY GRID DISCONNECT executed', 'error');
+  }
+  
+  function controlSiteGrid(siteId) {
+    document.getElementById('modalGridTitle').textContent = `Grid Control: ${siteId}`;
+    document.getElementById('gridControlModal').classList.remove('hidden');
+    document.getElementById('gridControlModal').classList.add('flex');
+  }
+  
+  function closeGridModal() {
+    document.getElementById('gridControlModal').classList.add('hidden');
+    document.getElementById('gridControlModal').classList.remove('flex');
+  }
+  
+  function executeGridCommand() {
+    const command = document.getElementById('modalGridCommand').value;
+    const value = document.getElementById('modalGridValue').value;
+    
+    console.log('Site grid command:', {command, value});
+    showNotification(`Grid command "${command}" executed (DRY RUN)`, 'success');
+    closeGridModal();
+  }
+  
+  function startGridDataRefresh() {
+    setInterval(() => {
+      // Simulate real-time data updates
+      const voltage = 400 + Math.random() * 10;
+      const frequency = 49.98 + Math.random() * 0.08;
+      const pf = 0.95 + Math.random() * 0.05;
+      const activePower = 20 + Math.random() * 10;
+      const reactivePower = (Math.random() - 0.5) * 2;
+      
+      document.getElementById('gridVoltage').textContent = `${voltage.toFixed(1)} V`;
+      document.getElementById('gridFrequency').textContent = `${frequency.toFixed(2)} Hz`;
+      document.getElementById('powerFactor').textContent = pf.toFixed(2);
+      document.getElementById('activePower').textContent = `${activePower.toFixed(1)} MW`;
+      document.getElementById('reactivePower').textContent = `${reactivePower > 0 ? '+' : ''}${reactivePower.toFixed(1)} MVAr`;
+    }, 3000);
+  }
+  
+  function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-4 py-2 rounded-md text-white z-50 ${
+      type === 'success' ? 'bg-green-600' : 
+      type === 'error' ? 'bg-red-600' : 'bg-blue-600'
+    }`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.remove();
+    }, 3000);
+  }
+</script>
+{% endblock %}
