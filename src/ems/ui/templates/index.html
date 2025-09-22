@@ -499,8 +499,24 @@
           <!-- 5. Settings (placeholder) -->
           <section id="view-settings" class="space-y-6 hidden">
             <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-              <h3 class="font-semibold mb-2">Settings</h3>
-              <div class="text-sm text-gray-500">Role-based access is UI-side only for now.</div>
+              <h3 class="font-semibold mb-4">Settings</h3>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="/ui/settings/org" class="block rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4 hover:bg-gray-50 dark:hover:bg-gray-900">
+                  <div class="text-sm text-gray-500">Organizasyon & Çoklu Kiracı</div>
+                  <div class="mt-1 font-semibold">Organization</div>
+                  <div class="mt-2 text-xs text-gray-500">Tenant bilgileri, birimler, locale.</div>
+                </a>
+                <a href="/ui/settings/profiles" class="block rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4 hover:bg-gray-50 dark:hover:bg-gray-900">
+                  <div class="text-sm text-gray-500">Sürücü Profilleri & Register Haritaları</div>
+                  <div class="mt-1 font-semibold">Driver Profiles</div>
+                  <div class="mt-2 text-xs text-gray-500">Versiyonlama, import/export, diff/migrate.</div>
+                </a>
+                <a href="/ui/settings/health" class="block rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4 hover:bg-gray-50 dark:hover:bg-gray-900">
+                  <div class="text-sm text-gray-500">Sağlık & SLA</div>
+                  <div class="mt-1 font-semibold">Health</div>
+                  <div class="mt-2 text-xs text-gray-500">Uptime, gecikme, paket kaybı metrikleri.</div>
+                </a>
+              </div>
             </div>
           </section>
         </div>

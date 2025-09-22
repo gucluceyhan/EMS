@@ -186,6 +186,13 @@ def create_app(context: APIContext) -> FastAPI:
             {"request": request, "plant": context.config.plant.model_dump()},
         )
 
+    @app.get("/ui/settings/health", response_class=HTMLResponse)
+    async def ui_settings_health(request: Request, _: None = Depends(require_basic)) -> HTMLResponse:
+        return templates.TemplateResponse(
+            "settings/health.html",
+            {"request": request, "plant": context.config.plant.model_dump()},
+        )
+
     return app
 
 
