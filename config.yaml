@@ -730,6 +730,29 @@ devices:
     retries: 3
     point_map: "pointmaps/tracker_generic.yaml"
 
+  # Reactive Power Relay - RG20C
+  - id: "eregli-rg20c-01"
+    plant_id: "konya-eregli-ges"
+    type: "power_analyzer"
+    make: "RG20C"
+    model: "Reactive Power Relay"
+    protocol: "modbus_tcp"
+    connection:
+      host: "10.140.1.140"
+      port: 502
+      unit_id: 2
+    poll_interval_s: 60
+    timeout_ms: 3000
+    retries: 3
+    point_map: "pointmaps/rg20c_reactive_power.yaml"
+    control_capabilities:
+      set_active_power_limit: false
+      open_breaker: false
+      close_breaker: false
+      reactive_power_control: true
+    description: "RG20C Reaktif Güç Rölesi - Ana grid bağlantı noktası monitoring"
+    location: "Main Switchgear Panel"
+
   # ===== KARAMAN ERMENEK GES (18 MW) =====
   - id: "ermenek-inv-01"
     plant_id: "karaman-ermenek-ges"
