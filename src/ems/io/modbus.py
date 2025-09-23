@@ -27,13 +27,23 @@ class ModbusRTUClient(ModbusClientProtocol):
     """Real Modbus RTU client for RS485 communication"""
     
     def __init__(self, connection: Dict[str, Any]) -> None:
-        self.serial_port = connection.get("serial_port", "/dev/ttyUSB0")
-        self.baudrate = connection.get("baudrate", 9600)
-        self.bytesize = connection.get("bytesize", 8)
-        self.parity = connection.get("parity", "N")
-        self.stopbits = connection.get("stopbits", 1)
-        self.timeout_ms = connection.get("timeout_ms", 1000)
-        self.unit_id = connection.get("unit_id", 1)
+        # Handle both dict and Pydantic model
+        if hasattr(connection, 'serial_port'):
+            self.serial_port = connection.serial_port or "/dev/ttyUSB0"
+            self.baudrate = connection.baudrate or 9600
+            self.bytesize = connection.bytesize or 8
+            self.parity = connection.parity or "N"
+            self.stopbits = connection.stopbits or 1
+            self.timeout_ms = connection.timeout_ms or 1000
+            self.unit_id = connection.unit_id or 1
+        else:
+            self.serial_port = connection.get("serial_port", "/dev/ttyUSB0")
+            self.baudrate = connection.get("baudrate", 9600)
+            self.bytesize = connection.get("bytesize", 8)
+            self.parity = connection.get("parity", "N")
+            self.stopbits = connection.get("stopbits", 1)
+            self.timeout_ms = connection.get("timeout_ms", 1000)
+            self.unit_id = connection.get("unit_id", 1)
         self._client: Optional[Any] = None
         self._connected = False
         
