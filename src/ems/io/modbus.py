@@ -126,10 +126,17 @@ class ModbusTCPClient(ModbusClientProtocol):
     """Real Modbus TCP client"""
     
     def __init__(self, connection: Dict[str, Any]) -> None:
-        self.host = connection.get("host", "192.168.1.100") 
-        self.port = connection.get("port", 502)
-        self.timeout_ms = connection.get("timeout_ms", 3000)
-        self.unit_id = connection.get("unit_id", 1)
+        # Handle both dict and Pydantic model
+        if hasattr(connection, 'host'):
+            self.host = connection.host or "192.168.1.100"
+            self.port = connection.port or 502
+            self.timeout_ms = connection.timeout_ms or 3000
+            self.unit_id = connection.unit_id or 1
+        else:
+            self.host = connection.get("host", "192.168.1.100") 
+            self.port = connection.get("port", 502)
+            self.timeout_ms = connection.get("timeout_ms", 3000)
+            self.unit_id = connection.get("unit_id", 1)
         self._client: Optional[Any] = None
         self._connected = False
         
