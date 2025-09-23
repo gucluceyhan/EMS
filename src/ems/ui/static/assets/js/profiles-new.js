@@ -96,13 +96,42 @@ const DEVICE_TYPE_CAPABILITIES = {
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', async () => {
+  console.log('Profiles page DOM loaded, initializing...');
+  
   try {
+    console.log('Step 1: Loading initial data...');
     await loadInitialData();
-    setupEventListeners();
-    await loadProfiles();
-    showNoProfileSelected();
+    
+    console.log('Step 2: Setting up event listeners...');
+    try {
+      setupEventListeners();
+      console.log('✅ Step 2 completed - Event listeners setup');
+    } catch (error) {
+      console.error('❌ Step 2 failed - setupEventListeners error:', error);
+      throw error;
+    }
+    
+    console.log('Step 3: Loading profiles...');
+    try {
+      await loadProfiles();
+      console.log('✅ Step 3 completed - Profiles loaded');
+    } catch (error) {
+      console.error('❌ Step 3 failed - loadProfiles error:', error);
+      throw error;
+    }
+    
+    console.log('Step 4: Showing no profile selected state...');
+    try {
+      showNoProfileSelected();
+      console.log('✅ Step 4 completed - No profile selected state shown');
+    } catch (error) {
+      console.error('❌ Step 4 failed - showNoProfileSelected error:', error);
+      throw error;
+    }
+    
+    console.log('✅ Profiles page initialization complete');
   } catch (error) {
-    console.error('Error initializing profiles page:', error);
+    console.error('❌ Error initializing profiles page:', error);
     showError('Failed to initialize profiles page');
   }
 });
@@ -156,9 +185,23 @@ async function loadInitialData() {
       console.log('Some API data missing, supplementing with mock data...');
       loadMockData();
     } else {
-      populateFilters();
-      populateSelectOptions();
+      console.log('All API data loaded successfully, populating UI...');
+      try {
+        populateFilters();
+        console.log('✅ Filters populated successfully');
+      } catch (error) {
+        console.error('❌ Error in populateFilters:', error);
+      }
+      
+      try {
+        populateSelectOptions();
+        console.log('✅ Select options populated successfully');
+      } catch (error) {
+        console.error('❌ Error in populateSelectOptions:', error);
+      }
     }
+    
+    console.log('✅ loadInitialData() completed successfully');
   } catch (error) {
     console.error('Error loading initial data:', error);
     // Fallback to mock data for development
@@ -218,33 +261,64 @@ function loadMockData() {
 
   console.log('Mock data loaded:', { deviceTypes: deviceTypes.length, protocols: protocols.length, pointMaps: pointMaps.length });
 
-  populateFilters();
-  populateSelectOptions();
+  try {
+    populateFilters();
+    console.log('✅ Mock data - Filters populated');
+  } catch (error) {
+    console.error('❌ Mock data - Error in populateFilters:', error);
+  }
+  
+  try {
+    populateSelectOptions();
+    console.log('✅ Mock data - Select options populated');
+  } catch (error) {
+    console.error('❌ Mock data - Error in populateSelectOptions:', error);
+  }
 }
 
 // Populate filter dropdowns
 function populateFilters() {
-  const deviceTypeFilter = document.getElementById('filterDeviceType');
-  const protocolFilter = document.getElementById('filterProtocol');
+  console.log('populateFilters() called');
+  
+  try {
+    const deviceTypeFilter = document.getElementById('filterDeviceType');
+    const protocolFilter = document.getElementById('filterProtocol');
+    
+    console.log('Filter elements found:', { deviceTypeFilter: !!deviceTypeFilter, protocolFilter: !!protocolFilter });
+    console.log('Data available:', { deviceTypes: deviceTypes.length, protocols: protocols.length });
 
-  if (deviceTypeFilter) {
-    deviceTypeFilter.innerHTML = '<option value="">All Device Types</option>';
-    deviceTypes.forEach(type => {
-      const option = document.createElement('option');
-      option.value = type.value;
-      option.textContent = type.label;
-      deviceTypeFilter.appendChild(option);
-    });
-  }
+    if (deviceTypeFilter) {
+      console.log('Populating device type filter...');
+      deviceTypeFilter.innerHTML = '<option value="">All Device Types</option>';
+      deviceTypes.forEach(type => {
+        const option = document.createElement('option');
+        option.value = type.value;
+        option.textContent = type.label;
+        deviceTypeFilter.appendChild(option);
+      });
+      console.log('✅ Device type filter populated with', deviceTypes.length, 'options');
+    } else {
+      console.warn('⚠️ deviceTypeFilter element not found');
+    }
 
-  if (protocolFilter) {
-    protocolFilter.innerHTML = '<option value="">All Protocols</option>';
-    protocols.forEach(protocol => {
-      const option = document.createElement('option');
-      option.value = protocol.value;
-      option.textContent = protocol.label;
-      protocolFilter.appendChild(option);
-    });
+    if (protocolFilter) {
+      console.log('Populating protocol filter...');
+      protocolFilter.innerHTML = '<option value="">All Protocols</option>';
+      protocols.forEach(protocol => {
+        const option = document.createElement('option');
+        option.value = protocol.value;
+        option.textContent = protocol.label;
+        protocolFilter.appendChild(option);
+      });
+      console.log('✅ Protocol filter populated with', protocols.length, 'options');
+    } else {
+      console.warn('⚠️ protocolFilter element not found');
+    }
+    
+    console.log('✅ populateFilters() completed successfully');
+  } catch (error) {
+    console.error('❌ Error in populateFilters():', error);
+    throw error;
   }
 }
 
@@ -319,16 +393,29 @@ function refreshPointMapSelect(selectedValue = null) {
 
 // Load profiles from API or localStorage
 async function loadProfiles() {
+  console.log('loadProfiles() called');
+  
   try {
+    console.log('Attempting to fetch profiles from API...');
     const response = await fetchAPI('/api/profiles');
     const profiles = response.profiles || [];
+    console.log('API profiles loaded:', profiles.length);
     renderProfilesList(profiles);
   } catch (error) {
-    console.error('Error loading profiles:', error);
+    console.error('Error loading profiles from API:', error);
+    console.log('Falling back to localStorage and default profiles...');
+    
     // Load from localStorage as fallback
-    const stored = localStorage.getItem('deviceProfiles');
-    const profiles = stored ? JSON.parse(stored) : getDefaultProfiles();
-    renderProfilesList(profiles);
+    try {
+      const stored = localStorage.getItem('deviceProfiles');
+      const profiles = stored ? JSON.parse(stored) : getDefaultProfiles();
+      console.log('Fallback profiles loaded:', profiles.length);
+      renderProfilesList(profiles);
+    } catch (fallbackError) {
+      console.error('Error loading fallback profiles:', fallbackError);
+      // Final fallback - show empty state with default profiles
+      renderProfilesList(getDefaultProfiles());
+    }
   }
 }
 
@@ -933,10 +1020,14 @@ function showNoProfileSelected() {
 
 // Setup event listeners
 function setupEventListeners() {
+  console.log('Setting up event listeners...');
+  
   // Search and filters
   const searchInput = document.getElementById('searchProfiles');
   const deviceTypeFilter = document.getElementById('filterDeviceType');
   const protocolFilter = document.getElementById('filterProtocol');
+  
+  console.log('Search/filter elements:', { searchInput: !!searchInput, deviceTypeFilter: !!deviceTypeFilter, protocolFilter: !!protocolFilter });
   
   if (searchInput) searchInput.addEventListener('input', debounce(() => loadProfiles(), 300));
   if (deviceTypeFilter) deviceTypeFilter.addEventListener('change', () => loadProfiles());
@@ -952,7 +1043,36 @@ function setupEventListeners() {
   const btnResetProfile = document.getElementById('btnResetProfile');
   const btnCopyProfile = document.getElementById('btnCopyProfile');
   
-  if (btnNewProfile) btnNewProfile.addEventListener('click', createNewProfile);
+  console.log('Profile action buttons:', {
+    btnNewProfile: !!btnNewProfile,
+    btnImportProfile: !!btnImportProfile,
+    btnSaveProfile: !!btnSaveProfile,
+    btnTestProfile: !!btnTestProfile,
+    btnExportProfile: !!btnExportProfile,
+    btnDeleteProfile: !!btnDeleteProfile,
+    btnResetProfile: !!btnResetProfile,
+    btnCopyProfile: !!btnCopyProfile
+  });
+  
+  if (btnNewProfile) {
+    console.log('Adding click listener to btnNewProfile');
+    
+    // Remove any existing listeners to prevent conflicts
+    btnNewProfile.removeEventListener('click', createNewProfile);
+    
+    // Add new listener
+    btnNewProfile.addEventListener('click', function(event) {
+      console.log('🚀 New Profile button clicked!');
+      event.preventDefault();
+      event.stopPropagation();
+      createNewProfile();
+    });
+    
+    console.log('✅ Click listener added successfully to btnNewProfile');
+  } else {
+    console.error('❌ btnNewProfile element not found!');
+  }
+  
   if (btnImportProfile) btnImportProfile.addEventListener('click', importProfile);
   if (btnSaveProfile) btnSaveProfile.addEventListener('click', saveProfile);
   if (btnTestProfile) btnTestProfile.addEventListener('click', testProfile);
@@ -968,11 +1088,21 @@ function setupEventListeners() {
   const btnSavePointMap = document.getElementById('btnSavePointMap');
   const btnValidatePointMap = document.getElementById('btnValidatePointMap');
   
+  console.log('Point map buttons:', {
+    btnCreatePointMap: !!btnCreatePointMap,
+    btnEditPointMap: !!btnEditPointMap,
+    closePointMapEditor: !!closePointMapEditor,
+    btnSavePointMap: !!btnSavePointMap,
+    btnValidatePointMap: !!btnValidatePointMap
+  });
+  
   if (btnCreatePointMap) btnCreatePointMap.addEventListener('click', createPointMap);
   if (btnEditPointMap) btnEditPointMap.addEventListener('click', editPointMap);
   if (closePointMapEditor) closePointMapEditor.addEventListener('click', closePointMapEditorModal);
   if (btnSavePointMap) btnSavePointMap.addEventListener('click', savePointMap);
   if (btnValidatePointMap) btnValidatePointMap.addEventListener('click', validatePointMap);
+  
+  console.log('✅ Event listeners setup complete');
 }
 
 // Setup event listeners after DOM is populated (called after showProfileDetails)
@@ -1035,40 +1165,76 @@ function handlePointMapChange(e) {
 
 // Profile management functions
 function createNewProfile() {
-  const name = prompt('Profile Name:', 'New Profile');
-  if (!name) return;
+  console.log('createNewProfile called');
   
-  const newProfile = {
-    id: 'profile-' + Date.now(),
-    name: name,
-    description: 'Custom profile',
-    device_type: '',
-    protocol: '',
-    default_point_map: '',
-    poll_interval_s: 60,
-    default_connection: {},
-    capabilities: {},
-    tags: []
-  };
-  
-  // Add to profiles (in real implementation, this would call API)
-  const stored = localStorage.getItem('deviceProfiles');
-  const profiles = stored ? JSON.parse(stored) : getDefaultProfiles();
-  profiles.push(newProfile);
-  localStorage.setItem('deviceProfiles', JSON.stringify(profiles));
-  
-  loadProfiles().then(() => {
-    // Auto-select the new profile
-    const profileItems = document.querySelectorAll('.profile-item');
-    const newProfileItem = Array.from(profileItems).find(item => 
-      item.textContent.includes(newProfile.name)
-    );
-    if (newProfileItem) {
-      newProfileItem.click();
+  try {
+    const name = prompt('Profile Name:', 'New Profile');
+    if (!name) {
+      console.log('User cancelled profile creation');
+      return;
     }
-  });
-  
-  showSuccess('New profile created successfully');
+    
+    console.log('Creating new profile with name:', name);
+    
+    const newProfile = {
+      id: 'profile-' + Date.now(),
+      name: name,
+      description: 'Custom profile',
+      device_type: '',
+      protocol: '',
+      default_point_map: '',
+      poll_interval_s: 60,
+      default_connection: {},
+      capabilities: {},
+      tags: [],
+      created_at: new Date().toISOString()
+    };
+    
+    console.log('New profile object:', newProfile);
+    
+    // Add to profiles localStorage (fallback storage)
+    try {
+      const stored = localStorage.getItem('deviceProfiles');
+      const profiles = stored ? JSON.parse(stored) : getDefaultProfiles();
+      profiles.push(newProfile);
+      localStorage.setItem('deviceProfiles', JSON.stringify(profiles));
+      console.log('Profile saved to localStorage');
+    } catch (storageError) {
+      console.error('Error saving to localStorage:', storageError);
+      showError('Failed to save profile to local storage');
+      return;
+    }
+    
+    // Reload and select the new profile
+    loadProfiles().then(() => {
+      console.log('Profiles reloaded after creation');
+      // Auto-select the new profile with delay
+      setTimeout(() => {
+        const profileItems = document.querySelectorAll('.profile-item');
+        console.log('Looking for new profile in', profileItems.length, 'items');
+        
+        const newProfileItem = Array.from(profileItems).find(item => 
+          item.textContent.includes(newProfile.name)
+        );
+        
+        if (newProfileItem) {
+          console.log('Found and selecting new profile item');
+          newProfileItem.click();
+        } else {
+          console.warn('Could not find new profile item in list');
+        }
+      }, 300);
+    }).catch(error => {
+      console.error('Error reloading profiles:', error);
+      showError('Profile created but failed to refresh list');
+    });
+    
+    showSuccess('New profile created successfully');
+    
+  } catch (error) {
+    console.error('Error in createNewProfile:', error);
+    showError('Failed to create new profile');
+  }
 }
 
 function importProfile() {
@@ -1485,13 +1651,19 @@ async function fetchAPI(url, options = {}) {
     }
   };
   
-  const response = await fetch(url, mergedOptions);
-  
-  if (!response.ok) {
-    throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+  try {
+    const response = await fetch(url, mergedOptions);
+    
+    if (!response.ok) {
+      console.error(`API request failed: ${response.status} ${response.statusText} for ${url}`);
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error(`fetchAPI error for ${url}:`, error);
+    throw error;
   }
-  
-  return await response.json();
 }
 
 function debounce(func, wait) {
@@ -1627,3 +1799,9 @@ function getMockPointMapContent(pointMapName) {
 // Export capabilities configurations to global scope for use by other modules
 window.ENHANCED_CAPABILITIES = ENHANCED_CAPABILITIES;
 window.DEVICE_TYPE_CAPABILITIES = DEVICE_TYPE_CAPABILITIES;
+
+// Export key functions to global scope for debugging and access
+window.createNewProfile = createNewProfile;
+window.loadProfiles = loadProfiles;
+window.selectProfile = selectProfile;
+window.showProfileDetails = showProfileDetails;

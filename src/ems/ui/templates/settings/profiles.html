@@ -309,5 +309,56 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/assets/js/profiles-new.js"></script>
+<script src="/static/assets/js/profiles-new.js?v={{ plant.id }}-20250923"></script>
+<script>
+// Debug script for profiles page
+window.addEventListener('load', () => {
+  console.log('🐛 Debug: Window loaded, checking elements...');
+  
+  const btnNewProfile = document.getElementById('btnNewProfile');
+  console.log('🐛 Debug: btnNewProfile element:', btnNewProfile);
+  
+  if (btnNewProfile) {
+    console.log('🐛 Debug: btnNewProfile found, adding test click listener...');
+    
+    // Add a direct test click listener
+    btnNewProfile.addEventListener('click', function(e) {
+      console.log('🐛 Debug: btnNewProfile clicked!', e);
+      
+      // Test if createNewProfile function exists
+      if (typeof createNewProfile === 'function') {
+        console.log('🐛 Debug: createNewProfile function exists, calling it...');
+        createNewProfile();
+      } else {
+        console.error('🐛 Debug: createNewProfile function does not exist!');
+        alert('createNewProfile function not found - check JavaScript loading');
+      }
+    });
+    
+    // Add visual indicator that debug is active
+    btnNewProfile.style.outline = '2px solid red';
+    btnNewProfile.title = 'Debug mode active - click to test';
+    
+    console.log('🐛 Debug: Test click listener added successfully');
+  } else {
+    console.error('🐛 Debug: btnNewProfile element NOT FOUND!');
+    alert('btnNewProfile element not found - check HTML template');
+  }
+});
+
+// Global test function accessible from console
+window.testCreateProfile = function() {
+  console.log('🧪 Manual test: Calling createNewProfile...');
+  if (typeof window.createNewProfile === 'function') {
+    window.createNewProfile();
+  } else if (typeof createNewProfile === 'function') {
+    createNewProfile();
+  } else {
+    console.error('createNewProfile function not available');
+    alert('createNewProfile function not available');
+  }
+};
+
+console.log('🐛 Debug script loaded for profiles page');
+</script>
 {% endblock %}
