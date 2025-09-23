@@ -1,117 +1,313 @@
 {% extends "base.html" %}
 
-{% block title %}Driver Profiles - GES Solar EMS{% endblock %}
+{% block title %}Device Profiles - GES Solar EMS{% endblock %}
 
-{% block page_subtitle %}Driver Profiles{% endblock %}
+{% block page_subtitle %}Device Profiles{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
-  <h1 class="text-xl font-semibold">Settings – Driver Profiles</h1>
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Device Profiles</h1>
+      <p class="text-sm text-gray-500">Manage device driver profiles and templates</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="btnNewProfile" class="px-4 py-2 rounded-md bg-brand-600 text-white hover:bg-brand-700 transition-colors">
+        <span class="inline-flex items-center gap-2">
+          <span>+</span> New Profile
+        </span>
+      </button>
+      <button id="btnImportProfile" class="px-4 py-2 rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+        <span class="inline-flex items-center gap-2">
+          <span>📁</span> Import
+        </span>
+      </button>
+    </div>
+  </div>
   
+  <!-- Search and Filter Bar -->
   <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-    <div class="flex items-center justify-between mb-3">
-      <h2 class="font-semibold">Device Driver Profiles</h2>
-      <div class="space-x-2">
-        <button id="btnNewProfile" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">New Profile</button>
-        <button id="btnImportProfile" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700">Import</button>
+    <div class="flex flex-col md:flex-row gap-4">
+      <div class="flex-1">
+        <input 
+          id="searchProfiles" 
+          type="text" 
+          placeholder="Search profiles..." 
+          class="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-500"
+        />
+      </div>
+      <div class="flex gap-2">
+        <select id="filterDeviceType" class="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-transparent text-gray-900 dark:text-gray-100">
+          <option value="">All Device Types</option>
+          <!-- Options will be populated by JavaScript -->
+        </select>
+        <select id="filterProtocol" class="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-transparent text-gray-900 dark:text-gray-100">
+          <option value="">All Protocols</option>
+          <!-- Options will be populated by JavaScript -->
+        </select>
       </div>
     </div>
-    
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="lg:col-span-1">
-        <h3 class="font-semibold mb-2">Available Profiles</h3>
-        <div class="space-y-2" id="profilesList">
+  </div>
+
+  <!-- Main Content -->
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
+    <div class="flex h-[700px]">
+      <!-- Profiles List -->
+      <div class="w-1/3 border-r border-gray-200 dark:border-gray-800 flex flex-col">
+        <div class="flex-shrink-0 p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
+          <h3 class="font-semibold text-gray-900 dark:text-gray-100">Available Profiles</h3>
+        </div>
+        <div class="flex-1 overflow-y-auto" id="profilesList">
           <!-- Profiles will be populated by JavaScript -->
         </div>
       </div>
-      
-      <div class="lg:col-span-2" id="profileDetailsSection">
-        <div id="noProfileSelected" class="text-center py-8">
-          <div class="text-4xl mb-2">📝</div>
-          <div class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">No Profile Selected</div>
-          <div class="text-sm text-gray-500">Select a profile from the list to view and edit its details</div>
+
+      <!-- Profile Details -->
+      <div class="flex-1">
+        <div id="noProfileSelected" class="flex items-center justify-center h-full">
+          <div class="text-center">
+            <div class="text-4xl mb-4">📝</div>
+            <div class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No Profile Selected</div>
+            <div class="text-sm text-gray-500">Select a profile from the list to view and edit its details</div>
+          </div>
         </div>
-        
-        <div id="profileDetailsForm" class="hidden space-y-4">
-          <h3 class="font-semibold mb-2">Profile Details: "<span id="selectedProfileTitle">-</span>"</h3>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <label class="text-sm text-gray-700 dark:text-gray-300">
-              Profile Name
-              <input id="profileName" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-gray-900 dark:text-gray-100" />
-            </label>
-            <label class="text-sm text-gray-700 dark:text-gray-300">
-              Point Map File
-              <input id="pointMapFile" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-gray-900 dark:text-gray-100" />
-            </label>
-            <label class="text-sm text-gray-700 dark:text-gray-300">
-              Poll Interval (s)
-              <input id="pollInterval" type="number" min="1" max="300" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-gray-900 dark:text-gray-100" />
-            </label>
-            <label class="text-sm text-gray-700 dark:text-gray-300">
-              Timeout (ms)
-              <input id="timeout" type="number" min="1000" max="30000" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-gray-900 dark:text-gray-100" />
-            </label>
-            <label class="text-sm text-gray-700 dark:text-gray-300">
-              Retries
-              <input id="retries" type="number" min="0" max="10" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-gray-900 dark:text-gray-100" />
-            </label>
-            <label class="text-sm text-gray-700 dark:text-gray-300">
-              Protocol
-              <select id="protocol" class="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md px-3 py-2 text-gray-900 dark:text-gray-100">
-                <option value="modbus_tcp">Modbus TCP</option>
-                <option value="modbus_rtu">Modbus RTU</option>
-                <option value="mqtt">MQTT</option>
-                <option value="can">CAN Bus</option>
-                <option value="serial">Serial</option>
-              </select>
-            </label>
-          </div>
-          
-          <div>
-            <h4 class="font-medium mb-2 text-gray-900 dark:text-gray-100">Control Capabilities</h4>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm" id="controlCapabilities">
-              <label class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                <input type="checkbox" id="cap_power_limit" />Set Active Power Limit
-              </label>
-              <label class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                <input type="checkbox" id="cap_open_breaker" />Open Breaker
-              </label>
-              <label class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                <input type="checkbox" id="cap_close_breaker" />Close Breaker
-              </label>
-              <label class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                <input type="checkbox" id="cap_emergency_stop" />Emergency Stop
-              </label>
-              <label class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                <input type="checkbox" id="cap_reactive_power" />Reactive Power Control
-              </label>
-              <label class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                <input type="checkbox" id="cap_frequency" />Frequency Control
-              </label>
+
+        <div id="profileDetailsForm" class="hidden h-full flex flex-col">
+          <!-- Header - Fixed -->
+          <div class="flex-shrink-0 p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-semibold text-gray-900 dark:text-gray-100">Profile Details</h3>
+                <p class="text-sm text-gray-500" id="selectedProfileTitle">-</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button id="btnTestProfile" class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 text-sm">
+                  Test
+                </button>
+                <button id="btnExportProfile" class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 text-sm">
+                  Export
+                </button>
+                <button id="btnDeleteProfile" class="px-3 py-1.5 rounded-md bg-red-600 text-white hover:bg-red-700 text-sm">
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
-          
-          <div>
-            <h4 class="font-medium mb-2 text-gray-900 dark:text-gray-100">Point Map Preview</h4>
-            <div id="pointMapPreview" class="bg-gray-50 dark:bg-gray-900 rounded-md p-3 text-xs font-mono max-h-40 overflow-y-auto text-gray-800 dark:text-gray-200">
-              <!-- Point map preview will be populated here -->
+
+          <!-- Scrollable Content Area -->
+          <div class="flex-1 overflow-y-auto">
+            <div class="p-4 space-y-6">
+              <!-- Basic Information -->
+            <div class="space-y-4">
+              <h4 class="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                <span>ℹ️</span> Basic Information
+              </h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label class="block">
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Profile Name</span>
+                  <input id="profileName" type="text" class="mt-1 w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-transparent text-gray-900 dark:text-gray-100" />
+                </label>
+                <label class="block">
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Device Type</span>
+                  <select id="deviceType" class="mt-1 w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-transparent text-gray-900 dark:text-gray-100">
+                    <!-- Options will be populated by JavaScript -->
+                  </select>
+                </label>
+                <label class="block">
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Description</span>
+                  <input id="profileDescription" type="text" class="mt-1 w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-transparent text-gray-900 dark:text-gray-100" />
+                </label>
+                <label class="block">
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Poll Interval (seconds)</span>
+                  <input id="pollInterval" type="number" min="5" max="3600" class="mt-1 w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-transparent text-gray-900 dark:text-gray-100" />
+                </label>
+              </div>
+            </div>
+
+            <!-- Protocol Configuration -->
+            <div class="space-y-4">
+              <h4 class="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                <span>🔌</span> Protocol Configuration
+              </h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label class="block">
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Protocol</span>
+                  <select id="protocol" class="mt-1 w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-transparent text-gray-900 dark:text-gray-100">
+                    <!-- Options will be populated by JavaScript -->
+                  </select>
+                </label>
+                <label class="block">
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Timeout (ms)</span>
+                  <input id="timeout" type="number" min="1000" max="30000" class="mt-1 w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-transparent text-gray-900 dark:text-gray-100" />
+                </label>
+              </div>
+              
+              <!-- Protocol-specific fields will be populated by JavaScript -->
+              <div id="protocolSpecificFields" class="space-y-4">
+                <!-- Dynamic fields based on selected protocol -->
+              </div>
+            </div>
+
+            <!-- Point Map Configuration -->
+            <div class="space-y-4">
+              <h4 class="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                <span>🗂️</span> Point Map Configuration
+              </h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label class="block">
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Point Map File</span>
+                  <div class="flex gap-2 mt-1">
+                    <select id="pointMapFile" class="flex-1 px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-transparent text-gray-900 dark:text-gray-100">
+                      <option value="">Select point map...</option>
+                      <!-- Options will be populated by JavaScript -->
+                    </select>
+                    <button id="btnCreatePointMap" class="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
+                      Create New
+                    </button>
+                  </div>
+                </label>
+                <label class="block">
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Point Map Status</span>
+                  <div id="pointMapStatus" class="mt-1 px-3 py-2 text-sm text-gray-500 bg-gray-50 dark:bg-gray-900 rounded-md">
+                    No point map selected
+                  </div>
+                </label>
+              </div>
+              
+              <!-- Point Map Preview -->
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Point Map Preview</span>
+                  <button id="btnEditPointMap" class="px-2 py-1 text-xs border border-gray-200 dark:border-gray-700 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
+                    Edit
+                  </button>
+                </div>
+                <div id="pointMapPreview" class="bg-gray-50 dark:bg-gray-900 rounded-md p-3 text-xs font-mono h-32 overflow-y-auto text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 whitespace-pre-wrap">
+                  No point map selected
+                </div>
+              </div>
+            </div>
+
+            <!-- Device Capabilities -->
+            <div class="space-y-4">
+              <h4 class="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                <span>⚙️</span> Device Capabilities
+              </h4>
+              
+              <!-- Capabilities will be organized by category -->
+              <div id="capabilitiesContainer" class="space-y-4">
+                <!-- Power Control -->
+                <div class="capabilities-category" data-category="power">
+                  <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Power Control</h5>
+                  <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                    <!-- Capabilities will be populated by JavaScript -->
+                  </div>
+                </div>
+                
+                <!-- Breaker Control -->
+                <div class="capabilities-category" data-category="breaker">
+                  <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Breaker/Switch Control</h5>
+                  <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                    <!-- Capabilities will be populated by JavaScript -->
+                  </div>
+                </div>
+                
+                <!-- Monitoring -->
+                <div class="capabilities-category" data-category="monitoring">
+                  <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Monitoring Capabilities</h5>
+                  <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                    <!-- Capabilities will be populated by JavaScript -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Advanced Settings -->
+            <div class="space-y-4">
+              <details class="group">
+                <summary class="cursor-pointer font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                  <span>🔧</span> Advanced Settings
+                  <span class="text-xs text-gray-500 group-open:hidden">(Click to expand)</span>
+                </summary>
+                <div class="mt-4 space-y-4 pl-6">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label class="block">
+                      <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Retries</span>
+                      <input id="retries" type="number" min="0" max="10" class="mt-1 w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-transparent text-gray-900 dark:text-gray-100" />
+                    </label>
+                    <label class="block">
+                      <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Tags</span>
+                      <input id="profileTags" type="text" placeholder="tag1, tag2, tag3" class="mt-1 w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-transparent text-gray-900 dark:text-gray-100" />
+                    </label>
+                  </div>
+                </div>
+              </details>
+            </div>
             </div>
           </div>
-          
-          <div class="pt-4 border-t border-gray-200 dark:border-gray-800">
-            <button id="btnSaveProfile" class="px-3 py-2 rounded-md bg-brand-600 text-white hover:bg-brand-700">Save Changes</button>
-            <button id="btnTestProfile" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 ml-2">Test Connection</button>
-            <button id="btnResetProfile" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 ml-2">Reset</button>
-            <button id="btnDeleteProfile" class="px-3 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 ml-2">Delete</button>
+
+          <!-- Footer Actions - Fixed -->
+          <div class="flex-shrink-0 p-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/20">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <button id="btnResetProfile" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
+                  Reset
+                </button>
+                <button id="btnCopyProfile" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
+                  Copy
+                </button>
+              </div>
+              <div class="flex items-center gap-2">
+                <button id="btnSaveProfile" class="px-4 py-2 rounded-md bg-brand-600 text-white hover:bg-brand-700">
+                  Save Changes
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Point Map Editor Modal -->
+<div id="pointMapEditorModal" class="fixed inset-0 hidden flex items-center justify-center bg-black/50 z-50">
+  <div class="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+    <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+      <h4 class="font-semibold text-gray-900 dark:text-gray-100">Point Map Editor</h4>
+      <button id="closePointMapEditor" class="px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 text-sm">Close</button>
+    </div>
+    <div class="flex-1 overflow-y-auto p-4">
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <label class="block">
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Point Map Name</span>
+            <input id="newPointMapName" type="text" class="mt-1 w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-transparent text-gray-900 dark:text-gray-100" />
+          </label>
+          <label class="block">
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Device Type</span>
+            <select id="newPointMapDeviceType" class="mt-1 w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-transparent text-gray-900 dark:text-gray-100">
+              <!-- Options populated by JavaScript -->
+            </select>
+          </label>
+        </div>
+        <div>
+          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">YAML Content</span>
+          <textarea id="pointMapEditor" class="mt-1 w-full h-96 px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-md bg-transparent text-gray-900 dark:text-gray-100 font-mono text-sm" placeholder="Enter YAML content..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
+      <button id="btnValidatePointMap" class="px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">Validate</button>
+      <div class="flex items-center gap-2">
+        <button id="btnSavePointMap" class="px-4 py-2 rounded-md bg-brand-600 text-white hover:bg-brand-700">Save Point Map</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/assets/js/profiles.js"></script>
+<script src="/static/assets/js/profiles-new.js"></script>
 {% endblock %}

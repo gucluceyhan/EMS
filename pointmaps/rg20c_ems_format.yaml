@@ -1,0 +1,363 @@
+metadata:
+  name: "RG20C Reactive Power Relay - EMS Format"
+  version: "1.0.0"
+  device_type: "power_analyzer"
+  vendor: "RG20C"
+  description: "Reactive power control relay with power quality analysis"
+
+points:
+  # Basic voltage measurements
+  - name: "VL1n"
+    fc: 3
+    address: 0
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "V"
+    description: "Phase L1 to neutral voltage"
+    quality_rules:
+      min: 0
+      max: 1000
+  
+  - name: "VL2n"
+    fc: 3
+    address: 2
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "V"
+    description: "Phase L2 to neutral voltage"
+    quality_rules:
+      min: 0
+      max: 1000
+  
+  - name: "VL3n"
+    fc: 3
+    address: 4
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "V"
+    description: "Phase L3 to neutral voltage"
+    quality_rules:
+      min: 0
+      max: 1000
+
+  # Line-to-line voltages
+  - name: "VL1L2"
+    fc: 3
+    address: 8
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "V"
+    description: "Line L1-L2 voltage"
+  
+  - name: "VL2L3"
+    fc: 3
+    address: 10
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "V"
+    description: "Line L2-L3 voltage"
+  
+  - name: "VL3L1"
+    fc: 3
+    address: 12
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "V"
+    description: "Line L3-L1 voltage"
+
+  # Current measurements
+  - name: "IL1"
+    fc: 3
+    address: 14
+    type: "float"
+    count: 2
+    scale: 0.001
+    unit: "A"
+    description: "Phase L1 current"
+    quality_rules:
+      min: 0
+      max: 10000
+  
+  - name: "IL2"
+    fc: 3
+    address: 16
+    type: "float"
+    count: 2
+    scale: 0.001
+    unit: "A"
+    description: "Phase L2 current"
+    quality_rules:
+      min: 0
+      max: 10000
+  
+  - name: "IL3"
+    fc: 3
+    address: 18
+    type: "float"
+    count: 2
+    scale: 0.001
+    unit: "A"
+    description: "Phase L3 current"
+    quality_rules:
+      min: 0
+      max: 10000
+
+  # Neutral current
+  - name: "In_neutral"
+    fc: 3
+    address: 22
+    type: "float"
+    count: 2
+    scale: 0.001
+    unit: "A"
+    description: "Neutral current"
+    quality_rules:
+      min: 0
+      max: 10000
+
+  # Frequency
+  - name: "Frequency"
+    fc: 3
+    address: 32
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "Hz"
+    description: "System frequency"
+    quality_rules:
+      min: 45.0
+      max: 55.0
+
+  # Total active power
+  - name: "P_Total"
+    fc: 3
+    address: 42
+    type: "float"
+    count: 2
+    scale: 0.001
+    unit: "kW"
+    description: "Total active power"
+
+  # Reactive power per phase
+  - name: "QL1"
+    fc: 3
+    address: 48
+    type: "float"
+    count: 2
+    scale: 0.001
+    unit: "kVar"
+    description: "Reactive power L1"
+  
+  - name: "QL2"
+    fc: 3
+    address: 50
+    type: "float"
+    count: 2
+    scale: 0.001
+    unit: "kVar"
+    description: "Reactive power L2"
+  
+  - name: "QL3"
+    fc: 3
+    address: 52
+    type: "float"
+    count: 2
+    scale: 0.001
+    unit: "kVar"
+    description: "Reactive power L3"
+
+  # Total reactive power
+  - name: "Q_Total"
+    fc: 3
+    address: 64
+    type: "float"
+    count: 2
+    scale: 0.001
+    unit: "kVar"
+    description: "Total reactive power"
+
+  # Apparent power
+  - name: "SL2"
+    fc: 3
+    address: 68
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "VA"
+    description: "Apparent power L2"
+  
+  - name: "SL3"
+    fc: 3
+    address: 70
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "VA"
+    description: "Apparent power L3"
+
+  # Power factor per phase
+  - name: "PFL1"
+    fc: 3
+    address: 126
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "none"
+    description: "Power factor L1"
+    quality_rules:
+      min: -1.0
+      max: 1.0
+  
+  - name: "PFL2"
+    fc: 3
+    address: 128
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "none"
+    description: "Power factor L2"
+    quality_rules:
+      min: -1.0
+      max: 1.0
+  
+  - name: "PFL3"
+    fc: 3
+    address: 130
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "none"
+    description: "Power factor L3"
+    quality_rules:
+      min: -1.0
+      max: 1.0
+
+  # Total power factor
+  - name: "PF_Total"
+    fc: 3
+    address: 134
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "none"
+    description: "Total power factor"
+    quality_rules:
+      min: -1.0
+      max: 1.0
+
+  # Reactive power control stages (first 8 stages)
+  - name: "REG_1_Stage_Power"
+    fc: 3
+    address: 10240
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "VAr"
+    description: "Reactive power stage 1 capacity"
+  
+  - name: "REG_2_Stage_Power"
+    fc: 3
+    address: 10259
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "VAr"
+    description: "Reactive power stage 2 capacity"
+  
+  - name: "REG_3_Stage_Power"
+    fc: 3
+    address: 10278
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "VAr"
+    description: "Reactive power stage 3 capacity"
+  
+  - name: "REG_4_Stage_Power"
+    fc: 3
+    address: 10297
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "VAr"
+    description: "Reactive power stage 4 capacity"
+
+  # Harmonic analysis (2nd harmonics only for performance)
+  - name: "VL1_H2"
+    fc: 3
+    address: 8226
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "V"
+    description: "Voltage L1 2nd harmonic"
+  
+  - name: "VL2_H2"
+    fc: 3
+    address: 8230
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "V"
+    description: "Voltage L2 2nd harmonic"
+  
+  - name: "VL3_H2"
+    fc: 3
+    address: 8234
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "V"
+    description: "Voltage L3 2nd harmonic"
+
+  - name: "IL1_H2"
+    fc: 3
+    address: 4138
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "A"
+    description: "Current L1 2nd harmonic"
+  
+  - name: "IL2_H2"
+    fc: 3
+    address: 4142
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "A"
+    description: "Current L2 2nd harmonic"
+  
+  - name: "IL3_H2"
+    fc: 3
+    address: 4146
+    type: "float"
+    count: 2
+    scale: 1.0
+    unit: "A"
+    description: "Current L3 2nd harmonic"
+
+  # Device identification
+  - name: "Device_ID"
+    fc: 3
+    address: 60416
+    type: "float"
+    count: 1
+    scale: 1.0
+    unit: "none"
+    description: "Device identification number"
+  
+  - name: "Serial_Number"
+    fc: 3
+    address: 60418
+    type: "uint16"
+    count: 2
+    scale: 1.0
+    unit: "none"
+    description: "Device serial number"

@@ -128,6 +128,135 @@ def create_app(context: APIContext) -> FastAPI:
     async def export_registermaps(token: None = Depends(require_token)) -> dict[str, Any]:
         return await context.export_service.register_maps()
 
+    # === PROFILES API ENDPOINTS ===
+    @app.get("/api/profiles")
+    async def get_profiles(token: None = Depends(require_token)) -> dict[str, Any]:
+        """Get all device profiles"""
+        profiles = context.config.profiles if hasattr(context.config, 'profiles') else []
+        return {"profiles": [p.model_dump() for p in profiles]}
+
+    @app.get("/api/profiles/{profile_id}")
+    async def get_profile(profile_id: str, token: None = Depends(require_token)) -> dict[str, Any]:
+        """Get specific device profile"""
+        profiles = context.config.profiles if hasattr(context.config, 'profiles') else []
+        profile = next((p for p in profiles if p.id == profile_id), None)
+        if not profile:
+            raise HTTPException(status_code=404, detail="Profile not found")
+        return profile.model_dump()
+
+    @app.post("/api/profiles")
+    async def create_profile(
+        profile_data: dict[str, Any], token: None = Depends(require_token)
+    ) -> dict[str, Any]:
+        """Create new device profile"""
+        # TODO: Implement profile creation logic
+        return {"message": "Profile created", "id": profile_data.get("id")}
+
+    @app.put("/api/profiles/{profile_id}")
+    async def update_profile(
+        profile_id: str, profile_data: dict[str, Any], token: None = Depends(require_token)
+    ) -> dict[str, Any]:
+        """Update existing device profile"""
+        # TODO: Implement profile update logic
+        return {"message": "Profile updated", "id": profile_id}
+
+    @app.delete("/api/profiles/{profile_id}")
+    async def delete_profile(profile_id: str, token: None = Depends(require_token)) -> dict[str, Any]:
+        """Delete device profile"""
+        # TODO: Implement profile deletion logic
+        return {"message": "Profile deleted", "id": profile_id}
+
+    @app.get("/api/device-types")
+    async def get_device_types(token: None = Depends(require_token)) -> dict[str, Any]:
+        """Get all supported device types"""
+        from ..utils.config import DeviceType
+        device_types = []
+        for device_type in DeviceType:
+            device_types.append({
+                "value": device_type.value,
+                "label": DeviceType.get_display_name(device_type.value),
+                "icon": DeviceType.get_icon(device_type.value)
+            })
+        return {"device_types": device_types}
+
+    @app.get("/api/protocols")
+    async def get_protocols(token: None = Depends(require_token)) -> dict[str, Any]:
+        """Get all supported protocols"""
+        from ..utils.config import ProtocolType
+        protocols = []
+        for protocol in ProtocolType:
+            protocols.append({
+                "value": protocol.value,
+                "label": protocol.value.replace("_", " ").title()
+            })
+        return {"protocols": protocols}
+
+    @app.get("/api/pointmaps")
+    async def get_pointmaps(token: None = Depends(require_token)) -> dict[str, Any]:
+        """Get all available point map files"""
+        from pathlib import Path
+        pointmaps_dir = Path("pointmaps")
+        pointmaps = []
+        
+        if pointmaps_dir.exists():
+            for file in pointmaps_dir.glob("*.yaml"):
+                pointmaps.append({
+                    "path": str(file),
+                    "name": file.stem,
+                    "filename": file.name
+                })
+        
+        return {"pointmaps": pointmaps}
+
+    @app.get("/api/pointmaps/{pointmap_name}")
+    async def get_pointmap_content(
+        pointmap_name: str, token: None = Depends(require_token)
+    ) -> dict[str, Any]:
+        """Get point map file content"""
+        from pathlib import Path
+        import yaml
+        
+        pointmap_path = Path("pointmaps") / f"{pointmap_name}.yaml"
+        if not pointmap_path.exists():
+            raise HTTPException(status_code=404, detail="Point map not found")
+        
+        try:
+            with open(pointmap_path, 'r', encoding='utf-8') as f:
+                content = yaml.safe_load(f)
+            return {"content": content, "path": str(pointmap_path)}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error reading point map: {str(e)}")
+
+    @app.post("/api/pointmaps")
+    async def create_pointmap(
+        pointmap_data: dict[str, Any], token: None = Depends(require_token)
+    ) -> dict[str, Any]:
+        """Create new point map file"""
+        from pathlib import Path
+        import yaml
+        
+        name = pointmap_data.get("name")
+        content = pointmap_data.get("content")
+        
+        if not name or not content:
+            raise HTTPException(status_code=400, detail="Name and content are required")
+        
+        pointmap_path = Path("pointmaps") / f"{name}.yaml"
+        pointmap_path.parent.mkdir(exist_ok=True)
+        
+        try:
+            with open(pointmap_path, 'w', encoding='utf-8') as f:
+                yaml.safe_dump(content, f, default_flow_style=False, sort_keys=False)
+            return {"message": "Point map created", "path": str(pointmap_path)}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error creating point map: {str(e)}")
+
+    @app.get("/api/protocol-defaults")
+    async def get_protocol_defaults(token: None = Depends(require_token)) -> dict[str, Any]:
+        """Get default protocol configurations"""
+        defaults = context.config.global_.protocol_defaults if hasattr(context.config.global_, 'protocol_defaults') else {}
+        return {"protocol_defaults": defaults.model_dump() if hasattr(defaults, 'model_dump') else {}}
+
     @app.post("/controls/{device_id}")
     async def controls(
         device_id: str, payload: Dict[str, Any], token: None = Depends(require_token)

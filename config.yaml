@@ -935,3 +935,27 @@ devices:
     timeout_ms: 2000
     retries: 3
     point_map: "pointmaps/meter_iec62053_generic.yaml"
+
+  # ===== RGSR REACTIVE POWER RELAY (RS485) =====
+  - id: "rgsr-reactive-power-01"
+    plant_id: "ges-fleet"
+    type: "power_analyzer"
+    make: "RGSR"
+    model: "RG20C Reactive Power Relay"
+    protocol: "modbus_rtu"
+    connection:
+      serial_port: "/dev/ttyUSB0"
+      baudrate: 9600
+      bytesize: 8
+      parity: "N"
+      stopbits: 1
+      unit_id: 1
+    poll_interval_s: 30
+    timeout_ms: 5000
+    retries: 3
+    point_map: "pointmaps/rg20c_ems_format.yaml"
+    control_capabilities:
+      set_reactive_power_limit: true
+      power_factor_control: true
+      harmonic_analysis: true
+      power_quality_analysis: true
